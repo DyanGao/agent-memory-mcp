@@ -27,10 +27,16 @@ export interface SearchResult extends Memory {
   score: Score;
 }
 
+export interface ForgetCandidate {
+  id: string;
+  content: string;
+  similarity: number;
+}
+
 export interface ForgetPreview {
-  memories: number;
-  events: number;
-  memoryIds: string[];
+  memories: { id: string; content: string }[];
+  eventCount: number;
+  candidates: ForgetCandidate[];
 }
 
 export interface ForgetReceipt {

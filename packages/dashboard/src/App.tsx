@@ -205,8 +205,8 @@ function MemoryRow({
       {mode === "delete" && preview && (
         <div className="confirm">
           <p>
-            This permanently deletes {countMemories(preview.memories)} and{" "}
-            {countEntries(preview.events)}.
+            This permanently deletes {countMemories(preview.memories.length)}{" "}
+            and {countEntries(preview.eventCount)}.
           </p>
           <div className="actions">
             <button className="danger" onClick={confirmDelete}>
@@ -419,6 +419,7 @@ function ForgetView({ connection }: { connection: Connection }) {
   const [to, setTo] = useState("");
   const [typedName, setTypedName] = useState("");
   const [preview, setPreview] = useState<ForgetPreview | null>(null);
+  const [chosen, setChosen] = useState<string[]>([]);
   const [receipt, setReceipt] = useState<ForgetReceipt | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -434,8 +435,17 @@ function ForgetView({ connection }: { connection: Connection }) {
   const changeMode = (next: ForgetMode) => {
     setMode(next);
     setPreview(null);
+    setChosen([]);
     setReceipt(null);
     setTypedName("");
+  };
+
+  const toggle = (id: string) => {
+    setChosen((current) =>
+      current.includes(id)
+        ? current.filter((value) => value !== id)
+        : [...current, id],
+    );
   };
 
   const showPreview = async (event: FormEvent) => {
@@ -443,6 +453,7 @@ function ForgetView({ connection }: { connection: Connection }) {
     setReceipt(null);
     try {
       setPreview(await api.previewForget(connection, selector()));
+      setChosen([]);
       setError(null);
     } catch (cause) {
       setError(describeError(cause));
@@ -451,8 +462,9 @@ function ForgetView({ connection }: { connection: Connection }) {
 
   const forget = async () => {
     try {
-      setReceipt(await api.forget(connection, selector()));
+      setReceipt(await api.forget(connection, { ...selector(), ids: chosen }));
       setPreview(null);
+      setChosen([]);
       setTypedName("");
       setError(null);
     } catch (cause) {
@@ -460,7 +472,14 @@ function ForgetView({ connection }: { connection: Connection }) {
     }
   };
 
-  const nothingFound = preview?.memories === 0 && preview.events === 0;
+  const nothingFound =
+    preview?.memories.length === 0 &&
+    preview.eventCount === 0 &&
+    preview.candidates.length === 0;
+  const nothingChosen =
+    preview?.memories.length === 0 &&
+    preview.eventCount === 0 &&
+    chosen.length === 0;
   const blocked = mode === "everything" && typedName !== connection.user;
 
   return (
@@ -532,8 +551,8 @@ function ForgetView({ connection }: { connection: Connection }) {
       {preview && !nothingFound && (
         <div className="confirm">
           <p>
-            This permanently deletes {countMemories(preview.memories)} and{" "}
-            {countEntries(preview.events)}.
+            This permanently deletes {countMemories(preview.memories.length)}{" "}
+            and {countEntries(preview.eventCount)}.
           </p>
           {mode === "everything" && (
             <label>
@@ -544,7 +563,39 @@ function ForgetView({ connection }: { connection: Connection }) {
               />
             </label>
           )}
-          <button className="danger" onClick={forget} disabled={blocked}>
+          {preview.memories.length > 0 && (
+            <ul className="planned">
+              {preview.memories.map((memory) => (
+                <li key={memory.id} className="stored">
+                  {memory.content}
+                </li>
+              ))}
+            </ul>
+          )}
+          {preview.candidates.length > 0 && (
+            <fieldset className="candidates">
+              <legend>
+                These might be about the same thing. Topic search can miss text
+                that says it in other words, so check them. Only ticked ones are
+                deleted.
+              </legend>
+              {preview.candidates.map((candidate) => (
+                <label key={candidate.id} className="check">
+                  <input
+                    type="checkbox"
+                    checked={chosen.includes(candidate.id)}
+                    onChange={() => toggle(candidate.id)}
+                  />
+                  <span className="stored">{candidate.content}</span>
+                </label>
+              ))}
+            </fieldset>
+          )}
+          <button
+            className="danger"
+            onClick={forget}
+            disabled={blocked || nothingChosen}
+          >
             Delete permanently
           </button>
         </div>

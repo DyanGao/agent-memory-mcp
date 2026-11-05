@@ -2,7 +2,15 @@
 
 > Self-hostable, GDPR-aware long-term memory for AI agents, exposed over the Model Context Protocol (MCP).
 
-<!-- badges: CI | license | eval score | docker pulls -->
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![Version: 0.3.0](https://img.shields.io/badge/version-0.3.0-informational.svg)](#roadmap)
+[![MCP server](https://img.shields.io/badge/MCP-server-6f42c1.svg)](https://modelcontextprotocol.io)
+[![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933.svg?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![TypeScript 6.0](https://img.shields.io/badge/TypeScript-6.0-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![PostgreSQL 17 + pgvector](https://img.shields.io/badge/PostgreSQL_17-pgvector-4169E1.svg?logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
+[![Runs locally](https://img.shields.io/badge/runs-100%25_locally-2f7f79.svg)](docs/privacy.md)
+
+<!-- Add once the repo is public and each has real data: CI status, eval score, docker pulls -->
 
 Agents forget everything between sessions. Stuffing full history into the context window is slow, expensive and degrades accuracy ("context rot"). `agent-memory-mcp` records what an agent does, distills it into compact memories, and injects only the relevant ones into future sessions. It plugs into Claude Code, Codex, Cursor or any MCP-capable agent.
 

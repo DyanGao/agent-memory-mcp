@@ -1,0 +1,9 @@
+[project]
+name = "agent-memory-eval"
+version = "0.1.0"
+description = "Reproducible evaluation of agent-memory-mcp"
+requires-python = ">=3.11"
+dependencies = ["httpx>=0.27", "mcp>=1.20", "pyyaml>=6"]
+
+[tool.uv]
+package = false

@@ -9,6 +9,7 @@ import type { TestDb } from "./testing.js";
 const TOTAL = Number(process.env.SCALE_MEMORIES ?? 10_000);
 const NARROW_SCOPE_SIZE = 30;
 const QUERIES = 200;
+const RECALL_QUERIES = 30;
 const BATCH = 500;
 
 function randomUnitVector(): number[] {
@@ -64,6 +65,42 @@ describe(`search at ${TOTAL} memories`, () => {
       limit: 100,
     });
     expect(results).toHaveLength(NARROW_SCOPE_SIZE);
+  });
+
+  it("reports vector recall@10 against exact search", async () => {
+    const hits: number[] = [];
+    for (let i = 0; i < RECALL_QUERIES; i++) {
+      const vector = JSON.stringify(randomUnitVector());
+      const nearest = async (exact: boolean): Promise<string[]> => {
+        const client = await db.owner.connect();
+        try {
+          await client.query("BEGIN");
+          await client.query(
+            `SELECT set_config('enable_indexscan', $1, true),
+                    set_config('hnsw.ef_search', '100', true),
+                    set_config('hnsw.iterative_scan', 'strict_order', true)`,
+            [exact ? "off" : "on"],
+          );
+          const { rows } = await client.query<{ id: string }>(
+            `SELECT id FROM memories WHERE scope_user = 'big'
+             ORDER BY embedding <=> $1::vector LIMIT 10`,
+            [vector],
+          );
+          await client.query("COMMIT");
+          return rows.map((row) => row.id);
+        } finally {
+          client.release();
+        }
+      };
+      const truth = new Set(await nearest(true));
+      const found = await nearest(false);
+      hits.push(found.filter((id) => truth.has(id)).length / 10);
+    }
+    const recall = hits.reduce((a, b) => a + b, 0) / hits.length;
+    process.stderr.write(
+      `recall@10 at ${TOTAL} memories: ${recall.toFixed(3)}\n`,
+    );
+    expect(hits).toHaveLength(RECALL_QUERIES);
   });
 
   it("reports p95 search latency, excluding embedding", async () => {

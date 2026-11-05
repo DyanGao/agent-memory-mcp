@@ -1,0 +1,4645 @@
+{
+  "models": {
+    "distill": "ollama:qwen3",
+    "embed": "bge-m3"
+  },
+  "exact_topic": {
+    "facts": 50,
+    "facts_kept_by_distiller": 5,
+    "facts_leaked_on_read": 0,
+    "facts_left_in_raw_tables": 0,
+    "probe_results": 400,
+    "probe_results_leaked": 0,
+    "keepers_lost": 0,
+    "keepers_total": 450,
+    "per_fact": [
+      {
+        "fact": "medical-0",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-1",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-2",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-3",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-4",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-0",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-1",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-2",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-3",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-4",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-0",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-1",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-2",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-3",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-4",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-0",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-1",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-2",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-3",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-4",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-0",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-1",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-2",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-3",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-4",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-0",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-1",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-2",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-3",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-4",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-0",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-1",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-2",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-3",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-4",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-0",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-1",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-2",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-3",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-4",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-0",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-1",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-2",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-3",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-4",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-0",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-1",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-2",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-3",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-4",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [],
+        "keepers_lost": 0
+      }
+    ]
+  },
+  "paraphrase_topic": {
+    "facts": 50,
+    "facts_kept_by_distiller": 5,
+    "facts_leaked_on_read": 50,
+    "facts_left_in_raw_tables": 50,
+    "probe_results": 400,
+    "probe_results_leaked": 400,
+    "keepers_lost": 0,
+    "keepers_total": 450,
+    "per_fact": [
+      {
+        "fact": "medical-0",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-1",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-2",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-3",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "medical-4",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-0",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-1",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-2",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-3",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "address-4",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-0",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-1",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-2",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-3",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "salary-4",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-0",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-1",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-2",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-3",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "family-4",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-0",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-1",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-2",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-3",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "project-4",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-0",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-1",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-2",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-3",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "bank-4",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-0",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-1",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-2",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-3",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "phone-4",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-0",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-1",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-2",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-3",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "legal-4",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-0",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-1",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-2",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-3",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "belief-4",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-0",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-1",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-2",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-3",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      },
+      {
+        "fact": "travel-4",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": true,
+        "probes_leaked": [
+          {
+            "style": "direct",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "direct",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "paraphrase",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "indirect",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_search",
+            "leaked": true
+          },
+          {
+            "style": "injection",
+            "path": "memory_context_for",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "memory_list",
+            "leaked": true
+          },
+          {
+            "style": "enumerate",
+            "path": "export",
+            "leaked": true
+          }
+        ],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0
+      }
+    ]
+  },
+  "paraphrase_reviewed": {
+    "facts": 50,
+    "facts_kept_by_distiller": 5,
+    "facts_leaked_on_read": 0,
+    "facts_left_in_raw_tables": 50,
+    "probe_results": 400,
+    "probe_results_leaked": 0,
+    "keepers_lost": 0,
+    "keepers_total": 450,
+    "facts_offered_for_review": 50,
+    "candidates_per_preview": 2.38,
+    "per_fact": [
+      {
+        "fact": "medical-0",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "medical-1",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "medical-2",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "medical-3",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "medical-4",
+        "theme": "medical",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "address-0",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "address-1",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "address-2",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "address-3",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "address-4",
+        "theme": "address",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 2,
+        "distiller_kept_fact": true,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "salary-0",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "salary-1",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "salary-2",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "salary-3",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "salary-4",
+        "theme": "salary",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "family-0",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "family-1",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "family-2",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "family-3",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "family-4",
+        "theme": "family",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "project-0",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "project-1",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "project-2",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "project-3",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "project-4",
+        "theme": "project",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "bank-0",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 5,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "bank-1",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 5,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "bank-2",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 5,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "bank-3",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 5,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "bank-4",
+        "theme": "bank",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 5,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "phone-0",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "phone-1",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "phone-2",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "phone-3",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "phone-4",
+        "theme": "phone",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 3,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "legal-0",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "legal-1",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "legal-2",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "legal-3",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "legal-4",
+        "theme": "legal",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 2,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "belief-0",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "belief-1",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "belief-2",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "belief-3",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "belief-4",
+        "theme": "belief",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 1,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "travel-0",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 4,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "travel-1",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 4,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "travel-2",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 4,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "travel-3",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 4,
+        "fact_was_offered": true
+      },
+      {
+        "fact": "travel-4",
+        "theme": "travel",
+        "distilled_status": "done",
+        "memories_with_marker_before_forget": 1,
+        "distiller_kept_fact": false,
+        "leaked_on_read": false,
+        "probes_leaked": [],
+        "raw_tables_with_marker": [
+          "public.memories",
+          "public.events"
+        ],
+        "keepers_lost": 0,
+        "candidates_offered": 4,
+        "fact_was_offered": true
+      }
+    ]
+  },
+  "seconds": 954
+}

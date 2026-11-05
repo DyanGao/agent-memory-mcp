@@ -5,8 +5,14 @@ import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
 import { traced } from "./telemetry.js";
 
-// A memory this close to the topic is treated as about it.
+// Measured with bge-m3 on 50 facts: nothing unrelated reached 0.7, so a memory
+// this close to the topic is deleted automatically.
 const TOPIC_MIN_SIMILARITY = 0.7;
+// Below that, no cutoff separates a paraphrased topic from unrelated memories:
+// 0.5 finds all 50 facts but also wrongly matches other topics in 30 cases.
+// Deleting is irreversible, so these are only offered for a person to choose.
+const CANDIDATE_MIN_SIMILARITY = 0.45;
+const MAX_CANDIDATES = 25;
 
 export interface ForgetSelector {
   /** Everything the user has, in every project. */
@@ -20,6 +26,19 @@ export interface ForgetSelector {
 export interface ForgetPlan {
   memoryIds: string[];
   eventIds: string[];
+}
+
+export interface ForgetCandidate {
+  id: string;
+  content: string;
+  similarity: number;
+}
+
+export interface ForgetPreview extends ForgetPlan {
+  /** What would be deleted, for a person to check. */
+  memories: { id: string; content: string }[];
+  /** Possibly about the topic. Deleted only if chosen and passed as ids. */
+  candidates: ForgetCandidate[];
 }
 
 export interface ForgetReceipt {
@@ -53,26 +72,48 @@ async function seedMemories(
   selector: ForgetSelector,
   topicVector: string | null,
 ): Promise<string[]> {
+  const hasFilter = Boolean(
+    selector.topic?.trim() || selector.from || selector.to,
+  );
   const { rows } = await client.query<{ id: string }>(
     `SELECT id FROM memories
-     WHERE ($1::boolean
-            OR id = ANY($2::uuid[])
-            OR ($3::text IS NOT NULL)
-            OR ($5::timestamptz IS NOT NULL OR $6::timestamptz IS NOT NULL))
-       AND ($2::uuid[] IS NULL OR id = ANY($2::uuid[]))
-       AND ($3::text IS NULL
-            OR fts @@ plainto_tsquery('english', $3)
-            OR 1 - (embedding <=> $4::vector) >= ${TOPIC_MIN_SIMILARITY})
-       AND ($5::timestamptz IS NULL OR created_at >= $5)
-       AND ($6::timestamptz IS NULL OR created_at < $6)`,
+     WHERE $1::boolean
+        OR id = ANY($2::uuid[])
+        OR ($7::boolean
+            AND ($3::text IS NULL
+                 OR fts @@ plainto_tsquery('english', $3)
+                 OR 1 - (embedding <=> $4::vector) >= ${TOPIC_MIN_SIMILARITY})
+            AND ($5::timestamptz IS NULL OR created_at >= $5)
+            AND ($6::timestamptz IS NULL OR created_at < $6))`,
     [
       selector.everything ?? false,
-      selector.ids?.length ? selector.ids : null,
+      selector.ids ?? [],
       selector.topic?.trim() || null,
       topicVector,
       selector.from ?? null,
       selector.to ?? null,
+      hasFilter,
     ],
+  );
+  return rows.map((row) => row.id);
+}
+
+/**
+ * The words of a forgotten memory can sit in a transcript with no link to it,
+ * as when an agent stores a fact directly. Those events go too.
+ */
+async function eventsHoldingMemoryText(
+  client: PoolClient,
+  ids: string[],
+): Promise<string[]> {
+  if (ids.length === 0) return [];
+  const { rows } = await client.query<{ id: string }>(
+    `SELECT DISTINCT e.id
+     FROM events e
+     JOIN memories m ON m.id = ANY($1::uuid[])
+     WHERE to_tsvector('english', e.payload->>'text')
+           @@ plainto_tsquery('english', m.content)`,
+    [ids],
   );
   return rows.map((row) => row.id);
 }
@@ -81,8 +122,10 @@ async function seedEvents(
   client: PoolClient,
   selector: ForgetSelector,
 ): Promise<string[]> {
-  // Forgetting by id targets memories. Their events arrive through the closure.
-  if (selector.ids?.length) return [];
+  const hasFilter = Boolean(
+    selector.topic?.trim() || selector.from || selector.to,
+  );
+  if (!hasFilter) return [];
   const { rows } = await client.query<{ id: string }>(
     `SELECT id FROM events
      WHERE ($1::text IS NULL
@@ -148,6 +191,10 @@ async function resolvePlan(
   const memories = new Set(await seedMemories(client, selector, topicVector));
   const events = new Set(await seedEvents(client, selector));
   await closure(client, memories, events);
+  (await eventsHoldingMemoryText(client, [...memories])).forEach((id) =>
+    events.add(id),
+  );
+  await closure(client, memories, events);
   return { memoryIds: [...memories], eventIds: [...events] };
 }
 
@@ -160,18 +207,45 @@ async function embedTopic(
   return vector ? JSON.stringify(vector) : null;
 }
 
-/** What forget would delete. Changes nothing. */
+async function findCandidates(
+  client: PoolClient,
+  topicVector: string | null,
+  planned: string[],
+): Promise<ForgetCandidate[]> {
+  if (topicVector === null) return [];
+  const { rows } = await client.query<ForgetCandidate>(
+    `SELECT id, content, 1 - (embedding <=> $1::vector) AS similarity
+     FROM memories
+     WHERE id <> ALL($2::uuid[])
+       AND 1 - (embedding <=> $1::vector) >= ${CANDIDATE_MIN_SIMILARITY}
+     ORDER BY embedding <=> $1::vector
+     LIMIT ${MAX_CANDIDATES}`,
+    [topicVector, planned],
+  );
+  return rows;
+}
+
+/** What forget would delete, and what it might be missing. Changes nothing. */
 export async function previewForget(
   pool: Pool,
   embedder: Embedder,
   scope: Scope,
   selector: ForgetSelector,
-): Promise<ForgetPlan> {
+): Promise<ForgetPreview> {
   assertSelector(selector);
   const topicVector = await embedTopic(embedder, selector);
-  return withScope(pool, allProjects(scope), (client) =>
-    resolvePlan(client, selector, topicVector),
-  );
+  return withScope(pool, allProjects(scope), async (client) => {
+    const plan = await resolvePlan(client, selector, topicVector);
+    const { rows } = await client.query<{ id: string; content: string }>(
+      "SELECT id, content FROM memories WHERE id = ANY($1::uuid[])",
+      [plan.memoryIds],
+    );
+    return {
+      ...plan,
+      memories: rows,
+      candidates: await findCandidates(client, topicVector, plan.memoryIds),
+    };
+  });
 }
 
 export function executeForget(

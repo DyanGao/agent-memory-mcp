@@ -253,7 +253,7 @@ export function buildApp(options: {
       }
 
       if (body.data.dry_run) {
-        const plan = await previewForget(
+        const preview = await previewForget(
           account.pool,
           account.embedder,
           scope,
@@ -261,9 +261,9 @@ export function buildApp(options: {
         );
         return {
           dryRun: true,
-          memories: plan.memoryIds.length,
-          events: plan.eventIds.length,
-          memoryIds: plan.memoryIds,
+          memories: preview.memories,
+          eventCount: preview.eventIds.length,
+          candidates: preview.candidates,
         };
       }
       if (body.data.confirm !== true) {
