@@ -3,3 +3,6 @@ dist
 pnpm-lock.yaml
 # Markdown is formatted by hand
 *.md
+eval/fixtures
+eval/results
+eval/.venv

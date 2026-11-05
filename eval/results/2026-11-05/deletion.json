@@ -3831,7 +3831,7 @@
     "facts": 50,
     "facts_kept_by_distiller": 5,
     "facts_leaked_on_read": 0,
-    "facts_left_in_raw_tables": 50,
+    "facts_left_in_raw_tables": 1,
     "probe_results": 400,
     "probe_results_leaked": 0,
     "keepers_lost": 0,
@@ -3847,10 +3847,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -3863,10 +3860,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -3879,10 +3873,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -3895,10 +3886,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -3911,10 +3899,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -3927,10 +3912,7 @@
         "distiller_kept_fact": true,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -3943,10 +3925,7 @@
         "distiller_kept_fact": true,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -3959,10 +3938,7 @@
         "distiller_kept_fact": true,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -3975,10 +3951,7 @@
         "distiller_kept_fact": true,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -3991,10 +3964,7 @@
         "distiller_kept_fact": true,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -4007,10 +3977,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4024,8 +3991,8 @@
         "leaked_on_read": false,
         "probes_leaked": [],
         "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
+          "public.forgotten_events",
+          "public.audit_log"
         ],
         "keepers_lost": 0,
         "candidates_offered": 1,
@@ -4039,10 +4006,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4055,10 +4019,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4071,10 +4032,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4087,10 +4045,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4103,10 +4058,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4119,10 +4071,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4135,10 +4084,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4151,10 +4097,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4167,10 +4110,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4183,10 +4123,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4199,10 +4136,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4215,10 +4149,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4231,10 +4162,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4247,10 +4175,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 5,
         "fact_was_offered": true
@@ -4263,10 +4188,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 5,
         "fact_was_offered": true
@@ -4279,10 +4201,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 5,
         "fact_was_offered": true
@@ -4295,10 +4214,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 5,
         "fact_was_offered": true
@@ -4311,10 +4227,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 5,
         "fact_was_offered": true
@@ -4327,10 +4240,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4343,10 +4253,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -4359,10 +4266,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -4375,10 +4279,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -4391,10 +4292,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 3,
         "fact_was_offered": true
@@ -4407,10 +4305,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4423,10 +4318,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4439,10 +4331,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4455,10 +4344,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4471,10 +4357,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 2,
         "fact_was_offered": true
@@ -4487,10 +4370,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4503,10 +4383,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4519,10 +4396,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4535,10 +4409,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4551,10 +4422,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4567,10 +4435,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 4,
         "fact_was_offered": true
@@ -4583,10 +4448,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 4,
         "fact_was_offered": true
@@ -4599,10 +4461,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 4,
         "fact_was_offered": true
@@ -4615,10 +4474,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 4,
         "fact_was_offered": true
@@ -4631,15 +4487,12 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.memories",
-          "public.events"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 4,
         "fact_was_offered": true
       }
     ]
   },
-  "seconds": 954
+  "seconds": 953
 }

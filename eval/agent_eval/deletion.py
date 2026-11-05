@@ -80,8 +80,9 @@ def raw_tables_containing(marker: str, user: str) -> list[str]:
     escaped = marker.replace("'", "''")
     hits = []
     for table in tables:
-        # The embedding is left out: its digits can match a numeric marker by chance.
-        text = "(to_jsonb(r) - 'embedding')::text"
+        # Ids and embeddings are left out: their digits can match a numeric marker
+        # by chance, and they hold no text.
+        text = "(to_jsonb(r) - 'embedding' - 'id' - 'target_ids')::text"
         # Every condition plants the same markers, so a row counts only if it is
         # this user's, or belongs to nobody, as queue and audit rows can.
         owner = "to_jsonb(r)->>'scope_user'"

@@ -77,12 +77,19 @@ async def run_control(pair: tuple, number: int) -> dict:
     user = f"c-{RUN}-{number}"
     with rest(user) as client:
         session(client, f"s1-{user}", first)
+        learned = current(client)
         session(client, f"s2-{user}", second)
         memories = current(client)
-    kept_both = any(mentions(word_one, t) for t in memories) and any(
-        mentions(word_two, t) for t in memories
-    )
-    return {"pair": [first, second], "kept_both": kept_both, "memories": memories}
+    # A control only fails if a memory it learned was then replaced. A fact the
+    # distiller never stored was not replaced by anything.
+    first_learned = any(mentions(word_one, t) for t in learned)
+    first_survived = any(mentions(word_one, t) for t in memories)
+    return {
+        "pair": [first, second],
+        "first_learned": first_learned,
+        "wrongly_replaced": first_learned and not first_survived,
+        "memories": memories,
+    }
 
 
 async def main() -> None:
@@ -96,7 +103,10 @@ async def main() -> None:
     controls = []
     for number, pair in enumerate(CONTROLS[:limit]):
         controls.append(await run_control(pair, number))
-        print(f"control {number + 1} kept_both={controls[-1]['kept_both']}", flush=True)
+        print(
+            f"control {number + 1} wrongly_replaced={controls[-1]['wrongly_replaced']}",
+            flush=True,
+        )
 
     learned = [row for row in rows if row["first_fact_learned"]]
     payload = {
@@ -106,7 +116,8 @@ async def main() -> None:
         "update_correctness": sum(r["correct"] for r in learned) / len(learned),
         "update_correctness_all_cases": sum(r["correct"] for r in rows) / len(rows),
         "controls": len(controls),
-        "controls_kept_both": sum(c["kept_both"] for c in controls),
+        "controls_first_fact_learned": sum(c["first_learned"] for c in controls),
+        "controls_wrongly_replaced": sum(c["wrongly_replaced"] for c in controls),
         "seconds": round(time.time() - started),
         "rows": rows,
         "control_rows": controls,

@@ -1,3 +1,4 @@
+import { mkdirSync, writeFileSync } from "node:fs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { EMBEDDING_DIMENSION } from "./embedder.js";
 import type { Embedder } from "./embedder.js";
@@ -28,6 +29,7 @@ const randomEmbedder: Embedder = {
 };
 
 describe(`search at ${TOTAL} memories`, () => {
+  const results: Record<string, number> = {};
   let db: TestDb;
   let store: MemoryStore;
   const big = { user: "big", project: "main" };
@@ -58,6 +60,15 @@ describe(`search at ${TOTAL} memories`, () => {
   });
   afterAll(async () => {
     await db?.stop();
+    const directory = new URL(
+      `../../../eval/results/${new Date().toISOString().slice(0, 10)}/`,
+      import.meta.url,
+    );
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(
+      new URL(`scale-${TOTAL}.json`, directory),
+      JSON.stringify({ memories: TOTAL, ...results }, null, 2) + "\n",
+    );
   });
 
   it("finds every memory of a tiny scope among all the others", async () => {
@@ -97,6 +108,7 @@ describe(`search at ${TOTAL} memories`, () => {
       hits.push(found.filter((id) => truth.has(id)).length / 10);
     }
     const recall = hits.reduce((a, b) => a + b, 0) / hits.length;
+    results.recallAt10 = Number(recall.toFixed(3));
     process.stderr.write(
       `recall@10 at ${TOTAL} memories: ${recall.toFixed(3)}\n`,
     );
@@ -111,6 +123,10 @@ describe(`search at ${TOTAL} memories`, () => {
       timings.push(performance.now() - started);
     }
     const p95 = estimateP95Ms(timings);
+    results.p95Ms = Number(p95.toFixed(1));
+    const sorted = [...timings].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
+    results.medianMs = Number(median.toFixed(1));
     process.stderr.write(
       `p95 search latency at ${TOTAL} memories: ${p95.toFixed(1)} ms
 `,
