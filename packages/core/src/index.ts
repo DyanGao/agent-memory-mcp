@@ -15,6 +15,7 @@ export {
   DEFAULT_TOP_K,
   MEMORY_TYPES,
   MemoryStore,
+  SourceForgottenError,
 } from "./store.js";
 export type {
   Memory,
@@ -38,3 +39,8 @@ export type { EventInput, EventKind, StoredEvent } from "./events.js";
 export { MemoryQueue, scopeOf } from "./queue.js";
 export type { DistillJob } from "./queue.js";
 export { redact } from "./redact.js";
+export { executeForget, previewForget, scrubDeletedData } from "./forget.js";
+export type { ForgetPlan, ForgetReceipt, ForgetSelector } from "./forget.js";
+export { exportUserData, readAudit } from "./account.js";
+export type { AuditEntry } from "./account.js";
+export { startTelemetry, traced } from "./telemetry.js";

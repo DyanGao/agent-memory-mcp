@@ -4,7 +4,9 @@ import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
 import { packToBudget, scoreCandidate } from "./ranking.js";
 import { redact } from "./redact.js";
+import { traced } from "./telemetry.js";
 import type { Candidate, ScoreBreakdown } from "./ranking.js";
+import { executeForget } from "./forget.js";
 
 export const MEMORY_TYPES = [
   "fact",
@@ -25,6 +27,14 @@ const HNSW_EF_SEARCH = 100;
 const HNSW_MAX_SCAN_TUPLES = 200_000;
 
 const IS_CURRENT = `superseded_by IS NULL AND (valid_to IS NULL OR valid_to > now())`;
+
+/** The events behind a memory were forgotten while it was being distilled. */
+export class SourceForgottenError extends Error {
+  constructor() {
+    super("The source events of this memory were forgotten");
+    this.name = "SourceForgottenError";
+  }
+}
 
 export interface MemoryInput {
   content: string;
@@ -55,6 +65,9 @@ export interface Memory {
   content: string;
   importance: number;
   createdAt: Date;
+  project: string | null;
+  supersededBy: string | null;
+  validTo: Date | null;
 }
 
 export interface SearchResult extends Memory {
@@ -67,7 +80,13 @@ interface MemoryRow {
   content: string;
   importance: number;
   created_at: Date;
+  scope_project: string | null;
+  superseded_by: string | null;
+  valid_to: Date | null;
 }
+
+const MEMORY_COLUMNS = `id, type, content, importance, created_at,
+  scope_project, superseded_by, valid_to`;
 
 const toMemory = (row: MemoryRow): Memory => ({
   id: row.id,
@@ -75,6 +94,9 @@ const toMemory = (row: MemoryRow): Memory => ({
   content: row.content,
   importance: row.importance,
   createdAt: row.created_at,
+  project: row.scope_project,
+  supersededBy: row.superseded_by,
+  validTo: row.valid_to,
 });
 
 const toVectorLiteral = (vector: number[]): string => JSON.stringify(vector);
@@ -97,10 +119,26 @@ export class MemoryStore {
     private readonly embedder: Embedder,
   ) {}
 
-  async write(
+  write(
     scope: Scope,
     input: MemoryInput,
     options: WriteOptions = {},
+  ): Promise<Memory> {
+    return traced("memory.write", () => this.doWrite(scope, input, options));
+  }
+
+  search(
+    scope: Scope,
+    query: string,
+    options: { limit?: number } = {},
+  ): Promise<SearchResult[]> {
+    return traced("memory.search", () => this.doSearch(scope, query, options));
+  }
+
+  private async doWrite(
+    scope: Scope,
+    input: MemoryInput,
+    options: WriteOptions,
   ): Promise<Memory> {
     // An agent can pass a secret straight to memory_write, so this is the
     // last point where it can be caught before storage.
@@ -115,12 +153,24 @@ export class MemoryStore {
     }
 
     return withScope(this.pool, scope, async (client) => {
+      // The lock makes a concurrent forget wait until this commits, and it
+      // then deletes what was written. Without this check a distiller that
+      // started before a forget could bring the content straight back.
+      const sources = input.sourceEventIds ?? [];
+      if (sources.length > 0) {
+        const { rowCount } = await client.query(
+          "SELECT id FROM events WHERE id = ANY($1::uuid[]) FOR KEY SHARE",
+          [sources],
+        );
+        if (rowCount !== sources.length) throw new SourceForgottenError();
+      }
+
       const { rows } = await client.query<MemoryRow>(
         `INSERT INTO memories (scope_user, scope_project, scope_agent, scope_session,
                                type, content, embedding, embed_model, importance,
                                source_event_ids)
          VALUES ($1, $2, $3, $4, $5, $6, $7::vector, $8, $9, $10::uuid[])
-         RETURNING id, type, content, importance, created_at`,
+         RETURNING ${MEMORY_COLUMNS}`,
         [
           scope.user,
           scope.project,
@@ -156,6 +206,32 @@ export class MemoryStore {
     });
   }
 
+  /** Replaces a memory's text and its vector. Returns null if out of scope. */
+  async edit(
+    scope: Scope,
+    id: string,
+    newContent: string,
+  ): Promise<Memory | null> {
+    const content = redact(newContent).text;
+    const [embedding] = await this.embedder.embed([content]);
+    if (embedding === undefined) {
+      throw new Error("The embedder returned no vector");
+    }
+    return withScope(this.pool, scope, async (client) => {
+      const { rows } = await client.query<MemoryRow>(
+        `UPDATE memories
+         SET content = $2, embedding = $3::vector, embed_model = $4
+         WHERE id = $1
+         RETURNING ${MEMORY_COLUMNS}`,
+        [id, content, toVectorLiteral(embedding), this.embedder.model],
+      );
+      const row = rows[0];
+      if (row === undefined) return null;
+      await audit(client, "edit", scope.user, [row.id]);
+      return toMemory(row);
+    });
+  }
+
   /** Current memories close to a vector, nearest first. */
   async findSimilar(
     scope: Scope,
@@ -177,25 +253,34 @@ export class MemoryStore {
 
   async list(
     scope: Scope,
-    options: { limit?: number; type?: MemoryType } = {},
+    options: {
+      limit?: number;
+      type?: MemoryType;
+      includeOutdated?: boolean;
+    } = {},
   ): Promise<Memory[]> {
     return withScope(this.pool, scope, async (client) => {
       const { rows } = await client.query<MemoryRow>(
-        `SELECT id, type, content, importance, created_at
+        `SELECT ${MEMORY_COLUMNS}
          FROM memories
-         WHERE ${IS_CURRENT} AND ($1::text IS NULL OR type = $1)
+         WHERE ($3::boolean OR (${IS_CURRENT}))
+           AND ($1::text IS NULL OR type = $1)
          ORDER BY created_at DESC
          LIMIT $2`,
-        [options.type ?? null, options.limit ?? DEFAULT_TOP_K],
+        [
+          options.type ?? null,
+          options.limit ?? DEFAULT_TOP_K,
+          options.includeOutdated ?? false,
+        ],
       );
       return rows.map(toMemory);
     });
   }
 
-  async search(
+  private async doSearch(
     scope: Scope,
     query: string,
-    options: { limit?: number } = {},
+    options: { limit?: number },
   ): Promise<SearchResult[]> {
     const [embedding] = await this.embedder.embed([query]);
     if (embedding === undefined) {
@@ -214,7 +299,7 @@ export class MemoryStore {
       );
 
       const vector = await client.query<MemoryRow>(
-        `SELECT id, type, content, importance, created_at
+        `SELECT ${MEMORY_COLUMNS}
          FROM memories
          WHERE ${IS_CURRENT}
          ORDER BY embedding <=> $1::vector
@@ -227,7 +312,7 @@ export class MemoryStore {
         `WITH q AS (
            SELECT replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery AS query
          )
-         SELECT id, type, content, importance, created_at
+         SELECT ${MEMORY_COLUMNS}
          FROM memories, q
          WHERE ${IS_CURRENT} AND fts @@ q.query
          ORDER BY ts_rank_cd(fts, q.query) DESC
@@ -273,22 +358,27 @@ export class MemoryStore {
     task: string,
     options: { maxTokens?: number } = {},
   ): Promise<SearchResult[]> {
-    const results = await this.search(scope, task, { limit: DEFAULT_TOP_K });
-    return packToBudget(results, options.maxTokens ?? DEFAULT_TOKEN_BUDGET);
+    return traced("memory.context_for", async () => {
+      const results = await this.search(scope, task, { limit: DEFAULT_TOP_K });
+      return packToBudget(results, options.maxTokens ?? DEFAULT_TOKEN_BUDGET);
+    });
   }
 
-  /** Hard delete. RLS limits it to the scope. Returns the ids really removed. */
+  /** Hard delete, including the transcript it came from. Returns memory ids removed. */
   async forget(scope: Scope, ids: string[]): Promise<string[]> {
-    return withScope(this.pool, scope, async (client) => {
-      const { rows } = await client.query<{ id: string }>(
-        "DELETE FROM memories WHERE id = ANY($1::uuid[]) RETURNING id",
-        [ids],
-      );
-      const deleted = rows.map((row) => row.id);
-      if (deleted.length > 0) {
-        await audit(client, "forget", scope.user, deleted);
-      }
-      return deleted;
-    });
+    const before = await withScope(
+      this.pool,
+      { ...scope, allProjects: true },
+      async (client) => {
+        const { rows } = await client.query<{ id: string }>(
+          "SELECT id FROM memories WHERE id = ANY($1::uuid[])",
+          [ids],
+        );
+        return rows.map((row) => row.id);
+      },
+    );
+    if (before.length === 0) return [];
+    await executeForget(this.pool, this.embedder, scope, { ids: before });
+    return before;
   }
 }

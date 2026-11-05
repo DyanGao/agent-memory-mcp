@@ -4,6 +4,8 @@ export interface Scope {
   user: string;
   /** Null means the user's memories that belong to no project. */
   project: string | null;
+  /** Spans all the user's projects. For erasure and the dashboard, never MCP. */
+  allProjects?: boolean;
 }
 
 /** Gives the runtime role a login. Run with the owner connection. */
@@ -39,8 +41,9 @@ export async function withScope<T>(
     await client.query("BEGIN");
     await client.query(
       `SELECT set_config('app.scope_user', $1, true),
-              set_config('app.scope_project', $2, true)`,
-      [scope.user, scope.project ?? ""],
+              set_config('app.scope_project', $2, true),
+              set_config('app.scope_all_projects', $3, true)`,
+      [scope.user, scope.project ?? "", scope.allProjects ? "on" : "off"],
     );
     const result = await fn(client);
     await client.query("COMMIT");

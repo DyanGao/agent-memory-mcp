@@ -5,15 +5,24 @@ import {
   MemoryStore,
   migrate,
   OllamaEmbedder,
+  startTelemetry,
 } from "@agent-memory/core";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { buildApp } from "./http.js";
+
+const dashboardDir = fileURLToPath(
+  new URL("../../dashboard/dist", import.meta.url),
+);
 
 function required(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`${name} must be set. See .env.example`);
   return value;
 }
+
+await startTelemetry("agent-memory-server");
 
 const embedder = new OllamaEmbedder(
   process.env.EMBED_MODEL ?? "bge-m3",
@@ -38,6 +47,8 @@ const app = buildApp({
     retentionDays: Number(process.env.RETENTION_DAYS ?? 365),
     enqueueDistill: (job) => queue.enqueueDistill(job),
   },
+  account: { pool: appPool, embedder },
+  ...(existsSync(dashboardDir) && { dashboardDir }),
 });
 
 const port = Number(process.env.PORT ?? 8787);

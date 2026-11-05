@@ -4,6 +4,8 @@ import {
   MemoryStore,
   OllamaEmbedder,
   scopeOf,
+  scrubDeletedData,
+  startTelemetry,
   sweepExpired,
 } from "@agent-memory/core";
 import pg from "pg";
@@ -19,6 +21,8 @@ function required(name: string): string {
 const log = (message: string): void => {
   process.stderr.write(`distiller: ${message}\n`);
 };
+
+await startTelemetry("agent-memory-distiller");
 
 const ollamaUrl = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
 const embedder = new OllamaEmbedder(
@@ -56,5 +60,6 @@ await queue.workRetention(async () => {
   log(
     `retention removed ${swept.memoriesDeleted} memories, ${swept.eventsDeleted} events`,
   );
+  if (await scrubDeletedData(pool)) log("scrubbed deleted data from disk");
 });
 log(`ready with ${llm.name}`);

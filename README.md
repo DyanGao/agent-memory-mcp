@@ -27,20 +27,28 @@ See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
 - [x] Hybrid retrieval: vector + full-text ranking + recency/importance scoring
 - [ ] Scopes: user / project / agent / session
 - [x] Memory consolidation: dedupe, supersede outdated facts
-- [ ] GDPR: delete by user / topic / time range, deletion audit log, data export (Art. 15/17/20)
-- [ ] Local-first: Ollama / vLLM for distillation & embeddings; optional cloud providers
-- [ ] Web dashboard: browse, edit, delete memories; see why a memory was retrieved
+- [x] GDPR: delete by user / topic / time range, deletion audit log, data export (Art. 15/17/20)
+- [x] Local-first: Ollama / vLLM for distillation & embeddings; optional cloud providers
+- [x] Web dashboard: browse, edit, delete memories; see why a memory was retrieved
 
 ## Quickstart
 ```bash
 git clone https://github.com/DyanGao/agent-memory-mcp
 cd agent-memory-mcp
-cp .env.example .env          # choose local or hosted models
-docker compose up -d          # postgres+pgvector, server, dashboard
+cp .env.example .env          # set your own passwords and API key
+ollama pull bge-m3            # embeddings
+ollama pull qwen3             # distillation
+docker compose up -d          # postgres+pgvector, server with dashboard, worker
 ```
-Register with your agent:
+The dashboard is at http://127.0.0.1:8787. Sign in with any person's name and your `MEMORY_API_KEY`.
+
+To connect an agent, build the client once:
+```bash
+pnpm install && pnpm build
+```
+Then register it, using the full path to your clone:
 ```json
-{ "mcpServers": { "memory": { "command": "npx", "args": ["@dyangao/agent-memory-mcp", "--url", "http://localhost:8787"], "env": { "MEMORY_API_KEY": "<from your .env>" } } } }
+{ "mcpServers": { "memory": { "command": "node", "args": ["/path/to/agent-memory-mcp/packages/server/dist/cli.js"], "env": { "MEMORY_API_KEY": "<from your .env>" } } } }
 ```
 
 ### Automatic capture in Claude Code
@@ -48,12 +56,12 @@ Add these hooks to `.claude/settings.json`, with `MEMORY_API_KEY` set in your en
 ```json
 {
   "hooks": {
-    "SessionStart": [{ "hooks": [{ "type": "command", "command": "agent-memory-context" }] }],
-    "SessionEnd": [{ "hooks": [{ "type": "command", "command": "agent-memory-capture" }] }]
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "node /path/to/agent-memory-mcp/packages/adapters/dist/context.js" }] }],
+    "SessionEnd": [{ "hooks": [{ "type": "command", "command": "node /path/to/agent-memory-mcp/packages/adapters/dist/capture.js" }] }]
   }
 }
 ```
-Start the worker alongside the server with `pnpm start:worker`. The hooks never block a session: if the server is down they log to stderr and exit cleanly.
+The hooks never block a session: if the server is down they log to stderr and exit cleanly.
 
 Only what you and the agent say is distilled. Tool output (file contents, web pages, command results) is stored after redaction but never reaches the LLM, because that is where third-party text gets in. Memories are returned as stored data for agents to verify, not as instructions. This narrows memory poisoning but does not eliminate it: a planted instruction the agent repeats can still be captured.
 
@@ -70,16 +78,18 @@ Short summary + diagram, details in [ARCHITECTURE.md](ARCHITECTURE.md).
 | `EMBED_MODEL` | `bge-m3` (local) | Embedding model |
 | `DISTILL_MODEL` | `ollama:qwen3` | Model used for distillation: `ollama:<model>`, or `anthropic:<model>`, which sends session text to Anthropic |
 | `RETENTION_DAYS` | `365` | Auto-expiry for memories |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | none | Sends traces and metrics to a collector. Off unless set; never holds content |
 
 ## Privacy & compliance
 - Data never leaves your infrastructure in local mode
-- `memory_forget` performs hard deletion of rows **and** embeddings; deletion events are logged without content
-- Not legal advice; see `docs/privacy.md` for the data-flow description
+- Forget hard-deletes memories, embeddings and the transcripts behind them; deletions are logged without content, and a test reads every table and the raw data files to confirm it
+- Deleted text can remain in Postgres WAL and in your backups for a time; `docs/privacy.md` sets out these limits
+- Not legal advice; see [docs/privacy.md](docs/privacy.md) for the data flows
 
 ## Roadmap
 - [x] v0.1 MCP server + manual write/search
 - [x] v0.2 automatic capture + distillation
-- [ ] v0.3 dashboard + GDPR tooling
+- [x] v0.3 dashboard + GDPR tooling
 - [ ] v0.4 eval harness + published results
 - [ ] v1.0 multi-tenant auth, Helm chart
 
