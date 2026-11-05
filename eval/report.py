@@ -8,7 +8,9 @@ EF_DEFAULT = 400
 
 
 def load(folder: Path, name: str) -> dict:
-    return json.loads((folder / f"{name}.json").read_text())
+    """The newest copy of a result, as evals do not all run on the same day."""
+    path = sorted(folder.parent.glob(f"*/{name}.json"))[-1]
+    return json.loads(path.read_text())
 
 
 def deletion_rows(data: dict) -> str:
@@ -72,6 +74,20 @@ def pilot_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def hard_rows(folder: Path) -> str:
+    data = load(folder, "coding-hard-pilot")
+    setups = {
+        "none": "No memory",
+        "full_history": "Full history",
+        "memory": "agent-memory-mcp",
+    }
+    lines = ["| Setup | Tasks passed |", "|---|---|"]
+    for key, label in setups.items():
+        run = data["summary"][key]
+        lines.append(f"| {label} | {run['passed']} of {run['runs']} |")
+    return "\n".join(lines)
+
+
 def main() -> None:
     folder = sorted((ROOT / "eval" / "results").iterdir())[-1]
     deletion = load(folder, "deletion")
@@ -79,10 +95,11 @@ def main() -> None:
     reviewed = deletion["paraphrase_reviewed"]
     template = (ROOT / "eval" / "report.template.md").read_text()
     output = (
-        template.replace("{{date}}", folder.name)
+        template.replace("{{date}}", f"up to {folder.name}")
         .replace("{{deletion}}", deletion_rows(deletion))
         .replace("{{scale}}", scale_rows(folder))
         .replace("{{pilot}}", pilot_rows(folder))
+        .replace("{{hard}}", hard_rows(folder))
         .replace("{{offered}}", f"{reviewed['facts_offered_for_review']} of {reviewed['facts']}")
         .replace("{{candidates}}", f"{reviewed['candidates_per_preview']:.1f}")
         .replace("{{kept}}", f"{reviewed['facts_kept_by_distiller']} of {reviewed['facts']}")
