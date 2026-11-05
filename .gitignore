@@ -18,6 +18,9 @@ __pycache__/
 pgdata/
 eval/datasets/raw/
 
+# Local planning notes
+.plan/
+
 # OS and editors
 .DS_Store
 .idea/
