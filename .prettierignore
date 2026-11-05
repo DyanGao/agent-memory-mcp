@@ -1,0 +1,4 @@
+dist
+pnpm-lock.yaml
+# Markdown is formatted by hand
+*.md

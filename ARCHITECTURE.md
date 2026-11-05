@@ -1,0 +1,80 @@
+# Architecture — agent-memory-mcp
+
+## 1. Goals / non-goals
+**Goals:** local-first, framework-agnostic (MCP), fast retrieval (<150 ms p95 excluding LLM), verifiable deletion, measurable gains.
+**Non-goals:** being a full agent runtime; graph-database dependency in v1.
+
+## 2. System overview
+```mermaid
+flowchart LR
+  A[Agent / IDE<br/>Claude Code, Cursor, custom] -- MCP stdio/HTTP --> S[MCP Server]
+  H[Session hooks<br/>transcript capture] --> Q[(Job queue)]
+  S --> R[Retriever]
+  S --> W[Write API]
+  W --> Q
+  Q --> D[Distiller worker<br/>LLM: extract facts/decisions]
+  D --> C[Consolidator<br/>dedupe / merge / supersede]
+  C --> P[(Postgres + pgvector)]
+  R --> P
+  UI[Dashboard React] --> API[REST API] --> P
+  API --> AUD[(Audit log)]
+  S --> OT[OpenTelemetry]
+```
+
+## 3. Components
+| Component | Responsibility | Notes |
+|---|---|---|
+| MCP server | Exposes tools `memory_write`, `memory_search`, `memory_forget`, `memory_list`, `memory_context_for` | stdio + streamable HTTP |
+| Capture adapters | Read agent transcripts / hooks, send raw events | start with Claude Code hooks |
+| Distiller | Turn raw events into typed memories (fact, decision, preference, todo, error-fix) | structured output (JSON schema), small local model |
+| Consolidator | Similarity check → merge, update, mark superseded | keeps `valid_from/valid_to` |
+| Retriever | Hybrid: vector + full-text ranking (tsvector, pg_trgm; not true BM25) + recency + importance, then optional rerank | returns score breakdown for explainability |
+| Dashboard | Browse/edit/delete, search playground, "why retrieved" | doubles as demo |
+| Audit log | Records writes/deletes (ids, actor, time), never content | GDPR evidence |
+
+## 4. Data model (draft)
+```sql
+memories(id uuid, scope_user text, scope_project text, scope_agent text, scope_session text null,
+         type text, content text, embedding vector(1024), embed_model text,
+         importance real, created_at timestamptz, valid_from timestamptz, valid_to timestamptz null,
+         superseded_by uuid null, source_event_ids uuid[])
+events(id uuid, scope_user text, scope_project text, session_id text, ts timestamptz,
+       kind text, payload jsonb, ttl_at timestamptz)
+audit_log(id bigserial, action text, actor text, target_ids uuid[], ts timestamptz)
+```
+
+## 5. Key flows
+**Write path:** event → redact secrets/PII → store → queue (job carries ids only, never content) → distill (batch per session end) → consolidate → upsert.
+**Read path:** `memory_context_for(task)` → embed query → hybrid top-k (k=20) → rerank → token-budgeted pack (default 1,500 tokens) → return with citations to memory ids.
+**Forget path:** resolve targets (user/topic/time) → hard delete memories + events + embeddings → audit entry → return receipt.
+
+## 6. Design decisions (ADR log)
+| # | Decision | Alternatives | Why |
+|---|---|---|---|
+| 1 | Postgres + pgvector | Qdrant, Chroma | one DB for vectors, text search, audit; easy ops |
+| 2 | Async distillation | inline on write | keeps agent latency low |
+| 3 | Typed memories | free text chunks | better consolidation & dashboard UX |
+| 4 | MCP as primary interface | SDK-only | works across agent vendors |
+| 5 | `pg-boss` queue on the same Postgres, jobs carry ids only | Redis/BullMQ | no new service; `forget` cannot miss content held in a queue |
+| 6 | `pg` with hand-written SQL migrations | ORM | hybrid queries, RLS and vector indexes are raw-SQL work anyway |
+| 7 | Tool names use underscores | dotted names | dots are valid MCP but some clients reportedly filter them |
+| 8 | Redact at ingest, before storage | redact before distillation | otherwise secrets persist in `events` |
+| 9 | Identity from client config, never tool arguments | scope as a tool argument | a prompt-injected agent cannot cross scopes |
+
+## 7. Security & privacy
+- Scope isolation enforced in every query (row-level security)
+- Secrets/PII filter at ingest, before anything is stored (regex + optional NER), configurable redaction
+- API keys per client; local mode binds to localhost only
+
+## 8. Observability
+OpenTelemetry traces for write/read/forget; metrics: retrieval latency, memories per scope, distillation cost, hit rate.
+
+## 9. Repo layout
+```
+packages/core  packages/server  packages/distiller  packages/dashboard  packages/adapters
+eval/  docs/  docker-compose.yml  .github/workflows/
+```
+
+## 10. Open questions
+- Best default token budget per task type?
+- When to forget automatically (decay vs. explicit TTL)?
