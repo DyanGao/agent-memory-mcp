@@ -18,6 +18,12 @@ const CLUSTERS = 200;
 const CLUSTER_NOISE = 0.35;
 const EF_SEARCH_VALUES = [100, 200, 400, 800];
 
+const progress = (message: string): void => {
+  process.stderr.write(
+    `${new Date().toISOString().slice(11, 19)} ${SHAPE} ${TOTAL} ${message}\n`,
+  );
+};
+
 const normalise = (raw: number[]): number[] => {
   const norm = Math.hypot(...raw);
   return raw.map((value) => value / norm);
@@ -60,6 +66,7 @@ describe(`search at ${TOTAL} ${SHAPE} memories`, () => {
     // Loading first and indexing after is far faster than inserting into a
     // live HNSW graph, and produces the same kind of index.
     await db.owner.query("DROP INDEX memories_embedding_idx");
+    progress("loading");
     for (let start = 0; start < TOTAL; start += BATCH) {
       const contents: string[] = [];
       const vectors: string[] = [];
@@ -75,11 +82,14 @@ describe(`search at ${TOTAL} ${SHAPE} memories`, () => {
       );
     }
     const client = await db.owner.connect();
-    await client.query("SET maintenance_work_mem = '1GB'");
+    progress("building index");
+    await client.query("SET maintenance_work_mem = '2GB'");
+    await client.query("SET max_parallel_maintenance_workers = 4");
     await client.query(
       "CREATE INDEX memories_embedding_idx ON memories USING hnsw (embedding vector_cosine_ops)",
     );
     client.release();
+    progress("index built");
 
     for (let i = 0; i < NARROW_SCOPE_SIZE; i++) {
       await store.write(narrow, { content: `narrow note ${i}`, type: "fact" });

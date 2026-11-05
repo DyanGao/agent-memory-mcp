@@ -1,6 +1,6 @@
 EVAL_STACK = docker compose -p agent-memory-eval --env-file eval/eval.env
 
-.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale
+.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large
 
 eval-up:
 	$(EVAL_STACK) up -d --build --wait
@@ -13,7 +13,7 @@ eval-quick:
 	pnpm exec vitest run --config vitest.integration.config.ts eval-gate
 
 # Needs a running stack (make eval-up) and Ollama. Run by hand.
-eval-full: eval-scale eval-deletion eval-knowledge
+eval-full: eval-deletion eval-knowledge eval-scale eval-scale-large
 
 eval-deletion:
 	cd eval && uv run python -m agent_eval.deletion
@@ -23,7 +23,12 @@ eval-knowledge:
 
 eval-scale:
 	for shape in random clustered; do \
-		for n in 1000 10000 100000; do \
+		for n in 1000 10000; do \
 			SCALE_VECTORS=$$shape SCALE_MEMORIES=$$n pnpm test:scale || exit 1; \
 		done; \
 	done
+
+# Slow: building the index at this size takes a long time, so it runs alone.
+eval-scale-large:
+	SCALE_VECTORS=clustered SCALE_MEMORIES=100000 pnpm test:scale
+	SCALE_VECTORS=random SCALE_MEMORIES=100000 pnpm test:scale
