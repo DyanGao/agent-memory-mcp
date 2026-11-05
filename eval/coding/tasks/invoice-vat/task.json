@@ -1,0 +1,4 @@
+{
+  "decision": "A decision for the acme-orders project, no code yet: VAT is 19%, calculated on each line and rounded to 2 decimals with half-even (banker's) rounding on that line, then the lines are summed. We never calculate VAT on the invoice total. Please acknowledge in one sentence.",
+  "request": "Add src/invoice.mjs exporting invoiceVat(lineNetAmounts), which takes an array of net amounts as numbers and returns the VAT for the invoice as a number. Follow the VAT rule we agreed."
+}

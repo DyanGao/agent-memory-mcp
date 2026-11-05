@@ -1,0 +1,4 @@
+{
+  "decision": "A decision for the acme-orders project, no code yet: order ids look like ORD-2026-000042, meaning ORD, the four-digit year, and a six-digit zero-padded sequence. The sequence restarts at 1 every calendar year. Please acknowledge in one sentence.",
+  "request": "Add src/orderid.mjs exporting nextOrderId(date, lastId). date is a Date, and lastId is the previous id string or null. It returns the next id. Use our agreed id format."
+}
