@@ -13,7 +13,8 @@
 | Coding-agent continuity | Own: 30 multi-session tasks on 3 sample repos (session 1 makes decisions, session 2 needs them) | 30 tasks × 3 runs | real agent benefit |
 | Knowledge updates | Own: facts that change over time ("we moved from REST to gRPC") | 50 cases | superseding correctness |
 | Deletion probes | Own: 50 planted secrets/personal facts, then forget, then 200 adversarial probe queries | 50 / 200 | leakage |
-| Scale test | Synthetic memories | 1k, 10k, 100k | latency & recall@k degradation |
+| Memory poisoning | Own: planted instructions in user text and tool output (not built yet) | TBD | poisoned memories stored and returned |
+| Scale test | Synthetic memories, clustered and uniform random; real embeddings still needed | 1k, 10k, 100k | latency & recall@k degradation |
 
 ## 3. Systems compared (baselines)
 1. No memory

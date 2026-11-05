@@ -27,7 +27,7 @@ Agents forget everything between sessions. Stuffing full history into the contex
 | Naive RAG over transcripts | TBD | TBD | TBD |
 | **agent-memory-mcp** | **TBD** | **TBD** | **TBD** |
 
-See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
+Accuracy, token and baseline results are not measured yet. Results on deletion, knowledge updates and scale are in the [evaluation report](docs/eval-report.md), including what failed. See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
 
 ## Features
 - [x] MCP server: `memory_write`, `memory_search`, `memory_forget`, `memory_list`, `memory_context_for` tools
