@@ -65,6 +65,7 @@ describe("MCP over HTTP", () => {
           queued.push(job);
         },
       },
+      account: { pool: db.app, embedder: new FakeEmbedder() },
     });
     const address = await app.listen({ port: 0, host: "127.0.0.1" });
     url = new URL("/mcp", address);
@@ -74,7 +75,9 @@ describe("MCP over HTTP", () => {
     await db?.stop();
   });
   beforeEach(async () => {
-    await db.owner.query("TRUNCATE memories, events, audit_log");
+    await db.owner.query(
+      "TRUNCATE memories, events, audit_log, forgotten_events",
+    );
     queued.length = 0;
   });
 
@@ -213,6 +216,144 @@ describe("MCP over HTTP", () => {
       },
     });
     expect(response.status).toBe(404);
+  });
+
+  describe("account routes", () => {
+    const headers = (user = "alice") => ({
+      authorization: `Bearer ${API_KEY}`,
+      [USER_HEADER]: user,
+    });
+    const getJson = (path: string, user = "alice") =>
+      fetch(new URL(path, url), { headers: headers(user) });
+    const seed = async (content: string, project = "apollo") => {
+      const store = new MemoryStore(db.app, new FakeEmbedder());
+      return store.write({ user: "alice", project }, { content, type: "fact" });
+    };
+
+    it("lists across all of a user's projects, unlike MCP", async () => {
+      await seed("in apollo");
+      await seed("in zeus", "zeus");
+      const body = (await (await getJson("/v1/memories")).json()) as {
+        memories: { content: string; project: string }[];
+      };
+      expect(body.memories.map((m) => m.project).sort()).toEqual([
+        "apollo",
+        "zeus",
+      ]);
+      const client = await connect();
+      const { body: viaMcp } = await call(client, "memory_list", {});
+      expect(viaMcp.map((m: { content: string }) => m.content)).toEqual([
+        "in apollo",
+      ]);
+    });
+
+    it("needs an API key on every account route", async () => {
+      for (const path of ["/v1/memories", "/v1/export", "/v1/audit"]) {
+        const response = await fetch(new URL(path, url));
+        expect(response.status, path).toBe(401);
+      }
+    });
+
+    it("shows outdated memories only when asked", async () => {
+      const store = new MemoryStore(db.app, new FakeEmbedder());
+      const scope = { user: "alice", project: "apollo" };
+      const old = await store.write(scope, { content: "old", type: "fact" });
+      await store.write(
+        scope,
+        { content: "new", type: "fact" },
+        { supersedes: [old.id] },
+      );
+      const count = async (query: string) => {
+        const body = (await (await getJson(`/v1/memories${query}`)).json()) as {
+          memories: unknown[];
+        };
+        return body.memories.length;
+      };
+      expect(await count("")).toBe(1);
+      expect(await count("?include_outdated=true")).toBe(2);
+    });
+
+    it("edits a memory, re-embeds it and audits the change", async () => {
+      const memory = await seed("wrong text");
+      const response = await fetch(new URL(`/v1/memories/${memory.id}`, url), {
+        method: "PATCH",
+        headers: { ...headers(), "content-type": "application/json" },
+        body: JSON.stringify({ content: "corrected text" }),
+      });
+      expect(response.status).toBe(200);
+      const found = (await (
+        await postJson("/v1/search", { query: "corrected text" })
+      ).json()) as {
+        results: { content: string; score: { vectorRank: number } }[];
+      };
+      expect(found.results[0]?.content).toBe("corrected text");
+      expect(found.results[0]?.score.vectorRank).toBe(1);
+      const audit = (await (await getJson("/v1/audit")).json()) as {
+        entries: { action: string }[];
+      };
+      expect(audit.entries.map((e) => e.action)).toContain("edit");
+    });
+
+    it("will not edit another user's memory", async () => {
+      const memory = await seed("alice's");
+      const response = await fetch(new URL(`/v1/memories/${memory.id}`, url), {
+        method: "PATCH",
+        headers: { ...headers("bob"), "content-type": "application/json" },
+        body: JSON.stringify({ content: "hijacked" }),
+      });
+      expect(response.status).toBe(404);
+    });
+
+    it("previews a forget without deleting, then needs confirm", async () => {
+      await seed("forgetme value");
+      const preview = await postJson("/v1/forget", {
+        topic: "forgetme",
+        dry_run: true,
+      });
+      expect(await preview.json()).toMatchObject({ dryRun: true, memories: 1 });
+
+      const refused = await postJson("/v1/forget", { topic: "forgetme" });
+      expect(refused.status).toBe(400);
+      const stillThere = (await (await getJson("/v1/memories")).json()) as {
+        memories: unknown[];
+      };
+      expect(stillThere.memories).toHaveLength(1);
+
+      const done = await postJson("/v1/forget", {
+        topic: "forgetme",
+        confirm: true,
+      });
+      expect(await done.json()).toMatchObject({
+        memoriesDeleted: 1,
+        diskScrubPending: true,
+      });
+    });
+
+    it("refuses a forget that names nothing", async () => {
+      const response = await postJson("/v1/forget", { confirm: true });
+      expect(response.status).toBe(400);
+    });
+
+    it("exports a user's data across projects and nobody else's", async () => {
+      await seed("export me");
+      await seed("and me", "zeus");
+      await new MemoryStore(db.app, new FakeEmbedder()).write(
+        { user: "bob", project: "apollo" },
+        { content: "bob private", type: "fact" },
+      );
+      const body = (await (await getJson("/v1/export")).json()) as {
+        user: string;
+        memories: { content: string }[];
+        audit: unknown[];
+      };
+      expect(body.user).toBe("alice");
+      expect(body.memories.map((m) => m.content).sort()).toEqual([
+        "and me",
+        "export me",
+      ]);
+      expect(body.audit).toHaveLength(2);
+      expect(JSON.stringify(body)).not.toContain("bob private");
+    });
   });
 
   it("rejects a wrong API key", async () => {

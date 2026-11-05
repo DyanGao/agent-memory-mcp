@@ -6,8 +6,14 @@ import {
   migrate,
   OllamaEmbedder,
 } from "@agent-memory/core";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { buildApp } from "./http.js";
+
+const dashboardDir = fileURLToPath(
+  new URL("../../dashboard/dist", import.meta.url),
+);
 
 function required(name: string): string {
   const value = process.env[name];
@@ -38,6 +44,8 @@ const app = buildApp({
     retentionDays: Number(process.env.RETENTION_DAYS ?? 365),
     enqueueDistill: (job) => queue.enqueueDistill(job),
   },
+  account: { pool: appPool, embedder },
+  ...(existsSync(dashboardDir) && { dashboardDir }),
 });
 
 const port = Number(process.env.PORT ?? 8787);

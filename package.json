@@ -12,7 +12,7 @@
     "typecheck": "tsc -b packages/core packages/server packages/distiller packages/dashboard packages/adapters",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "build": "tsc -b packages/core packages/server packages/distiller packages/dashboard packages/adapters",
+    "build": "tsc -b packages/core packages/server packages/distiller packages/dashboard packages/adapters && pnpm --filter @agent-memory/dashboard build",
     "start:server": "node --env-file=.env packages/server/dist/main.js",
     "test:scale": "vitest run --config vitest.scale.config.ts",
     "start:worker": "node --env-file=.env packages/distiller/dist/worker.js",
