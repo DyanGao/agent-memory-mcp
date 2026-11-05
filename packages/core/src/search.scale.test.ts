@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { EMBEDDING_DIMENSION } from "./embedder.js";
 import type { Embedder } from "./embedder.js";
+import { scrubDeletedData } from "./forget.js";
 import { estimateP95Ms } from "./percentile.js";
 import { MemoryStore } from "./store.js";
 import { startTestDb } from "./testing.js";
@@ -83,12 +84,17 @@ describe(`search at ${TOTAL} ${SHAPE} memories`, () => {
     }
     const client = await db.owner.connect();
     progress("building index");
-    await client.query("SET maintenance_work_mem = '2GB'");
+    // Must fit the 1 GB of shared memory, or Postgres refuses the build.
+    await client.query("SET maintenance_work_mem = '900MB'");
     await client.query("SET max_parallel_maintenance_workers = 4");
-    await client.query(
-      "CREATE INDEX memories_embedding_idx ON memories USING hnsw (embedding vector_cosine_ops)",
-    );
-    client.release();
+    try {
+      await client.query(
+        "CREATE INDEX memories_embedding_idx ON memories USING hnsw (embedding vector_cosine_ops)",
+      );
+    } finally {
+      // Not released, an error here hangs the pool shutdown for the whole timeout.
+      client.release();
+    }
     progress("index built");
 
     for (let i = 0; i < NARROW_SCOPE_SIZE; i++) {
@@ -189,5 +195,15 @@ describe(`search at ${TOTAL} ${SHAPE} memories`, () => {
       `${SHAPE} ${TOTAL} full search p95 ${String(results.searchP95Ms)} ms\n`,
     );
     expect(timings).toHaveLength(QUERIES);
+  });
+
+  it("reports how long the nightly scrub locks the tables", async () => {
+    await db.owner.query("UPDATE scrub_state SET pending = true");
+    const started = performance.now();
+    expect(await scrubDeletedData(db.app)).toBe(true);
+    results.scrubSeconds = Number(
+      ((performance.now() - started) / 1000).toFixed(1),
+    );
+    progress(`scrub took ${String(results.scrubSeconds)} s`);
   });
 });

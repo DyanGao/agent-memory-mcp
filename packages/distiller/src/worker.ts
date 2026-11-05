@@ -60,6 +60,11 @@ await queue.workRetention(async () => {
   log(
     `retention removed ${swept.memoriesDeleted} memories, ${swept.eventsDeleted} events`,
   );
-  if (await scrubDeletedData(pool)) log("scrubbed deleted data from disk");
+  try {
+    if (await scrubDeletedData(pool)) log("scrubbed deleted data from disk");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown error";
+    log(`scrub failed and will retry tomorrow: ${message}`);
+  }
 });
 log(`ready with ${llm.name}`);

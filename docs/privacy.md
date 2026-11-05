@@ -66,7 +66,7 @@ Every forget returns a receipt with counts and a fingerprint of the deleted ids.
 
 These are not solved by the software, and you should plan for them.
 
-- **Timing on disk.** A forget removes content from every read path at once, and a daily scrub (`VACUUM FULL`) then removes the bytes from table files. This scrub runs at 03:00 only if something was deleted, and briefly locks the tables. A test reads the raw files to confirm it. Until then, the bytes remain in unused page space.
+- **Timing on disk.** A forget removes content from every read path at once, and a daily scrub (`VACUUM FULL`) then removes the bytes from table files. This scrub runs at 03:00 only if something was deleted, and locks the tables while it rewrites them, so reads and writes wait. If it fails, it retries the next night. A test reads the raw files to confirm it. Until then, the bytes remain in unused page space.
 - **Write-ahead log.** Deleted text stays in Postgres WAL until those segments are recycled, which by default happens shortly after checkpoints.
 - **Backups.** A forget cannot reach backups or volume snapshots. Set their retention to match your policy, and if you restore one, re-run outstanding erasures. `forgotten_events` protects against resumed sessions, not against a restored database.
 - **The host.** Disk blocks are not securely overwritten. Use full-disk encryption.

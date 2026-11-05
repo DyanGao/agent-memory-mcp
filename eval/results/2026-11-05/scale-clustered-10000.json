@@ -5,23 +5,23 @@
     {
       "efSearch": 100,
       "recallAt10": 1,
-      "vectorP95Ms": 1.1
+      "vectorP95Ms": 1.8
     },
     {
       "efSearch": 200,
       "recallAt10": 1,
-      "vectorP95Ms": 1.4
+      "vectorP95Ms": 1.7
     },
     {
       "efSearch": 400,
       "recallAt10": 1,
-      "vectorP95Ms": 2.2
+      "vectorP95Ms": 3
     },
     {
       "efSearch": 800,
       "recallAt10": 1,
-      "vectorP95Ms": 15.4
+      "vectorP95Ms": 18.4
     }
   ],
-  "searchP95Ms": 12.6
+  "searchP95Ms": 15.7
 }

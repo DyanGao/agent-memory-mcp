@@ -8,8 +8,9 @@
   "update_correctness": 1.0,
   "update_correctness_all_cases": 1.0,
   "controls": 10,
-  "controls_kept_both": 9,
-  "seconds": 363,
+  "controls_first_fact_learned": 9,
+  "controls_wrongly_replaced": 0,
+  "seconds": 369,
   "rows": [
     {
       "id": "change-0",
@@ -418,7 +419,8 @@
         "We use Postgres for the primary database.",
         "We use Redis for the cache."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "The project uses Redis for caching.",
         "The project uses Postgres as the primary database."
@@ -429,7 +431,8 @@
         "Tests run with Vitest in CI.",
         "Lint runs with ESLint in CI."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "Lint runs with ESLint in CI.",
         "Tests are run with Vitest in CI."
@@ -440,7 +443,8 @@
         "The API is written in Go.",
         "The admin panel is written in Ruby."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "The admin panel is written in Ruby.",
         "The API is written in Go."
@@ -451,7 +455,8 @@
         "Deploys go out on Tuesdays.",
         "Database migrations run on Thursdays."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "Database migrations run on Thursdays.",
         "Deploys go out on Tuesdays."
@@ -462,7 +467,8 @@
         "The web app is hosted on Render.",
         "The docs site is hosted on Netlify."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "The docs site is hosted on Netlify.",
         "The web app is hosted on Render."
@@ -473,7 +479,8 @@
         "Sentry tracks backend errors.",
         "Bugsnag tracks mobile errors."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "Bugsnag is used to track mobile errors.",
         "Sentry is used to track backend errors."
@@ -484,7 +491,8 @@
         "Use tabs in Go files.",
         "Use spaces in Python files."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "Use spaces in Python files.",
         "Use tabs in Go files."
@@ -495,7 +503,8 @@
         "Staging refreshes nightly.",
         "Production backups run hourly."
       ],
-      "kept_both": false,
+      "first_learned": false,
+      "wrongly_replaced": false,
       "memories": [
         "Production backups run hourly."
       ]
@@ -505,7 +514,8 @@
         "Kafka carries order events.",
         "NATS carries internal commands."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "NATS carries internal commands.",
         "Kafka carries order events."
@@ -516,7 +526,8 @@
         "Code review needs one approval.",
         "Security changes need two approvals."
       ],
-      "kept_both": true,
+      "first_learned": true,
+      "wrongly_replaced": false,
       "memories": [
         "Security changes require two approvals.",
         "Code review requires one approval."

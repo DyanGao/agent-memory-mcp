@@ -492,6 +492,15 @@ describe("forget", () => {
       expect(await filesContaining("diskkeeper")).toBeGreaterThan(0);
     }, 60_000);
 
+    it("tries again tomorrow if the scrub fails", async () => {
+      await db.owner.query("UPDATE scrub_state SET pending = true");
+      await db.owner.query("ALTER TABLE events RENAME TO events_moved");
+      await expect(scrubDeletedData(db.app)).rejects.toThrow(/events/);
+      await db.owner.query("ALTER TABLE events_moved RENAME TO events");
+      const { rows } = await db.owner.query("SELECT pending FROM scrub_state");
+      expect(rows[0].pending).toBe(true);
+    });
+
     it("does nothing when no forget has happened since the last scrub", async () => {
       await seedSession(alice, "s1", "nothing forgotten");
       await db.owner.query("UPDATE scrub_state SET pending = false");

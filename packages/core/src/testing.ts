@@ -26,6 +26,9 @@ export async function startTestDb(): Promise<TestDb> {
       POSTGRES_DB: "test",
     })
     .withExposedPorts(5432)
+    // Matches docker-compose.yml. Docker's default of 64 MB is too small for
+    // parallel HNSW builds, and Postgres refuses them outright.
+    .withSharedMemorySize(1024 ** 3)
     .withWaitStrategy(
       Wait.forLogMessage(/database system is ready to accept connections/, 2),
     )

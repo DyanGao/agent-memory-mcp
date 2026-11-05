@@ -3831,7 +3831,7 @@
     "facts": 50,
     "facts_kept_by_distiller": 5,
     "facts_leaked_on_read": 0,
-    "facts_left_in_raw_tables": 1,
+    "facts_left_in_raw_tables": 0,
     "probe_results": 400,
     "probe_results_leaked": 0,
     "keepers_lost": 0,
@@ -3990,10 +3990,7 @@
         "distiller_kept_fact": false,
         "leaked_on_read": false,
         "probes_leaked": [],
-        "raw_tables_with_marker": [
-          "public.forgotten_events",
-          "public.audit_log"
-        ],
+        "raw_tables_with_marker": [],
         "keepers_lost": 0,
         "candidates_offered": 1,
         "fact_was_offered": true
@@ -4494,5 +4491,5 @@
       }
     ]
   },
-  "seconds": 953
+  "seconds": 970
 }

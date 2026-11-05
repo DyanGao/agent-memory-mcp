@@ -13,6 +13,9 @@ const TOPIC_MIN_SIMILARITY = 0.7;
 // Deleting is irreversible, so these are only offered for a person to choose.
 const CANDIDATE_MIN_SIMILARITY = 0.45;
 const MAX_CANDIDATES = 25;
+// Rebuilding the vector index with Postgres's default 64 MB locked the tables
+// for 82 s at 100k memories. This must fit the /dev/shm size in docker-compose.
+const SCRUB_MEMORY = "512MB";
 
 export interface ForgetSelector {
   /** Everything the user has, in every project. */
@@ -340,6 +343,17 @@ export async function scrubDeletedData(pool: Pool): Promise<boolean> {
   if (!rows[0]?.pending) return false;
   // Cleared first: a forget during the rewrite sets it again, for tomorrow.
   await pool.query("UPDATE scrub_state SET pending = false");
-  await pool.query("VACUUM FULL memories, events");
+  const client = await pool.connect();
+  try {
+    await client.query(`SET maintenance_work_mem = '${SCRUB_MEMORY}'`);
+    await client.query("VACUUM FULL memories, events");
+  } catch (error) {
+    // Deleted bytes are still on disk, so tomorrow's run must try again.
+    await client.query("UPDATE scrub_state SET pending = true");
+    throw error;
+  } finally {
+    await client.query("RESET maintenance_work_mem");
+    client.release();
+  }
   return true;
 }
