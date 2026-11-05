@@ -5,6 +5,7 @@ import {
   MemoryStore,
   migrate,
   OllamaEmbedder,
+  startTelemetry,
 } from "@agent-memory/core";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -20,6 +21,8 @@ function required(name: string): string {
   if (!value) throw new Error(`${name} must be set. See .env.example`);
   return value;
 }
+
+await startTelemetry("agent-memory-server");
 
 const embedder = new OllamaEmbedder(
   process.env.EMBED_MODEL ?? "bge-m3",

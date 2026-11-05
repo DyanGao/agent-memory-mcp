@@ -2,6 +2,7 @@ import {
   loadDistillableEvents,
   recordDistillOutcome,
   SourceForgottenError,
+  traced,
 } from "@agent-memory/core";
 import type { Embedder, MemoryStore, Scope } from "@agent-memory/core";
 import type { Pool } from "pg";
@@ -22,7 +23,15 @@ export interface DistillerDeps {
  * Extraction finishes before anything is written, so a retry after a model
  * failure starts clean, and consolidation skips anything already stored.
  */
-export async function distillSession(
+export function distillSession(
+  deps: DistillerDeps,
+  scope: Scope,
+  sessionId: string,
+): Promise<void> {
+  return traced("memory.distill", () => runDistill(deps, scope, sessionId));
+}
+
+async function runDistill(
   deps: DistillerDeps,
   scope: Scope,
   sessionId: string,

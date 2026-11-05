@@ -46,7 +46,7 @@ audit_log(id bigserial, action text, actor text, target_ids uuid[], ts timestamp
 ## 5. Key flows
 **Write path:** event → redact secrets/PII → store → queue (job carries ids only, never content) → distill (batch per session end) → consolidate → upsert.
 **Read path:** `memory_context_for(task)` → embed query → hybrid top-k (k=20) → rerank → token-budgeted pack (default 1,500 tokens) → return with citations to memory ids.
-**Forget path:** resolve targets (user/topic/time) → hard delete memories + events + embeddings → audit entry → return receipt.
+**Forget path:** resolve targets (user/topic/time/id) → follow links to source events, sibling memories and older versions → tombstone events → delete events, then memories → audit entry → return receipt → nightly scrub removes the bytes from disk.
 
 ## 6. Design decisions (ADR log)
 | # | Decision | Alternatives | Why |
@@ -62,6 +62,9 @@ audit_log(id bigserial, action text, actor text, target_ids uuid[], ts timestamp
 | 9 | Identity from client config, never tool arguments | scope as a tool argument | a prompt-injected agent cannot cross scopes |
 | 11 | Tool output never reaches the distiller | distill everything | `qwen3` stored a planted instruction despite a prompt calling the transcript data. Tool output is where third-party text enters |
 | 12 | One memory may supersede several | one-to-one | a changed fact can outdate a decision that depended on it, and a stale decision misleads later sessions |
+| 13 | Dashboard served by the server | a separate container | one origin, no CORS, one fewer process |
+| 14 | Forget deletes now, scrubs bytes nightly | `VACUUM FULL` on every forget | a scan proved plain `VACUUM` leaves deleted text in table files, but `VACUUM FULL` locks tables and rebuilds the index |
+| 15 | Tombstones for forgotten events | none | a resumed session re-sends its transcript and would restore forgotten text |
 | 10 | `english` text config | `simple` | `simple` keeps stop words, which then count as matches. Other languages still match exact words |
 
 ## 7. Security & privacy

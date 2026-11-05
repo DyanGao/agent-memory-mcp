@@ -4,6 +4,7 @@ import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
 import { packToBudget, scoreCandidate } from "./ranking.js";
 import { redact } from "./redact.js";
+import { traced } from "./telemetry.js";
 import type { Candidate, ScoreBreakdown } from "./ranking.js";
 import { executeForget } from "./forget.js";
 
@@ -118,10 +119,26 @@ export class MemoryStore {
     private readonly embedder: Embedder,
   ) {}
 
-  async write(
+  write(
     scope: Scope,
     input: MemoryInput,
     options: WriteOptions = {},
+  ): Promise<Memory> {
+    return traced("memory.write", () => this.doWrite(scope, input, options));
+  }
+
+  search(
+    scope: Scope,
+    query: string,
+    options: { limit?: number } = {},
+  ): Promise<SearchResult[]> {
+    return traced("memory.search", () => this.doSearch(scope, query, options));
+  }
+
+  private async doWrite(
+    scope: Scope,
+    input: MemoryInput,
+    options: WriteOptions,
   ): Promise<Memory> {
     // An agent can pass a secret straight to memory_write, so this is the
     // last point where it can be caught before storage.
@@ -260,10 +277,10 @@ export class MemoryStore {
     });
   }
 
-  async search(
+  private async doSearch(
     scope: Scope,
     query: string,
-    options: { limit?: number } = {},
+    options: { limit?: number },
   ): Promise<SearchResult[]> {
     const [embedding] = await this.embedder.embed([query]);
     if (embedding === undefined) {
@@ -341,8 +358,10 @@ export class MemoryStore {
     task: string,
     options: { maxTokens?: number } = {},
   ): Promise<SearchResult[]> {
-    const results = await this.search(scope, task, { limit: DEFAULT_TOP_K });
-    return packToBudget(results, options.maxTokens ?? DEFAULT_TOKEN_BUDGET);
+    return traced("memory.context_for", async () => {
+      const results = await this.search(scope, task, { limit: DEFAULT_TOP_K });
+      return packToBudget(results, options.maxTokens ?? DEFAULT_TOKEN_BUDGET);
+    });
   }
 
   /** Hard delete, including the transcript it came from. Returns memory ids removed. */

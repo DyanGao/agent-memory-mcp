@@ -3,6 +3,7 @@ import type { Pool, PoolClient } from "pg";
 import { withScope } from "./db.js";
 import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
+import { traced } from "./telemetry.js";
 
 // A memory this close to the topic is treated as about it.
 const TOPIC_MIN_SIMILARITY = 0.7;
@@ -173,7 +174,18 @@ export async function previewForget(
   );
 }
 
-export async function executeForget(
+export function executeForget(
+  pool: Pool,
+  embedder: Embedder,
+  scope: Scope,
+  selector: ForgetSelector,
+): Promise<ForgetReceipt> {
+  return traced("memory.forget", () =>
+    runForget(pool, embedder, scope, selector),
+  );
+}
+
+async function runForget(
   pool: Pool,
   embedder: Embedder,
   scope: Scope,

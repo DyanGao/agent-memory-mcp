@@ -43,3 +43,4 @@ export { executeForget, previewForget, scrubDeletedData } from "./forget.js";
 export type { ForgetPlan, ForgetReceipt, ForgetSelector } from "./forget.js";
 export { exportUserData, readAudit } from "./account.js";
 export type { AuditEntry } from "./account.js";
+export { startTelemetry, traced } from "./telemetry.js";
