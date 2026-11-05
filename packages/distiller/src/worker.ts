@@ -4,6 +4,7 @@ import {
   MemoryStore,
   OllamaEmbedder,
   scopeOf,
+  scrubDeletedData,
   sweepExpired,
 } from "@agent-memory/core";
 import pg from "pg";
@@ -56,5 +57,6 @@ await queue.workRetention(async () => {
   log(
     `retention removed ${swept.memoriesDeleted} memories, ${swept.eventsDeleted} events`,
   );
+  if (await scrubDeletedData(pool)) log("scrubbed deleted data from disk");
 });
 log(`ready with ${llm.name}`);

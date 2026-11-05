@@ -5,6 +5,7 @@ import type { Embedder } from "./embedder.js";
 import { packToBudget, scoreCandidate } from "./ranking.js";
 import { redact } from "./redact.js";
 import type { Candidate, ScoreBreakdown } from "./ranking.js";
+import { executeForget } from "./forget.js";
 
 export const MEMORY_TYPES = [
   "fact",
@@ -25,6 +26,14 @@ const HNSW_EF_SEARCH = 100;
 const HNSW_MAX_SCAN_TUPLES = 200_000;
 
 const IS_CURRENT = `superseded_by IS NULL AND (valid_to IS NULL OR valid_to > now())`;
+
+/** The events behind a memory were forgotten while it was being distilled. */
+export class SourceForgottenError extends Error {
+  constructor() {
+    super("The source events of this memory were forgotten");
+    this.name = "SourceForgottenError";
+  }
+}
 
 export interface MemoryInput {
   content: string;
@@ -115,6 +124,18 @@ export class MemoryStore {
     }
 
     return withScope(this.pool, scope, async (client) => {
+      // The lock makes a concurrent forget wait until this commits, and it
+      // then deletes what was written. Without this check a distiller that
+      // started before a forget could bring the content straight back.
+      const sources = input.sourceEventIds ?? [];
+      if (sources.length > 0) {
+        const { rowCount } = await client.query(
+          "SELECT id FROM events WHERE id = ANY($1::uuid[]) FOR KEY SHARE",
+          [sources],
+        );
+        if (rowCount !== sources.length) throw new SourceForgottenError();
+      }
+
       const { rows } = await client.query<MemoryRow>(
         `INSERT INTO memories (scope_user, scope_project, scope_agent, scope_session,
                                type, content, embedding, embed_model, importance,
@@ -277,18 +298,21 @@ export class MemoryStore {
     return packToBudget(results, options.maxTokens ?? DEFAULT_TOKEN_BUDGET);
   }
 
-  /** Hard delete. RLS limits it to the scope. Returns the ids really removed. */
+  /** Hard delete, including the transcript it came from. Returns memory ids removed. */
   async forget(scope: Scope, ids: string[]): Promise<string[]> {
-    return withScope(this.pool, scope, async (client) => {
-      const { rows } = await client.query<{ id: string }>(
-        "DELETE FROM memories WHERE id = ANY($1::uuid[]) RETURNING id",
-        [ids],
-      );
-      const deleted = rows.map((row) => row.id);
-      if (deleted.length > 0) {
-        await audit(client, "forget", scope.user, deleted);
-      }
-      return deleted;
-    });
+    const before = await withScope(
+      this.pool,
+      { ...scope, allProjects: true },
+      async (client) => {
+        const { rows } = await client.query<{ id: string }>(
+          "SELECT id FROM memories WHERE id = ANY($1::uuid[])",
+          [ids],
+        );
+        return rows.map((row) => row.id);
+      },
+    );
+    if (before.length === 0) return [];
+    await executeForget(this.pool, this.embedder, scope, { ids: before });
+    return before;
   }
 }

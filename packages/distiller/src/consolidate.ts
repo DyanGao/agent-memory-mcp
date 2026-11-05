@@ -107,10 +107,6 @@ export async function consolidate(
 
   const decision = await decide(llm, candidate, similar);
   if (decision.action === "skip") return "skipped";
-  if (decision.action === "supersede") {
-    await write(decision.ids);
-    return "superseded";
-  }
-  await write();
-  return "added";
+  await write(decision.ids);
+  return decision.action === "supersede" ? "superseded" : "added";
 }

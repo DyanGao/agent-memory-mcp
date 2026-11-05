@@ -12,6 +12,8 @@ export interface TestDb {
   owner: pg.Pool;
   /** The restricted runtime role. RLS applies. */
   app: pg.Pool;
+  /** Runs a command inside the database container and returns its output. */
+  exec(command: string[]): Promise<string>;
   stop(): Promise<void>;
 }
 
@@ -48,6 +50,7 @@ export async function startTestDb(): Promise<TestDb> {
   return {
     owner,
     app,
+    exec: async (command) => (await container.exec(command)).output,
     stop: async () => {
       await app.end();
       await owner.end();

@@ -74,6 +74,7 @@ export async function ingestEvents(
               now() + make_interval(days => $4::int)
        FROM unnest($5::uuid[], $6::bigint[], $7::text[], $8::text[], $9::timestamptz[])
          AS t(id, seq, kind, payload, ts)
+       WHERE NOT EXISTS (SELECT 1 FROM forgotten_events f WHERE f.id = t.id)
        ON CONFLICT (id) DO NOTHING`,
       [
         scope.user,
@@ -184,6 +185,9 @@ export async function sweepExpired(
     memories_deleted: string;
     events_deleted: string;
   }>("SELECT * FROM sweep_expired($1)", [retentionDays]);
+  const swept =
+    Number(rows[0]!.memories_deleted) + Number(rows[0]!.events_deleted);
+  if (swept > 0) await pool.query("SELECT mark_scrub_pending()");
   return {
     memoriesDeleted: Number(rows[0]!.memories_deleted),
     eventsDeleted: Number(rows[0]!.events_deleted),

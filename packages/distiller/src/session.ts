@@ -1,6 +1,7 @@
 import {
   loadDistillableEvents,
   recordDistillOutcome,
+  SourceForgottenError,
 } from "@agent-memory/core";
 import type { Embedder, MemoryStore, Scope } from "@agent-memory/core";
 import type { Pool } from "pg";
@@ -32,8 +33,13 @@ export async function distillSession(
 
     let memoriesWritten = 0;
     for (const candidate of candidates) {
-      const outcome = await consolidate(deps, scope, candidate);
-      if (outcome !== "skipped") memoriesWritten += 1;
+      try {
+        const outcome = await consolidate(deps, scope, candidate);
+        if (outcome !== "skipped") memoriesWritten += 1;
+      } catch (error) {
+        // Forgotten mid-run. Dropping it is the correct result, not a failure.
+        if (!(error instanceof SourceForgottenError)) throw error;
+      }
     }
 
     await recordDistillOutcome(deps.pool, scope, sessionId, {

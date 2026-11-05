@@ -249,18 +249,19 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       expect(await store.list(alice)).toHaveLength(1);
     });
 
-    it("keeps a superseding memory when the old one is forgotten", async () => {
+    it("keeps the newer memory when an older version is forgotten", async () => {
       const old = await store.write(alice, { content: "old", type: "fact" });
-      const next = await store.write(alice, { content: "next", type: "fact" });
-      await db.owner.query(
-        "UPDATE memories SET superseded_by = $1 WHERE id = $2",
-        [old.id, next.id],
+      await store.write(
+        alice,
+        { content: "next", type: "fact" },
+        { supersedes: [old.id] },
       );
       await store.forget(alice, [old.id]);
-      const { rows } = await db.owner.query<{ superseded_by: string | null }>(
-        "SELECT superseded_by FROM memories",
-      );
-      expect(rows).toEqual([{ superseded_by: null }]);
+      const { rows } = await db.owner.query<{
+        content: string;
+        superseded_by: string | null;
+      }>("SELECT content, superseded_by FROM memories");
+      expect(rows).toEqual([{ content: "next", superseded_by: null }]);
     });
 
     it("audits writes and deletes with ids but no content", async () => {

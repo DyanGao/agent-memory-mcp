@@ -1,4 +1,5 @@
 import {
+  executeForget,
   FakeEmbedder,
   getDistillStatus,
   ingestEvents,
@@ -57,7 +58,7 @@ describe("distillSession", () => {
   });
   beforeEach(async () => {
     await db.owner.query(
-      "TRUNCATE memories, events, distill_status, audit_log",
+      "TRUNCATE memories, events, distill_status, audit_log, forgotten_events",
     );
   });
 
@@ -105,6 +106,27 @@ describe("distillSession", () => {
     const { llm, requests } = scripted(memories());
     await distillSession(deps(llm), alice, "s1");
     expect(JSON.stringify(requests)).not.toContain("IGNORE ALL RULES");
+  });
+
+  it("drops a memory whose session was forgotten during the LLM call", async () => {
+    await seed("forgetrace note");
+    const embedder = new FakeEmbedder();
+    const llm: LlmProvider = {
+      name: "fake",
+      hosted: false,
+      generateJson: async () => {
+        await executeForget(db.app, embedder, alice, { topic: "forgetrace" });
+        return memories("forgetrace distilled");
+      },
+    };
+    await distillSession(deps(llm), alice, "s1");
+
+    const { rows } = await db.owner.query("SELECT id FROM memories");
+    expect(rows).toEqual([]);
+    expect(await getDistillStatus(db.app, alice, "s1")).toMatchObject({
+      status: "done",
+      memoriesWritten: 0,
+    });
   });
 
   it("does not call the model again for a distilled session", async () => {
