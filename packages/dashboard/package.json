@@ -1,0 +1,10 @@
+{
+  "name": "@agent-memory/dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {}
+}
