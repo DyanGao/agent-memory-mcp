@@ -162,7 +162,7 @@ export class MemoryStore {
       // Any query word may match. plainto_tsquery alone requires all of them.
       const text = await client.query<MemoryRow>(
         `WITH q AS (
-           SELECT replace(plainto_tsquery('simple', $1)::text, '&', '|')::tsquery AS query
+           SELECT replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery AS query
          )
          SELECT id, type, content, importance, created_at
          FROM memories, q

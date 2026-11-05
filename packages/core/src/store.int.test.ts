@@ -95,6 +95,15 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       expect(hit?.score.textRank).toBe(1);
     });
 
+    it("does not count stop words as a text match", async () => {
+      await store.write(alice, {
+        content: "The standup moved to Tuesdays on the calendar",
+        type: "fact",
+      });
+      const [hit] = await store.search(alice, "what runs on the server");
+      expect(hit?.score.textRank).toBeNull();
+    });
+
     it("explains every score", async () => {
       await store.write(alice, { content: "exact phrase", type: "fact" });
       const [hit] = await store.search(alice, "exact phrase");

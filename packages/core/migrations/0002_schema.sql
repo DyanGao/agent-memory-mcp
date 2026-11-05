@@ -29,8 +29,9 @@ CREATE TABLE memories (
   scope_session text,
   type text NOT NULL CHECK (type IN ('fact', 'decision', 'preference', 'todo', 'error_fix')),
   content text NOT NULL,
-  -- 'simple' applies no language stemming: memories can be in any language.
-  fts tsvector GENERATED ALWAYS AS (to_tsvector('simple', content)) STORED,
+  -- 'english' drops stop words, which would otherwise count as matches. Other
+  -- languages still match on exact words, and the vector side covers meaning.
+  fts tsvector GENERATED ALWAYS AS (to_tsvector('english', content)) STORED,
   embedding vector(1024) NOT NULL,
   embed_model text NOT NULL,
   importance real NOT NULL DEFAULT 0.5 CHECK (importance BETWEEN 0 AND 1),

@@ -40,7 +40,7 @@ docker compose up -d          # postgres+pgvector, server, dashboard
 ```
 Register with your agent:
 ```json
-{ "mcpServers": { "memory": { "command": "npx", "args": ["@dyangao/agent-memory-mcp", "--url", "http://localhost:8787"] } } }
+{ "mcpServers": { "memory": { "command": "npx", "args": ["@dyangao/agent-memory-mcp", "--url", "http://localhost:8787"], "env": { "MEMORY_API_KEY": "<from your .env>" } } } }
 ```
 
 ## Architecture
@@ -49,7 +49,10 @@ Short summary + diagram, details in [ARCHITECTURE.md](ARCHITECTURE.md).
 ## Configuration
 | Variable | Default | Description |
 |---|---|---|
-| `DATABASE_URL` | `postgres://...` | Postgres with pgvector |
+| `DATABASE_URL` | `postgres://...` | Owner connection, used only for setup and migrations |
+| `APP_DATABASE_URL` | `postgres://memory_app...` | Restricted connection used for serving, so row-level security applies |
+| `MEMORY_APP_PASSWORD` | none | Password set on the `memory_app` role at startup |
+| `MEMORY_API_KEY` | none | Bearer token clients must send |
 | `EMBED_MODEL` | `bge-m3` (local) | Embedding model |
 | `DISTILL_MODEL` | `ollama:qwen3` | Model used for distillation |
 | `RETENTION_DAYS` | `365` | Auto-expiry for memories |
@@ -60,7 +63,7 @@ Short summary + diagram, details in [ARCHITECTURE.md](ARCHITECTURE.md).
 - Not legal advice; see `docs/privacy.md` for the data-flow description
 
 ## Roadmap
-- [ ] v0.1 MCP server + manual write/search
+- [x] v0.1 MCP server + manual write/search
 - [ ] v0.2 automatic capture + distillation
 - [ ] v0.3 dashboard + GDPR tooling
 - [ ] v0.4 eval harness + published results
