@@ -60,6 +60,8 @@ audit_log(id bigserial, action text, actor text, target_ids uuid[], ts timestamp
 | 7 | Tool names use underscores | dotted names | dots are valid MCP but some clients reportedly filter them |
 | 8 | Redact at ingest, before storage | redact before distillation | otherwise secrets persist in `events` |
 | 9 | Identity from client config, never tool arguments | scope as a tool argument | a prompt-injected agent cannot cross scopes |
+| 11 | Tool output never reaches the distiller | distill everything | `qwen3` stored a planted instruction despite a prompt calling the transcript data. Tool output is where third-party text enters |
+| 12 | One memory may supersede several | one-to-one | a changed fact can outdate a decision that depended on it, and a stale decision misleads later sessions |
 | 10 | `english` text config | `simple` | `simple` keeps stop words, which then count as matches. Other languages still match exact words |
 
 ## 7. Security & privacy
@@ -79,4 +81,5 @@ eval/  docs/  docker-compose.yml  .github/workflows/
 ## 10. Open questions
 - Best default token budget per task type?
 - When to forget automatically (decay vs. explicit TTL)?
+- How far can memory poisoning be reduced when the planted text comes from the user or is repeated by the agent?
 - What minimum relevance should retrieval require? Rank fusion has no absolute cutoff, so a small store returns unrelated memories. Tune against the eval.
