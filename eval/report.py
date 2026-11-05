@@ -50,6 +50,28 @@ def scale_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def pilot_rows(folder: Path) -> str:
+    rows = load(folder, "coding-pilot")["rows"]
+    # rate-limit ran separately. Its first memory run hit the truncation bug,
+    # which was fixed before this rerun.
+    rows += load(folder, "coding-pilot-ratelimit-memory")["rows"]
+    rows += [
+        row
+        for row in load(folder, "coding-smoke")["rows"]
+        if row["setup"] in ("none", "full_history")
+    ]
+    setups = {
+        "none": "No memory",
+        "full_history": "Full history",
+        "memory": "agent-memory-mcp",
+    }
+    lines = ["| Setup | Tasks passed |", "|---|---|"]
+    for key, label in setups.items():
+        runs = [row for row in rows if row["setup"] == key]
+        lines.append(f"| {label} | {sum(r['passed'] for r in runs)} of {len(runs)} |")
+    return "\n".join(lines)
+
+
 def main() -> None:
     folder = sorted((ROOT / "eval" / "results").iterdir())[-1]
     deletion = load(folder, "deletion")
@@ -60,6 +82,7 @@ def main() -> None:
         template.replace("{{date}}", folder.name)
         .replace("{{deletion}}", deletion_rows(deletion))
         .replace("{{scale}}", scale_rows(folder))
+        .replace("{{pilot}}", pilot_rows(folder))
         .replace("{{offered}}", f"{reviewed['facts_offered_for_review']} of {reviewed['facts']}")
         .replace("{{candidates}}", f"{reviewed['candidates_per_preview']:.1f}")
         .replace("{{kept}}", f"{reviewed['facts_kept_by_distiller']} of {reviewed['facts']}")

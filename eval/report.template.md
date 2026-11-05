@@ -36,10 +36,21 @@ Synthetic vectors, one client, excluding embedding and LLM calls, at the default
 - **Rows at `ef_search` 200 in the raw results are not index recall.** Their recall of 1.0 at about 130 ms shows the planner chose an exact scan.
 - **Search also uses full-text ranking,** so vector recall alone does not decide retrieval quality. How much that helps has not been measured.
 
+## Coding-agent pilot
+
+5 tasks, 1 run each, on Claude Code with Haiku. Session 1 makes a decision in conversation only, and session 2 needs it, in a separate folder. Hidden tests decide the result.
+
+{{pilot}}
+
+- **This shows the pipeline carries a decision end to end.** It does not yet show a general benefit. Each task needs a fact that exists nowhere else, so no-memory failing is close to guaranteed by the design.
+- **Full history tied because that history is tiny.** One short exchange costs almost nothing to replay. Memory only earns its place with long histories, which this pilot does not test.
+- **Runs used the machine's global Claude Code instructions.** They applied equally to all setups, but they must be removed for a run others can reproduce.
+
 ## What this eval changed in the product
 
 - Reworded topics now need human review, because automatic matching could not be made safe.
 - Forgetting a memory also removes transcripts repeating its words.
+- The distiller no longer cuts a memory off at a double quote. The pilot found this on its first task: a rate limit arrived with its response body missing. The fix is a prompt rule, so another model could still do it.
 - `ef_search` went from 100 to 400, nearly doubling worst-case recall at 10k for under 3 ms.
 - Postgres now gets 1 GB of shared memory. Docker's default of 64 MB is too small for parallel vector index builds, including the one in the nightly scrub.
 - The scrub now holds its lock for 19.6 s at 100k clustered, down from 82 s, and retries after a failure.
@@ -50,6 +61,7 @@ Synthetic vectors, one client, excluding embedding and LLM calls, at the default
 - **No minimum relevance.** Small stores return unrelated memories.
 - **Memory poisoning.** Skipping tool output closes the main route, but text the user pastes, or that the agent repeats, can still be stored. No poisoning case is scored yet.
 - **Importance scores** are narrow, mostly 0.5 and 0.7.
+- **Memories fill with session noise.** Of 46 memories stored in the pilot, 5 were the decisions and many of the rest were session status such as "the repo is not a git repository" or "all 6 tests pass". This will crowd out useful memories as a store grows.
 
 ## Reproduce
 
