@@ -1,0 +1,1 @@
+Add src/invoice.mjs exporting invoiceVat(lineNetAmounts), which takes an array of net amounts as numbers and returns the VAT for the invoice as a number. Follow our current VAT rule.

@@ -1,0 +1,1 @@
+Add src/retention.mjs exporting shouldPurge(account, now). account has deletedAt (a Date or null) and status (a string), and now is a Date. It returns true or false. Follow all of our retention rules.

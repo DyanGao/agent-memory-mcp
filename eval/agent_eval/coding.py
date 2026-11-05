@@ -67,6 +67,8 @@ def claude(prompt: str, cwd: Path, session_id: str, extra: list[str]) -> dict:
     command = [
         "claude", "-p", prompt, "--model", MODEL, "--output-format", "json",
         "--session-id", session_id, "--strict-mcp-config",
+        # Project settings only: personal instructions must not shape results.
+        "--setting-sources", "project,local",
         "--allowedTools", TOOLS, *extra,
     ]
     started = time.monotonic()
