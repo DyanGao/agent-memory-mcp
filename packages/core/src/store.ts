@@ -22,7 +22,9 @@ export const DEFAULT_TOKEN_BUDGET = 1500;
 
 // Candidates fetched from each retriever before fusion.
 const CANDIDATES_PER_RETRIEVER = 50;
-const HNSW_EF_SEARCH = 100;
+// Measured at 10k memories. On uniform random vectors, HNSW's hard case, 100
+// gave recall@10 of 0.44 and 400 gave 0.85, for under 3 ms more at p95.
+const HNSW_EF_SEARCH = 400;
 // Upper bound on index tuples visited when a narrow scope filters most out.
 const HNSW_MAX_SCAN_TUPLES = 200_000;
 

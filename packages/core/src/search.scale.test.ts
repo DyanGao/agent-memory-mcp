@@ -8,28 +8,46 @@ import { startTestDb } from "./testing.js";
 import type { TestDb } from "./testing.js";
 
 const TOTAL = Number(process.env.SCALE_MEMORIES ?? 10_000);
+// "clustered" is closer to real embeddings. "random" is HNSW's hard case.
+const SHAPE = process.env.SCALE_VECTORS ?? "clustered";
 const NARROW_SCOPE_SIZE = 30;
 const QUERIES = 200;
 const RECALL_QUERIES = 30;
 const BATCH = 500;
+const CLUSTERS = 200;
+const CLUSTER_NOISE = 0.35;
+const EF_SEARCH_VALUES = [100, 200, 400, 800];
 
-function randomUnitVector(): number[] {
-  const raw = Array.from(
-    { length: EMBEDDING_DIMENSION },
-    () => Math.random() - 0.5,
-  );
+const normalise = (raw: number[]): number[] => {
   const norm = Math.hypot(...raw);
   return raw.map((value) => value / norm);
-}
-
-// Random vectors are a hard case for HNSW: real embeddings cluster.
-const randomEmbedder: Embedder = {
-  model: "random",
-  embed: async (texts) => texts.map(randomUnitVector),
 };
 
-describe(`search at ${TOTAL} memories`, () => {
-  const results: Record<string, number> = {};
+const gaussian = (): number =>
+  Math.sqrt(-2 * Math.log(1 - Math.random())) *
+  Math.cos(2 * Math.PI * Math.random());
+
+const noise = (): number[] =>
+  normalise(Array.from({ length: EMBEDDING_DIMENSION }, gaussian));
+
+const centres = Array.from({ length: CLUSTERS }, noise);
+
+function nextVector(): number[] {
+  if (SHAPE === "random") return noise();
+  const centre = centres[Math.floor(Math.random() * CLUSTERS)]!;
+  const offset = noise();
+  return normalise(
+    centre.map((value, i) => value + CLUSTER_NOISE * offset[i]!),
+  );
+}
+
+const embedder: Embedder = {
+  model: "synthetic",
+  embed: async (texts) => texts.map(nextVector),
+};
+
+describe(`search at ${TOTAL} ${SHAPE} memories`, () => {
+  const results: Record<string, unknown> = { memories: TOTAL, vectors: SHAPE };
   let db: TestDb;
   let store: MemoryStore;
   const big = { user: "big", project: "main" };
@@ -37,22 +55,32 @@ describe(`search at ${TOTAL} memories`, () => {
 
   beforeAll(async () => {
     db = await startTestDb();
-    store = new MemoryStore(db.app, randomEmbedder);
+    store = new MemoryStore(db.app, embedder);
 
+    // Loading first and indexing after is far faster than inserting into a
+    // live HNSW graph, and produces the same kind of index.
+    await db.owner.query("DROP INDEX memories_embedding_idx");
     for (let start = 0; start < TOTAL; start += BATCH) {
       const contents: string[] = [];
       const vectors: string[] = [];
       for (let i = start; i < start + BATCH; i++) {
         contents.push(`synthetic memory ${i} about topic ${i % 97}`);
-        vectors.push(JSON.stringify(randomUnitVector()));
+        vectors.push(JSON.stringify(nextVector()));
       }
       await db.owner.query(
         `INSERT INTO memories (scope_user, scope_project, type, content, embedding, embed_model)
-         SELECT 'big', 'main', 'fact', c, v::vector, 'random'
+         SELECT 'big', 'main', 'fact', c, v::vector, 'synthetic'
          FROM unnest($1::text[], $2::text[]) AS t(c, v)`,
         [contents, vectors],
       );
     }
+    const client = await db.owner.connect();
+    await client.query("SET maintenance_work_mem = '1GB'");
+    await client.query(
+      "CREATE INDEX memories_embedding_idx ON memories USING hnsw (embedding vector_cosine_ops)",
+    );
+    client.release();
+
     for (let i = 0; i < NARROW_SCOPE_SIZE; i++) {
       await store.write(narrow, { content: `narrow note ${i}`, type: "fact" });
     }
@@ -66,70 +94,89 @@ describe(`search at ${TOTAL} memories`, () => {
     );
     mkdirSync(directory, { recursive: true });
     writeFileSync(
-      new URL(`scale-${TOTAL}.json`, directory),
-      JSON.stringify({ memories: TOTAL, ...results }, null, 2) + "\n",
+      new URL(`scale-${SHAPE}-${TOTAL}.json`, directory),
+      JSON.stringify(results, null, 2) + "\n",
     );
   });
 
   it("finds every memory of a tiny scope among all the others", async () => {
-    const results = await store.search(narrow, "zzz-no-text-match", {
+    const found = await store.search(narrow, "zzz-no-text-match", {
       limit: 100,
     });
-    expect(results).toHaveLength(NARROW_SCOPE_SIZE);
+    expect(found).toHaveLength(NARROW_SCOPE_SIZE);
   });
 
-  it("reports vector recall@10 against exact search", async () => {
-    const hits: number[] = [];
-    for (let i = 0; i < RECALL_QUERIES; i++) {
-      const vector = JSON.stringify(randomUnitVector());
-      const nearest = async (exact: boolean): Promise<string[]> => {
-        const client = await db.owner.connect();
-        try {
-          await client.query("BEGIN");
-          await client.query(
-            `SELECT set_config('enable_indexscan', $1, true),
-                    set_config('hnsw.ef_search', '100', true),
-                    set_config('hnsw.iterative_scan', 'strict_order', true)`,
-            [exact ? "off" : "on"],
-          );
-          const { rows } = await client.query<{ id: string }>(
-            `SELECT id FROM memories WHERE scope_user = 'big'
-             ORDER BY embedding <=> $1::vector LIMIT 10`,
-            [vector],
-          );
-          await client.query("COMMIT");
-          return rows.map((row) => row.id);
-        } finally {
-          client.release();
-        }
-      };
-      const truth = new Set(await nearest(true));
-      const found = await nearest(false);
-      hits.push(found.filter((id) => truth.has(id)).length / 10);
-    }
-    const recall = hits.reduce((a, b) => a + b, 0) / hits.length;
-    results.recallAt10 = Number(recall.toFixed(3));
-    process.stderr.write(
-      `recall@10 at ${TOTAL} memories: ${recall.toFixed(3)}\n`,
+  it("reports vector recall@10 against exact search at each ef_search", async () => {
+    const queries = Array.from({ length: RECALL_QUERIES }, () =>
+      JSON.stringify(nextVector()),
     );
-    expect(hits).toHaveLength(RECALL_QUERIES);
+
+    const nearest = async (
+      vector: string,
+      exact: boolean,
+      ef: number,
+    ): Promise<{ ids: string[]; ms: number }> => {
+      const client = await db.owner.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `SELECT set_config('enable_indexscan', $1, true),
+                  set_config('hnsw.ef_search', $2, true),
+                  set_config('hnsw.iterative_scan', 'strict_order', true)`,
+          [exact ? "off" : "on", String(ef)],
+        );
+        const started = performance.now();
+        const { rows } = await client.query<{ id: string }>(
+          `SELECT id FROM memories WHERE scope_user = 'big'
+           ORDER BY embedding <=> $1::vector LIMIT 10`,
+          [vector],
+        );
+        const ms = performance.now() - started;
+        await client.query("COMMIT");
+        return { ids: rows.map((row) => row.id), ms };
+      } finally {
+        client.release();
+      }
+    };
+
+    const truth = new Map<string, Set<string>>();
+    for (const vector of queries) {
+      truth.set(vector, new Set((await nearest(vector, true, 100)).ids));
+    }
+
+    const byEf = [];
+    for (const ef of EF_SEARCH_VALUES) {
+      const hits: number[] = [];
+      const timings: number[] = [];
+      for (const vector of queries) {
+        const { ids, ms } = await nearest(vector, false, ef);
+        const expected = truth.get(vector)!;
+        hits.push(ids.filter((id) => expected.has(id)).length / 10);
+        timings.push(ms);
+      }
+      const recall = hits.reduce((a, b) => a + b, 0) / hits.length;
+      const row = {
+        efSearch: ef,
+        recallAt10: Number(recall.toFixed(3)),
+        vectorP95Ms: Number(estimateP95Ms(timings).toFixed(1)),
+      };
+      byEf.push(row);
+      process.stderr.write(`${SHAPE} ${TOTAL} ${JSON.stringify(row)}\n`);
+    }
+    results.recallByEfSearch = byEf;
+    expect(byEf).toHaveLength(EF_SEARCH_VALUES.length);
   });
 
-  it("reports p95 search latency, excluding embedding", async () => {
+  it("reports p95 full search latency, excluding embedding", async () => {
     const timings: number[] = [];
     for (let i = 0; i < QUERIES; i++) {
       const started = performance.now();
       await store.search(big, `topic ${i % 97}`);
       timings.push(performance.now() - started);
     }
-    const p95 = estimateP95Ms(timings);
-    results.p95Ms = Number(p95.toFixed(1));
-    const sorted = [...timings].sort((a, b) => a - b);
-    const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
-    results.medianMs = Number(median.toFixed(1));
+    results.searchP95Ms = Number(estimateP95Ms(timings).toFixed(1));
     process.stderr.write(
-      `p95 search latency at ${TOTAL} memories: ${p95.toFixed(1)} ms
-`,
+      `${SHAPE} ${TOTAL} full search p95 ${String(results.searchP95Ms)} ms\n`,
     );
     expect(timings).toHaveLength(QUERIES);
   });

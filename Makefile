@@ -22,4 +22,8 @@ eval-knowledge:
 	cd eval && uv run python -m agent_eval.knowledge
 
 eval-scale:
-	for n in 1000 10000 100000; do SCALE_MEMORIES=$$n pnpm test:scale; done
+	for shape in random clustered; do \
+		for n in 1000 10000 100000; do \
+			SCALE_VECTORS=$$shape SCALE_MEMORIES=$$n pnpm test:scale || exit 1; \
+		done; \
+	done
