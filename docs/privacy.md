@@ -66,10 +66,11 @@ Every forget returns a receipt with counts and a fingerprint of the deleted ids.
 
 These are not solved by the software, and you should plan for them.
 
-- **Timing on disk.** A forget removes content from every read path at once, and a daily scrub (`VACUUM FULL`) then removes the bytes from table files. This scrub runs at 03:00 only if something was deleted, and briefly locks the tables. A test reads the raw files to confirm it. Until then, the bytes remain in unused page space.
+- **Timing on disk.** A forget removes content from every read path at once, and a daily scrub (`VACUUM FULL`) then removes the bytes from table files. This scrub runs at 03:00 only if something was deleted, and locks the tables while it rewrites them, so reads and writes wait. If it fails, it retries the next night. A test reads the raw files to confirm it. Until then, the bytes remain in unused page space.
 - **Write-ahead log.** Deleted text stays in Postgres WAL until those segments are recycled, which by default happens shortly after checkpoints.
 - **Backups.** A forget cannot reach backups or volume snapshots. Set their retention to match your policy, and if you restore one, re-run outstanding erasures. `forgotten_events` protects against resumed sessions, not against a restored database.
 - **The host.** Disk blocks are not securely overwritten. Use full-disk encryption.
-- **Topic matching.** It finds the words of the topic, and memories close to it in meaning. Text that says the same thing differently may be missed, so preview first and forget by person where certainty matters.
+- **Topic matching.** Automatic deletion only takes the topic's words and very close matches. In testing, a topic reworded with no shared words deleted none of 50 planted facts, and no single similarity cutoff could fix that without wrongly matching unrelated memories. The preview therefore lists possible matches for a person to tick, and those are only deleted if chosen. Always read the preview. Forget by person where certainty matters.
+- **Transcripts behind a chosen memory.** Forgetting a memory removes linked events and events repeating its words. A transcript that says the same thing in different words, with no link to that memory, can remain. Forget by person, or by date range, removes these too.
 - **Agents.** A forget cannot reach what an agent already read into a running session, or anything a hosted provider has processed under its own retention terms.
 - **Memory poisoning.** Skipping tool output closes the main route for planted instructions, but text the user pastes, or that the agent repeats, can still become a memory. Memories are returned as stored data to verify, not as instructions.

@@ -239,7 +239,9 @@ describe("forget", () => {
       const plan = await previewForget(db.app, embedder, alice, {
         topic: "previewcanary",
       });
-      expect(plan.memoryIds).toHaveLength(1);
+      expect(plan.memories.map((m) => m.content)).toEqual([
+        "previewcanary note",
+      ]);
       expect(plan.eventIds).toHaveLength(2);
       expect(await rawScan("previewcanary")).toEqual(before);
 
@@ -248,6 +250,91 @@ describe("forget", () => {
       });
       expect(receipt).toMatchObject({ memoriesDeleted: 1, eventsDeleted: 2 });
     });
+  });
+
+  describe("candidates", () => {
+    // Every text gets the same vector, so everything looks similar.
+    const sameVector = {
+      model: "same",
+      embed: async (texts: string[]) => {
+        const [vector] = await embedder.embed(["fixed"]);
+        return texts.map(() => vector!);
+      },
+    };
+    const lowSimilarity = {
+      model: "low",
+      embed: async (texts: string[]) => {
+        const size = 1024;
+        return texts.map((text) => {
+          const lean = text.startsWith("about") ? 0.6 : 1;
+          const vector = new Array<number>(size).fill(0);
+          vector[0] = lean;
+          vector[1] = Math.sqrt(1 - lean * lean);
+          return vector;
+        });
+      },
+    };
+
+    it("offers a possible match without planning to delete it", async () => {
+      const lowStore = new MemoryStore(db.app, lowSimilarity);
+      await lowStore.write(alice, {
+        content: "holds a diagnosis",
+        type: "fact",
+      });
+      const preview = await previewForget(db.app, lowSimilarity, alice, {
+        topic: "about my health",
+      });
+      expect(preview.memoryIds).toEqual([]);
+      expect(preview.candidates.map((c) => c.content)).toEqual([
+        "holds a diagnosis",
+      ]);
+      expect(preview.candidates[0]?.similarity).toBeCloseTo(0.6);
+    });
+
+    it("does not offer what is already planned", async () => {
+      const sameStore = new MemoryStore(db.app, sameVector);
+      await sameStore.write(alice, { content: "anything", type: "fact" });
+      const preview = await previewForget(db.app, sameVector, alice, {
+        topic: "topic",
+      });
+      expect(preview.memoryIds).toHaveLength(1);
+      expect(preview.candidates).toEqual([]);
+    });
+
+    it("deletes a chosen candidate along with the topic matches", async () => {
+      const matched = await seedSession(alice, "s1", "keywordcanary note");
+      const chosen = await seedSession(alice, "s2", "chosencanary note");
+      const untouched = await seedSession(alice, "s3", "untouched note");
+      await executeForget(db.app, embedder, alice, {
+        topic: "keywordcanary",
+        ids: [chosen.id],
+      });
+      const left = await store.list(alice);
+      expect(left.map((m) => m.id)).toEqual([untouched.id]);
+      expect(left.map((m) => m.id)).not.toContain(matched.id);
+      expect(await rawScan("chosencanary")).toEqual([]);
+    });
+  });
+
+  it("removes transcript text that an unlinked memory repeats", async () => {
+    await ingestEvents(
+      db.app,
+      alice,
+      "s1",
+      [
+        { seq: 1, kind: "user_text", text: "my unlinkedcanary diagnosis" },
+        { seq: 2, kind: "user_text", text: "an unrelated remark" },
+      ],
+      options,
+    );
+    const memory = await store.write(alice, {
+      content: "my unlinkedcanary diagnosis",
+      type: "fact",
+    });
+    await executeForget(db.app, embedder, alice, { ids: [memory.id] });
+    expect(await rawScan("unlinkedcanary")).toEqual([]);
+    const { rows } = await db.owner.query("SELECT id FROM events");
+    expect(rows).toHaveLength(1);
   });
 
   describe("receipt and audit", () => {
@@ -404,6 +491,15 @@ describe("forget", () => {
       expect(await filesContaining("diskcanary")).toBe(0);
       expect(await filesContaining("diskkeeper")).toBeGreaterThan(0);
     }, 60_000);
+
+    it("tries again tomorrow if the scrub fails", async () => {
+      await db.owner.query("UPDATE scrub_state SET pending = true");
+      await db.owner.query("ALTER TABLE events RENAME TO events_moved");
+      await expect(scrubDeletedData(db.app)).rejects.toThrow(/events/);
+      await db.owner.query("ALTER TABLE events_moved RENAME TO events");
+      const { rows } = await db.owner.query("SELECT pending FROM scrub_state");
+      expect(rows[0].pending).toBe(true);
+    });
 
     it("does nothing when no forget has happened since the last scrub", async () => {
       await seedSession(alice, "s1", "nothing forgotten");

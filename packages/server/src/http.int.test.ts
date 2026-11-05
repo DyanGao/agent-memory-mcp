@@ -310,7 +310,14 @@ describe("MCP over HTTP", () => {
         topic: "forgetme",
         dry_run: true,
       });
-      expect(await preview.json()).toMatchObject({ dryRun: true, memories: 1 });
+      const planned = (await preview.json()) as {
+        dryRun: boolean;
+        memories: { content: string }[];
+      };
+      expect(planned.dryRun).toBe(true);
+      expect(planned.memories.map((m) => m.content)).toEqual([
+        "forgetme value",
+      ]);
 
       const refused = await postJson("/v1/forget", { topic: "forgetme" });
       expect(refused.status).toBe(400);

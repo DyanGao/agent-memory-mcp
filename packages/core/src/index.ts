@@ -40,7 +40,13 @@ export { MemoryQueue, scopeOf } from "./queue.js";
 export type { DistillJob } from "./queue.js";
 export { redact } from "./redact.js";
 export { executeForget, previewForget, scrubDeletedData } from "./forget.js";
-export type { ForgetPlan, ForgetReceipt, ForgetSelector } from "./forget.js";
+export type {
+  ForgetCandidate,
+  ForgetPlan,
+  ForgetPreview,
+  ForgetReceipt,
+  ForgetSelector,
+} from "./forget.js";
 export { exportUserData, readAudit } from "./account.js";
 export type { AuditEntry } from "./account.js";
 export { startTelemetry, traced } from "./telemetry.js";

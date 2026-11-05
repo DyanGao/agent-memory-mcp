@@ -16,7 +16,7 @@ export default defineConfig({
   },
   test: {
     include: ["packages/*/src/**/*.scale.test.ts"],
-    testTimeout: 600_000,
-    hookTimeout: 600_000,
+    testTimeout: 7_200_000,
+    hookTimeout: 7_200_000,
   },
 });

@@ -348,6 +348,22 @@ section form.inline {
   margin-bottom: 12px;
 }
 
+.planned {
+  margin-bottom: 12px;
+}
+
+.planned .stored,
+.candidates .stored {
+  margin: 4px 0;
+  font-size: 16px;
+}
+
+.candidates {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+
 /* The one loud element: a deletion deserves paper you could keep. */
 .receipt {
   position: relative;
