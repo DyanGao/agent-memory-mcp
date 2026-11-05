@@ -38,8 +38,8 @@ export interface MemoryInput {
 export interface WriteOptions {
   /** Reuse a vector already computed, instead of embedding again. */
   embedding?: number[];
-  /** Id of a memory this one replaces. The old row stays, marked outdated. */
-  supersedes?: string;
+  /** Ids of memories this one replaces. The old rows stay, marked outdated. */
+  supersedes?: string[];
 }
 
 export interface SimilarMemory {
@@ -135,23 +135,22 @@ export class MemoryStore {
         ],
       );
       const row = rows[0]!;
-      const targets = [row.id];
-      if (options.supersedes !== undefined) {
+      const superseded = options.supersedes ?? [];
+      if (superseded.length > 0) {
         const { rowCount } = await client.query(
           `UPDATE memories SET superseded_by = $1, valid_to = now()
-           WHERE id = $2 AND ${IS_CURRENT}`,
-          [row.id, options.supersedes],
+           WHERE id = ANY($2::uuid[]) AND ${IS_CURRENT}`,
+          [row.id, superseded],
         );
-        if (rowCount !== 1) {
-          throw new Error(`Memory ${options.supersedes} cannot be superseded`);
+        if (rowCount !== superseded.length) {
+          throw new Error("A memory to supersede could not be superseded");
         }
-        targets.push(options.supersedes);
       }
       await audit(
         client,
-        options.supersedes ? "supersede" : "write",
+        superseded.length > 0 ? "supersede" : "write",
         scope.user,
-        targets,
+        [row.id, ...superseded],
       );
       return toMemory(row);
     });

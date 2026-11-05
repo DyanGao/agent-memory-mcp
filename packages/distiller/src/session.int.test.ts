@@ -165,7 +165,7 @@ describe("distillSession", () => {
       await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("REST is the API style."),
-        '{"action":"skip","existing_number":0}',
+        '{"action":"skip","existing_numbers":[]}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const { rows } = await db.owner.query("SELECT id FROM memories");
@@ -177,7 +177,7 @@ describe("distillSession", () => {
       const old = await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_number":1}',
+        '{"action":"supersede","existing_numbers":[1]}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
 
@@ -191,12 +191,26 @@ describe("distillSession", () => {
       expect(rows[0].superseded_by).not.toBeNull();
     });
 
+    it("supersedes every memory the new fact outdates", async () => {
+      await seed();
+      await seedExisting("The API uses REST.");
+      await seedExisting("Clients are written for REST.");
+      const { llm } = scripted(
+        memories("The API moved to gRPC."),
+        '{"action":"supersede","existing_numbers":[1,2,2,9]}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      const current = await store.list(alice);
+      expect(current.map((m) => m.content)).toEqual(["The API moved to gRPC."]);
+    });
+
     it("keeps both memories if the model names a memory that does not exist", async () => {
       await seed();
       await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_number":9}',
+        '{"action":"supersede","existing_numbers":[9]}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const store = new MemoryStore(db.app, sameVector);

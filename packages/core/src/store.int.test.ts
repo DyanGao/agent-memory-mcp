@@ -171,7 +171,7 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       const next = await store.write(
         alice,
         { content: "uses gRPC", type: "fact" },
-        { supersedes: old.id },
+        { supersedes: [old.id] },
       );
       const { rows } = await db.owner.query(
         "SELECT superseded_by, valid_to FROM memories WHERE id = $1",
@@ -185,14 +185,32 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       expect(audit.rows[0].target_ids).toEqual([next.id, old.id]);
     });
 
+    it("supersedes several memories at once", async () => {
+      const a = await store.write(alice, {
+        content: "uses REST",
+        type: "fact",
+      });
+      const b = await store.write(alice, {
+        content: "REST clients",
+        type: "decision",
+      });
+      await store.write(
+        alice,
+        { content: "uses gRPC", type: "fact" },
+        { supersedes: [a.id, b.id] },
+      );
+      const current = await store.list(alice);
+      expect(current.map((m) => m.content)).toEqual(["uses gRPC"]);
+    });
+
     it("rolls back the new memory if the old one cannot be superseded", async () => {
       await expect(
         store.write(
           alice,
           { content: "orphan", type: "fact" },
-          { supersedes: "00000000-0000-0000-0000-000000000000" },
+          { supersedes: ["00000000-0000-0000-0000-000000000000"] },
         ),
-      ).rejects.toThrow(/cannot be superseded/);
+      ).rejects.toThrow(/could not be superseded/);
       expect(await store.list(alice)).toEqual([]);
     });
 
@@ -205,9 +223,9 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
         store.write(
           alice,
           { content: "x", type: "fact" },
-          { supersedes: theirs.id },
+          { supersedes: [theirs.id] },
         ),
-      ).rejects.toThrow(/cannot be superseded/);
+      ).rejects.toThrow(/could not be superseded/);
     });
   });
 
