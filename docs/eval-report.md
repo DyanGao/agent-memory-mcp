@@ -45,7 +45,7 @@ Synthetic vectors, one client, excluding embedding and LLM calls, at the default
 - **Latency meets the target:** the plan asks for under 150 ms at 10k.
 - **Recall is unresolved at 100k.** Clustered vectors stay near 1.0, while uniform random vectors, HNSW's hard case, fall to about 0.26. Real embeddings sit somewhere between, and synthetic clusters may be easier than real data. Only a real corpus can settle this, and it should be measured before any claim is made about retrieval at this size.
 - **Rows at `ef_search` 200 in the raw results are not index recall.** Their recall of 1.0 at about 130 ms shows the planner chose an exact scan.
-- **Full search stays fast partly because of full-text ranking,** so vector recall alone does not decide retrieval quality.
+- **Search also uses full-text ranking,** so vector recall alone does not decide retrieval quality. How much that helps has not been measured.
 
 ## What this eval changed in the product
 
