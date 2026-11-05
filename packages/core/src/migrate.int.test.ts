@@ -3,9 +3,7 @@ import type { StartedTestContainer } from "testcontainers";
 import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { migrate } from "./migrate.js";
-
-// Must match the image in docker-compose.yml.
-const POSTGRES_IMAGE = "pgvector/pgvector:0.8.7-pg17";
+import { POSTGRES_IMAGE } from "./testing.js";
 
 describe("migrate against real Postgres", () => {
   let container: StartedTestContainer;
