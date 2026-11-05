@@ -1,4 +1,5 @@
 import { FakeEmbedder, MemoryStore } from "@agent-memory/core";
+import type { DistillJob } from "@agent-memory/core";
 import { startTestDb } from "@agent-memory/core/testing";
 import type { TestDb } from "@agent-memory/core/testing";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -15,6 +16,19 @@ describe("MCP over HTTP", () => {
   let db: TestDb;
   let app: FastifyInstance;
   let url: URL;
+  const queued: DistillJob[] = [];
+
+  const postJson = (path: string, body: object, user = "alice") =>
+    fetch(new URL(path, url), {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${API_KEY}`,
+        [USER_HEADER]: user,
+        [PROJECT_HEADER]: "apollo",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
 
   const httpTransport = (user = "alice", key = API_KEY) =>
     new StreamableHTTPClientTransport(url, {
@@ -44,6 +58,13 @@ describe("MCP over HTTP", () => {
     app = buildApp({
       store: new MemoryStore(db.app, new FakeEmbedder()),
       apiKey: API_KEY,
+      capture: {
+        pool: db.app,
+        retentionDays: 30,
+        enqueueDistill: async (job) => {
+          queued.push(job);
+        },
+      },
     });
     const address = await app.listen({ port: 0, host: "127.0.0.1" });
     url = new URL("/mcp", address);
@@ -53,7 +74,8 @@ describe("MCP over HTTP", () => {
     await db?.stop();
   });
   beforeEach(async () => {
-    await db.owner.query("TRUNCATE memories, audit_log");
+    await db.owner.query("TRUNCATE memories, events, audit_log");
+    queued.length = 0;
   });
 
   it("lists the five tools under names every client accepts", async () => {
@@ -142,6 +164,55 @@ describe("MCP over HTTP", () => {
     });
     expect(body.deleted).toEqual([written.id]);
     expect((await call(client, "memory_list", {})).body).toEqual([]);
+  });
+
+  it("stores events and queues the session only when told it is final", async () => {
+    const events = [{ seq: 1, kind: "user_text", text: "hello" }];
+    const first = await postJson("/v1/events", { session_id: "s1", events });
+    expect(await first.json()).toEqual({ stored: 1 });
+    expect(queued).toEqual([]);
+
+    await postJson("/v1/events", { session_id: "s1", events: [], final: true });
+    expect(queued).toEqual([
+      { user: "alice", project: "apollo", sessionId: "s1" },
+    ]);
+  });
+
+  it("rejects an unknown event kind", async () => {
+    const response = await postJson("/v1/events", {
+      session_id: "s1",
+      events: [{ seq: 1, kind: "root", text: "x" }],
+    });
+    expect(response.status).toBe(400);
+  });
+
+  it("requires an API key for events", async () => {
+    const response = await fetch(new URL("/v1/events", url), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{}",
+    });
+    expect(response.status).toBe(401);
+  });
+
+  it("serves context over REST for the session-start hook", async () => {
+    const client = await connect();
+    await call(client, "memory_write", { content: "uses pnpm", type: "fact" });
+    const response = await postJson("/v1/context", { task: "uses pnpm" });
+    const { memories } = (await response.json()) as {
+      memories: { content: string }[];
+    };
+    expect(memories[0]?.content).toBe("uses pnpm");
+  });
+
+  it("reports 404 for a session with no distillation yet", async () => {
+    const response = await fetch(new URL("/v1/sessions/none/status", url), {
+      headers: {
+        authorization: `Bearer ${API_KEY}`,
+        [USER_HEADER]: "alice",
+      },
+    });
+    expect(response.status).toBe(404);
   });
 
   it("rejects a wrong API key", async () => {

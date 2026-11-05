@@ -16,4 +16,25 @@ export {
   MEMORY_TYPES,
   MemoryStore,
 } from "./store.js";
-export type { Memory, MemoryInput, MemoryType, SearchResult } from "./store.js";
+export type {
+  Memory,
+  MemoryInput,
+  MemoryType,
+  SearchResult,
+  SimilarMemory,
+  WriteOptions,
+} from "./store.js";
+export {
+  DISTILLABLE_KINDS,
+  EVENT_KINDS,
+  eventId,
+  getDistillStatus,
+  ingestEvents,
+  loadDistillableEvents,
+  recordDistillOutcome,
+  sweepExpired,
+} from "./events.js";
+export type { EventInput, EventKind, StoredEvent } from "./events.js";
+export { MemoryQueue, scopeOf } from "./queue.js";
+export type { DistillJob } from "./queue.js";
+export { redact } from "./redact.js";

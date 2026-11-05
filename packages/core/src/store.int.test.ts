@@ -155,6 +155,62 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
     });
   });
 
+  describe("write", () => {
+    it("redacts a secret an agent passes straight to memory_write", async () => {
+      const secret = "ghp_abcdefghijklmnopqrstuvwxyz0123456789";
+      await store.write(alice, { content: `token ${secret}`, type: "fact" });
+      const { rows } = await db.owner.query("SELECT content FROM memories");
+      expect(JSON.stringify(rows)).not.toContain(secret);
+    });
+
+    it("supersedes the old memory in one step and audits both ids", async () => {
+      const old = await store.write(alice, {
+        content: "uses REST",
+        type: "fact",
+      });
+      const next = await store.write(
+        alice,
+        { content: "uses gRPC", type: "fact" },
+        { supersedes: old.id },
+      );
+      const { rows } = await db.owner.query(
+        "SELECT superseded_by, valid_to FROM memories WHERE id = $1",
+        [old.id],
+      );
+      expect(rows[0].superseded_by).toBe(next.id);
+      expect(rows[0].valid_to).not.toBeNull();
+      const audit = await db.owner.query(
+        "SELECT target_ids FROM audit_log WHERE action = 'supersede'",
+      );
+      expect(audit.rows[0].target_ids).toEqual([next.id, old.id]);
+    });
+
+    it("rolls back the new memory if the old one cannot be superseded", async () => {
+      await expect(
+        store.write(
+          alice,
+          { content: "orphan", type: "fact" },
+          { supersedes: "00000000-0000-0000-0000-000000000000" },
+        ),
+      ).rejects.toThrow(/cannot be superseded/);
+      expect(await store.list(alice)).toEqual([]);
+    });
+
+    it("cannot supersede another user's memory", async () => {
+      const theirs = await store.write(bob, {
+        content: "bob fact",
+        type: "fact",
+      });
+      await expect(
+        store.write(
+          alice,
+          { content: "x", type: "fact" },
+          { supersedes: theirs.id },
+        ),
+      ).rejects.toThrow(/cannot be superseded/);
+    });
+  });
+
   describe("forget and audit", () => {
     it("hard-deletes, and removes the row from the table", async () => {
       const memory = await store.write(alice, {

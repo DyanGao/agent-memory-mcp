@@ -18,6 +18,7 @@ export default defineConfig({
     exclude: [
       "**/*.int.test.ts",
       "**/*.scale.test.ts",
+      "**/*.real.test.ts",
       "**/node_modules/**",
       "**/dist/**",
     ],

@@ -3,6 +3,7 @@ import { withScope } from "./db.js";
 import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
 import { packToBudget, scoreCandidate } from "./ranking.js";
+import { redact } from "./redact.js";
 import type { Candidate, ScoreBreakdown } from "./ranking.js";
 
 export const MEMORY_TYPES = [
@@ -31,6 +32,21 @@ export interface MemoryInput {
   importance?: number;
   agent?: string;
   session?: string;
+  sourceEventIds?: string[];
+}
+
+export interface WriteOptions {
+  /** Reuse a vector already computed, instead of embedding again. */
+  embedding?: number[];
+  /** Id of a memory this one replaces. The old row stays, marked outdated. */
+  supersedes?: string;
+}
+
+export interface SimilarMemory {
+  id: string;
+  type: MemoryType;
+  content: string;
+  similarity: number;
 }
 
 export interface Memory {
@@ -81,9 +97,19 @@ export class MemoryStore {
     private readonly embedder: Embedder,
   ) {}
 
-  async write(scope: Scope, input: MemoryInput): Promise<Memory> {
+  async write(
+    scope: Scope,
+    input: MemoryInput,
+    options: WriteOptions = {},
+  ): Promise<Memory> {
+    // An agent can pass a secret straight to memory_write, so this is the
+    // last point where it can be caught before storage.
+    const content = redact(input.content).text;
+
     // Embed before opening a transaction: the model call can be slow.
-    const [embedding] = await this.embedder.embed([input.content]);
+    const [embedding] = options.embedding
+      ? [options.embedding]
+      : await this.embedder.embed([content]);
     if (embedding === undefined) {
       throw new Error("The embedder returned no vector");
     }
@@ -91,8 +117,9 @@ export class MemoryStore {
     return withScope(this.pool, scope, async (client) => {
       const { rows } = await client.query<MemoryRow>(
         `INSERT INTO memories (scope_user, scope_project, scope_agent, scope_session,
-                               type, content, embedding, embed_model, importance)
-         VALUES ($1, $2, $3, $4, $5, $6, $7::vector, $8, $9)
+                               type, content, embedding, embed_model, importance,
+                               source_event_ids)
+         VALUES ($1, $2, $3, $4, $5, $6, $7::vector, $8, $9, $10::uuid[])
          RETURNING id, type, content, importance, created_at`,
         [
           scope.user,
@@ -100,15 +127,52 @@ export class MemoryStore {
           input.agent ?? null,
           input.session ?? null,
           input.type,
-          input.content,
+          content,
           toVectorLiteral(embedding),
           this.embedder.model,
           input.importance ?? 0.5,
+          input.sourceEventIds ?? [],
         ],
       );
       const row = rows[0]!;
-      await audit(client, "write", scope.user, [row.id]);
+      const targets = [row.id];
+      if (options.supersedes !== undefined) {
+        const { rowCount } = await client.query(
+          `UPDATE memories SET superseded_by = $1, valid_to = now()
+           WHERE id = $2 AND ${IS_CURRENT}`,
+          [row.id, options.supersedes],
+        );
+        if (rowCount !== 1) {
+          throw new Error(`Memory ${options.supersedes} cannot be superseded`);
+        }
+        targets.push(options.supersedes);
+      }
+      await audit(
+        client,
+        options.supersedes ? "supersede" : "write",
+        scope.user,
+        targets,
+      );
       return toMemory(row);
+    });
+  }
+
+  /** Current memories close to a vector, nearest first. */
+  async findSimilar(
+    scope: Scope,
+    embedding: number[],
+    options: { limit: number; minSimilarity: number },
+  ): Promise<SimilarMemory[]> {
+    return withScope(this.pool, scope, async (client) => {
+      const { rows } = await client.query<SimilarMemory>(
+        `SELECT id, type, content, 1 - (embedding <=> $1::vector) AS similarity
+         FROM memories
+         WHERE ${IS_CURRENT} AND 1 - (embedding <=> $1::vector) >= $2
+         ORDER BY embedding <=> $1::vector
+         LIMIT $3`,
+        [toVectorLiteral(embedding), options.minSimilarity, options.limit],
+      );
+      return rows;
     });
   }
 

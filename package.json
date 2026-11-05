@@ -14,7 +14,9 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "build": "tsc -b packages/core packages/server packages/distiller packages/dashboard packages/adapters",
     "start:server": "node --env-file=.env packages/server/dist/main.js",
-    "test:scale": "vitest run --config vitest.scale.config.ts"
+    "test:scale": "vitest run --config vitest.scale.config.ts",
+    "start:worker": "node --env-file=.env packages/distiller/dist/worker.js",
+    "test:real": "vitest run --config vitest.real.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

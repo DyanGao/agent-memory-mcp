@@ -1,6 +1,7 @@
 import {
   assertEmbedderDimension,
   ensureAppRole,
+  MemoryQueue,
   MemoryStore,
   migrate,
   OllamaEmbedder,
@@ -26,10 +27,17 @@ await migrate(owner);
 await ensureAppRole(owner, required("MEMORY_APP_PASSWORD"));
 await owner.end();
 
-const appPool = new pg.Pool({ connectionString: required("APP_DATABASE_URL") });
+const appUrl = required("APP_DATABASE_URL");
+const appPool = new pg.Pool({ connectionString: appUrl });
+const queue = await MemoryQueue.start(appUrl);
 const app = buildApp({
   store: new MemoryStore(appPool, embedder),
   apiKey: required("MEMORY_API_KEY"),
+  capture: {
+    pool: appPool,
+    retentionDays: Number(process.env.RETENTION_DAYS ?? 365),
+    enqueueDistill: (job) => queue.enqueueDistill(job),
+  },
 });
 
 const port = Number(process.env.PORT ?? 8787);
