@@ -17,7 +17,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "datasets"))
 
 import history  # noqa: E402
-import holdout  # noqa: E402
+import holdout  # noqa: E402,F401
+import holdout2  # noqa: E402
 from history import transcript  # noqa: E402
 
 from agent_eval.client import (  # noqa: E402
@@ -110,8 +111,8 @@ def main() -> None:
 
     user = f"hard-{int(time.time())}"
     if args.holdout:
-        store = seed(f"holdout-{int(time.time())}", holdout)
-        print("wrote", write_results("holdout-store", store))
+        store = seed(f"holdout-{int(time.time())}", holdout2)
+        print("wrote", write_results("holdout2-store", store))
         print({k: v for k, v in store.items() if k != "memories"})
         for text in store["memories"]:
             print(" ", text)
