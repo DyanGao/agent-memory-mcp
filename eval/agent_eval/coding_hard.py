@@ -66,7 +66,46 @@ def seed(user: str, source=history) -> dict:
         ),
         "decisions_total": len(source.CURRENT),
         "stale_memories": [t for t in texts if any(s.lower() in t.lower() for s in source.STALE)],
-        "noise_memories": [t for t in texts if any(n.lower() in t.lower() for n in source.NOISE)],
+        "noise_memories": [t for t in texts if is_noise(t, source)],
+    }
+
+
+def is_noise(text: str, source) -> bool:
+    return any(word.lower() in text.lower() for word in source.NOISE)
+
+
+def hook_chars(memory: dict) -> int:
+    """Size of the line the session-start hook prints for this memory."""
+    return len(f"- [{memory['type']} {memory['id']}] {memory['content']}\n")
+
+
+def context_measures(user: str, source) -> dict:
+    """What an agent actually receives, which is what the noise can damage."""
+    with rest(user) as client:
+        client.headers["x-memory-project"] = PROJECT
+        overview = client.post("/v1/context", json={}).json()["memories"]
+        tasks = {}
+        for task in sorted(path.name for path in HARD.iterdir()):
+            request = (HARD / task / "request.txt").read_text().strip()
+            found = client.post("/v1/context", json={"task": request}).json()["memories"]
+            tasks[task] = {
+                "memories": len(found),
+                "noise": sum(is_noise(m["content"], source) for m in found),
+            }
+    texts = [memory["content"] for memory in overview]
+    chars = sum(hook_chars(memory) for memory in overview)
+    history_chars = len(source.transcript())
+    return {
+        "history_chars": history_chars,
+        "overview_memories": len(overview),
+        "overview_noise": sum(is_noise(text, source) for text in texts),
+        "overview_chars": chars,
+        "overview_share_of_history": round(chars / history_chars, 4),
+        "overview_decisions_present": sum(
+            any(all(word.lower() in text.lower() for word in words) for text in texts)
+            for words in source.CURRENT
+        ),
+        "task_context": tasks,
     }
 
 
@@ -111,14 +150,20 @@ def main() -> None:
     parser.add_argument("--seed-only", action="store_true")
     parser.add_argument("--holdout", action="store_true")
     parser.add_argument("--long-store", action="store_true")
+    parser.add_argument("--long-context", metavar="USER", help="remeasure a seeded long store")
     parser.add_argument("--name", default="coding-hard-pilot")
     args = parser.parse_args()
 
     user = f"hard-{int(time.time())}"
+    if args.long_context:
+        print(context_measures(args.long_context, longhistory))
+        return
     if args.long_store:
         started = time.time()
-        store = seed(f"long-{int(time.time())}", longhistory)
+        long_user = f"long-{int(time.time())}"
+        store = seed(long_user, longhistory)
         store["seconds"] = round(time.time() - started)
+        store.update(context_measures(long_user, longhistory))
         print("wrote", write_results("long-store", store))
         print({k: v for k, v in store.items() if k != "memories"})
         for text in store["memories"]:

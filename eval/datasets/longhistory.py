@@ -7,7 +7,7 @@ and it is varied so a model cannot simply learn to skip one repeated line.
 
 import random
 
-from history import CURRENT, NOISE, SESSIONS, STALE  # noqa: F401
+from history import CURRENT, NOISE as HISTORY_NOISE, SESSIONS, STALE  # noqa: F401
 
 SESSION_COUNT = 40
 TURNS_PER_SESSION = 190
@@ -22,6 +22,14 @@ THINGS = [
     "that loader", "the profile page", "the status badge", "the modal", "the tooltip",
 ]
 PEOPLE = ["Sam", "Lena", "Omar", "Priya", "Jonas", "Mei", "Tom", "Aisha"]
+# Every line of chatter names a thing or a person. The trailing space keeps
+# "Tom" from matching inside "customer". The short history's list alone found
+# none of this chatter and reported 0 noise on a store that was mostly noise.
+NOISE = [
+    *HISTORY_NOISE,
+    *[thing.split(" ", 1)[1] for thing in THINGS],
+    *[f"{person} " for person in PEOPLE],
+]
 TEMPLATES = [
     ("Can you tidy up {t}?", "Done, it reads better now."),
     ("Take a look at {t} for me.", "Looked at it, nothing stands out."),

@@ -125,6 +125,26 @@ def main() -> None:
     ).replace(
         "{{held4}}", f"{fourth['decisions_present']} of {fourth['decisions_total']}"
     )
+    long = load(folder, "long-store")
+    task_noise = [row["noise"] for row in long["task_context"].values()]
+    long_values = {
+        "long_chars": f"{long['history_chars']:,}",
+        "long_decisions": f"{long['decisions_present']} of {long['decisions_total']}",
+        "long_stale": str(len(long["stale_memories"])),
+        "long_count": str(long["count"]),
+        "long_noise": str(len(long["noise_memories"])),
+        "long_overview_decisions": (
+            f"{long['overview_decisions_present']} of {long['decisions_total']}"
+        ),
+        "long_overview_memories": str(long["overview_memories"]),
+        "long_overview_noise": str(long["overview_noise"]),
+        "long_overview_chars": f"{long['overview_chars']:,}",
+        "long_share": f"{long['overview_share_of_history']:.1%}",
+        "long_task_noise": f"{min(task_noise)} to {max(task_noise)}",
+        "long_minutes": str(round(long["seconds"] / 60)),
+    }
+    for name, value in long_values.items():
+        output = output.replace(f"{{{{{name}}}}}", value)
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)
     print("wrote", target)
