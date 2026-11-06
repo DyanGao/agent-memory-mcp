@@ -62,7 +62,10 @@ describe("distillSession", () => {
     );
   });
 
-  const seed = (text = "we use REST") =>
+  // Holds what the scripted model returns: memories must be grounded in it.
+  const seed = (
+    text = "The API uses REST. The API moved to gRPC. REST is the API style. Recovered. The id prefix is now ACM. Alice's fact.",
+  ) =>
     ingestEvents(db.app, alice, "s1", [{ seq: 1, kind: "user_text", text }], {
       retentionDays: 30,
     });
@@ -186,12 +189,24 @@ describe("distillSession", () => {
       await seed();
       await seedExisting("The API uses REST.");
       const { llm } = scripted(
-        memories("REST is the API style."),
+        memories("REST is what the API uses."),
         '{"action":"skip","existing_numbers":[],"merged_content":""}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const { rows } = await db.owner.query("SELECT id FROM memories");
       expect(rows).toHaveLength(1);
+    });
+
+    it("keeps a new rule even if the model calls it a repeat", async () => {
+      await seed("Accounts in dispute are never purged.");
+      await seedExisting("Accounts on legal hold are never purged.");
+      const { llm } = scripted(
+        memories("Accounts in dispute are never purged."),
+        '{"action":"skip","existing_numbers":[],"merged_content":""}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
     });
 
     it("supersedes, so search returns only the newest fact", async () => {
@@ -241,6 +256,18 @@ describe("distillSession", () => {
       expect((await store.list(alice)).map((m) => m.content)).toEqual([
         "Ids look like ACM-2026-0042, with a four-digit sequence.",
       ]);
+    });
+
+    it("keeps both memories if merged text came from nowhere", async () => {
+      await seed();
+      await seedExisting("The API uses REST.");
+      const { llm } = scripted(
+        memories("The API moved to gRPC."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":"Payments are settled every 90 days through Stripe."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
     });
 
     it("keeps both memories if a replace comes with no text", async () => {

@@ -7,6 +7,7 @@ import type {
 } from "@agent-memory/core";
 import { z } from "zod";
 import type { Candidate } from "./distill.js";
+import { isGrounded, saysSomethingNew } from "./grounding.js";
 import type { LlmProvider } from "./llm.js";
 
 const SIMILAR_LIMIT = 5;
@@ -38,6 +39,14 @@ Answer: {"action":"add","existing_numbers":[],"merged_content":""}
 
 Existing: 1. All prices are in euros.
 New: The repo is not a git repository.
+Answer: {"action":"add","existing_numbers":[],"merged_content":""}
+
+Existing: 1. Photos may be up to 2 MB.
+New: Videos may be up to 90 MB.
+Answer: {"action":"add","existing_numbers":[],"merged_content":""}
+
+Existing: 1. Red tickets are never closed.
+New: Blue tickets are never closed either.
 Answer: {"action":"add","existing_numbers":[],"merged_content":""}
 
 Existing: 1. Ticket ids look like TK-2026-0042: TK, the year, and a four-digit sequence.
@@ -89,14 +98,30 @@ async function decide(
     existing_numbers: numbers,
     merged_content: merged,
   } = parsed.data;
-  if (action !== "replace") return { action };
+  if (action === "skip") {
+    // A model can call a different rule a repeat because it reads alike.
+    return saysSomethingNew(candidate.content, existing)
+      ? { action: "add" }
+      : { action };
+  }
+  if (action === "add") return { action };
 
   const ids = [...new Set(numbers)]
     .map((number) => similar[number - 1]?.id)
     .filter((id) => id !== undefined);
-  // A replace with no valid target or no text must not hide a true memory.
+  // A replace with no valid target or no text must not hide a true memory, and
+  // merged text must come from the memories it merges.
   const content = merged.trim();
-  if (ids.length === 0 || content.length === 0) return { action: "add" };
+  const source = [candidate.content, ...similar.map((m) => m.content)].join(
+    "\n",
+  );
+  if (
+    ids.length === 0 ||
+    content.length === 0 ||
+    !isGrounded(content, source)
+  ) {
+    return { action: "add" };
+  }
   return { action, ids, content };
 }
 

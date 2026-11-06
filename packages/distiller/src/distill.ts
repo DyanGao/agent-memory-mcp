@@ -1,11 +1,13 @@
 import { MEMORY_TYPES } from "@agent-memory/core";
 import type { MemoryType, StoredEvent } from "@agent-memory/core";
 import { z } from "zod";
+import { isGrounded } from "./grounding.js";
 import type { LlmProvider } from "./llm.js";
 
-// Counts only the text the model sees. Sent 30 lines at once, qwen3 dropped a
-// real decision from the list, so it gets a few at a time.
-const MAX_CHUNK_CHARS = 2500;
+// Counts only the text the model sees. Given 40 to 60 short lines, qwen3
+// ignored decisions near the top, yet extracted each one correctly alone. So
+// it gets about a dozen lines at a time, at the cost of more model calls.
+const MAX_CHUNK_CHARS = 500;
 const DEFAULT_IMPORTANCE = 0.5;
 
 const DistillOutput = z.object({
@@ -30,7 +32,7 @@ Keep only what a person decided, stated or prefers, that would still matter in a
 
 Never record what happened during the session: files created or changed, commands run, test or build results, repository or git state, what the agent did or plans to do, or that something was noted. The code itself records those. A request that was carried out in the session is not a memory either, so "Rename that helper" is not a todo. A memory must make sense to someone who never saw this session.
 
-When someone changes an earlier decision, always record the change, with the new value and what it replaces. Each memory is one standalone statement that makes sense with no other context.
+When someone changes an earlier decision, always record the change, with the new value and what it replaces. When the agent proposes something and the user agrees, record what was agreed as a decision. Each memory is one standalone statement that makes sense with no other context.
 
 Types:
 - preference: how the user likes things done. "Use pnpm, not npm" is a preference, not a todo.
@@ -60,11 +62,13 @@ Second example output, which keeps the decision and drops all the status:
 {"memories":[{"type":"decision","content":"Invoices are archived for 10 years.","importance":0.7}]}
 
 Third example transcript:
-user: Change of plan on session length: it is now 20 minutes, replacing the 30 we agreed.
-user: One more on exports: reports from before 2020 are excluded too.
+user: Change of plan on widget size: it is now 20, replacing the 30 we agreed.
+user: One more on gadgets: blue ones are excluded too.
+agent: I suggest the Foo library for parsing.
+user: Yes, go with that.
 
 Third example output:
-{"memories":[{"type":"decision","content":"Sessions now last 20 minutes, replacing 30 minutes.","importance":0.7},{"type":"decision","content":"Exports exclude reports from before 2020.","importance":0.5}]}
+{"memories":[{"type":"decision","content":"Widget size is now 20, replacing 30.","importance":0.7},{"type":"decision","content":"Blue gadgets are excluded.","importance":0.5},{"type":"decision","content":"Use the Foo library for parsing.","importance":0.5}]}
 
 If nothing is worth keeping, return {"memories":[]}.`;
 
@@ -79,8 +83,33 @@ export interface Candidate {
   sourceEventIds: string[];
 }
 
-const isSentToModel = (event: StoredEvent): boolean =>
-  event.kind === "user_text" || DESCRIBES_A_FIX.test(event.text);
+const APPROVAL =
+  /^\s*(yes|yep|yeah|ok|okay|sure|agreed|sounds good|go with|go ahead|do that|lgtm|please do|that works|perfect)\b/i;
+const MAX_APPROVAL_CHARS = 80;
+
+/**
+ * What the model reads. A short approval means nothing without the proposal it
+ * approves, so an agent line before one goes in too.
+ */
+function selectForModel(events: StoredEvent[]): Set<StoredEvent> {
+  const sent = new Set<StoredEvent>();
+  events.forEach((event, index) => {
+    if (event.kind === "user_text") {
+      sent.add(event);
+      const previous = events[index - 1];
+      if (
+        previous?.kind === "assistant_text" &&
+        event.text.length <= MAX_APPROVAL_CHARS &&
+        APPROVAL.test(event.text)
+      ) {
+        sent.add(previous);
+      }
+    } else if (DESCRIBES_A_FIX.test(event.text)) {
+      sent.add(event);
+    }
+  });
+  return sent;
+}
 
 /**
  * Splits on event boundaries. A single long event becomes its own chunk.
@@ -88,12 +117,17 @@ const isSentToModel = (event: StoredEvent): boolean =>
  * which is what lets forget find them.
  */
 export function chunkEvents(events: StoredEvent[]): StoredEvent[][] {
+  const sent = selectForModel(events);
   const chunks: StoredEvent[][] = [];
   let current: StoredEvent[] = [];
   let size = 0;
   for (const event of events) {
-    const length = isSentToModel(event) ? event.text.length : 0;
-    if (size > 0 && size + length > MAX_CHUNK_CHARS) {
+    const length = sent.has(event) ? event.text.length : 0;
+    // An approval must stay with the proposal it answers.
+    const last = current.at(-1);
+    const answersProposal =
+      last?.kind === "assistant_text" && sent.has(last) && sent.has(event);
+    if (size > 0 && size + length > MAX_CHUNK_CHARS && !answersProposal) {
       chunks.push(current);
       current = [];
       size = 0;
@@ -112,8 +146,9 @@ export function chunkEvents(events: StoredEvent[]): StoredEvent[][] {
  * what the person said, plus agent lines that explain a failure or a fix.
  */
 function formatTranscript(events: StoredEvent[]): string {
+  const sent = selectForModel(events);
   return events
-    .filter(isSentToModel)
+    .filter((event) => sent.has(event))
     .map((e) => `${e.kind === "user_text" ? "user" : "agent"}: ${e.text}`)
     .join("\n");
 }
@@ -122,6 +157,11 @@ function formatTranscript(events: StoredEvent[]): string {
 // was handled in the session, and storing it would make it look outstanding.
 const DEFERRED =
   /\b(later|next|tomorrow|soon|future|week|month|quarter|sprint|eventually|once|after|before|when|until|by)\b/i;
+
+// A command with nothing deferred was handled in the session. A lasting rule
+// usually reads as a statement, or says when it applies.
+const ONE_OFF_COMMAND =
+  /^(check|verify|confirm|identify|open|reformat|delete|bump|sort|rename|remove|tidy|double-check|run|add a comment)\b/i;
 
 const SESSION_STATUS = [
   /\bgit (repo|repository)\b/i,
@@ -161,6 +201,10 @@ export function parseCandidates(
     .filter((memory) => memory.content.trim().length > 0)
     .filter((memory) => !isSessionStatus(memory.content))
     .filter((memory) => memory.type !== "todo" || DEFERRED.test(memory.content))
+    .filter(
+      (memory) =>
+        !ONE_OFF_COMMAND.test(memory.content) || DEFERRED.test(memory.content),
+    )
     .map((memory) => ({
       type: memory.type,
       content: memory.content.trim(),
@@ -180,11 +224,12 @@ export async function extractCandidates(
       user: `<transcript>\n${formatTranscript(chunk)}\n</transcript>`,
       schema: DISTILL_SCHEMA,
     });
+    const source = chunk.map((event) => event.text).join("\n");
     candidates.push(
       ...parseCandidates(
         raw,
         chunk.map((event) => event.id),
-      ),
+      ).filter((candidate) => isGrounded(candidate.content, source)),
     );
   }
   return candidates;

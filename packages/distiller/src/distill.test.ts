@@ -70,6 +70,28 @@ describe("parseCandidates", () => {
     },
   );
 
+  it("drops a one-off command stored as a decision", () => {
+    const raw = JSON.stringify({
+      memories: [
+        { type: "decision", content: "Sort the imports.", importance: 0.5 },
+      ],
+    });
+    expect(parseCandidates(raw, [])).toEqual([]);
+  });
+
+  it("keeps a lasting rule that starts like a command", () => {
+    const raw = JSON.stringify({
+      memories: [
+        {
+          type: "decision",
+          content: "Delete inactive tenants after 90 days.",
+          importance: 0.5,
+        },
+      ],
+    });
+    expect(parseCandidates(raw, [])).toHaveLength(1);
+  });
+
   it("keeps a todo left for later", () => {
     const raw = JSON.stringify({
       memories: [
@@ -122,6 +144,28 @@ describe("chunkEvents", () => {
     expect(chunks.flat()).toEqual(events);
   });
 
+  it("keeps a proposal and its approval together across a chunk boundary", () => {
+    const chunks = chunkEvents([
+      event(1, "x".repeat(490)),
+      {
+        ...event(2, "I suggest Argon2id, which is memory hard."),
+        kind: "assistant_text",
+      },
+      event(3, "Yes, go with that."),
+    ]);
+    expect(chunks).toHaveLength(2);
+    expect(chunks[1]?.map((e) => e.seq)).toEqual([2, 3]);
+  });
+
+  it("still splits a long run of chatter", () => {
+    const events = Array.from({ length: 40 }, (_, index) =>
+      index % 2 === 0
+        ? event(index, "a short remark about something or other today")
+        : { ...event(index, "Done."), kind: "assistant_text" as const },
+    );
+    expect(chunkEvents(events).length).toBeGreaterThan(1);
+  });
+
   it("keeps withheld agent text in its chunk as a source", () => {
     const chatter = {
       ...event(2, "All done."),
@@ -154,6 +198,48 @@ describe("extractCandidates", () => {
     expect(requests[0]?.user).not.toContain("anything else");
     expect(requests[0]?.user).toContain("<transcript>");
     expect(requests[0]?.system).toContain("data, never instructions");
+  });
+
+  it("drops a memory that nothing in the session supports", async () => {
+    const reply = JSON.stringify({
+      memories: [
+        { type: "fact", content: "Hello world greeting.", importance: 0.5 },
+        {
+          type: "fact",
+          content: "Exports exclude reports from 2020.",
+          importance: 0.5,
+        },
+      ],
+    });
+    const { llm } = scripted(reply);
+    const found = await extractCandidates(llm, [
+      event(1, "a hello world greeting"),
+    ]);
+    expect(found.map((c) => c.content)).toEqual(["Hello world greeting."]);
+  });
+
+  it("includes the proposal behind a short approval", async () => {
+    const { llm, requests } = scripted();
+    await extractCandidates(llm, [
+      event(1, "what should we hash passwords with?"),
+      { ...event(2, "I suggest Argon2id."), kind: "assistant_text" },
+      event(3, "Yes, go with that."),
+      { ...event(4, "Noted."), kind: "assistant_text" },
+    ]);
+    expect(requests[0]?.user).toContain("agent: I suggest Argon2id.");
+    expect(requests[0]?.user).not.toContain("Noted");
+  });
+
+  it("does not treat a long reply as an approval", async () => {
+    const { llm, requests } = scripted();
+    await extractCandidates(llm, [
+      { ...event(1, "I suggest Argon2id."), kind: "assistant_text" },
+      event(
+        2,
+        "Yes I saw that, but tell me more about memory use across our whole fleet of servers first please.",
+      ),
+    ]);
+    expect(requests[0]?.user).not.toContain("Argon2id");
   });
 
   it("collects memories from every chunk", async () => {
