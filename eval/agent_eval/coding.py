@@ -27,6 +27,17 @@ TOOLS = "Read,Write,Edit,Glob,Grep,Bash(node --test*),mcp__memory__*"
 RUN_TIMEOUT = 300
 
 
+# The home folder holds earlier agent transcripts, and the eval's hidden tests.
+# Agents searched it in the long-history run, so no setup may read it.
+SEALED = {"permissions": {"deny": ["Read(~/**)", "Edit(~/**)"]}}
+
+
+def sealed_settings(folder: Path) -> Path:
+    settings = folder / "sealed.json"
+    settings.write_text(json.dumps(SEALED))
+    return settings
+
+
 def workspace() -> Path:
     path = Path(tempfile.mkdtemp(prefix="coding-"))
     shutil.copytree(CODING / "repo", path / "repo")
@@ -41,7 +52,12 @@ def memory_settings(folder: Path, user: str, project: str) -> tuple[Path, Path]:
     ]
     settings = folder / "settings.json"
     settings.write_text(
-        json.dumps({"hooks": {"SessionStart": hook("context"), "SessionEnd": hook("capture")}})
+        json.dumps(
+            {
+                **SEALED,
+                "hooks": {"SessionStart": hook("context"), "SessionEnd": hook("capture")},
+            }
+        )
     )
     mcp = folder / "mcp.json"
     mcp.write_text(
@@ -107,7 +123,7 @@ def run(task: str, setup: str, repeat: int) -> dict:
     tag = f"{task}-{setup}-{repeat}-{int(time.time())}"
     user, project = f"code-{tag}", "acme-orders"
     with tempfile.TemporaryDirectory(prefix="config-") as config:
-        extra: list[str] = []
+        extra = ["--settings", str(sealed_settings(Path(config)))]
         if setup == "memory":
             settings, mcp = memory_settings(Path(config), user, project)
             extra = ["--settings", str(settings), "--mcp-config", str(mcp)]

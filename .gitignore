@@ -26,3 +26,5 @@ eval/datasets/raw/
 .DS_Store
 .idea/
 .vscode/
+eval/.rag-cache/
+eval/.mem0-store/
