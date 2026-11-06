@@ -1,0 +1,21 @@
+{
+  "memories": [
+    "The app supports English and German.",
+    "Exports run every Sunday night.",
+    "Orders from schools never need approval.",
+    "Reviews from verified buyers are published straight away.",
+    "Clearance orders expire after 3 months.",
+    "Gift cards are valid for 5 years and cannot be refunded.",
+    "Corporate customers pay on 30 day terms.",
+    "Shipping labels follow the format PKG-77-X, where PKG is the prefix, 77 is a two-digit depot code, and X is a carrier letter.",
+    "Orders over 500 euros need a manager's approval.",
+    "Loyalty points expire after 12 months.",
+    "Reviews are moderated within 48 hours.",
+    "Use Firebase Cloud Messaging for push notifications with one retry after 10 minutes."
+  ],
+  "count": 12,
+  "decisions_present": 12,
+  "decisions_total": 12,
+  "stale_memories": [],
+  "noise_memories": []
+}

@@ -8,7 +8,9 @@ EF_DEFAULT = 400
 
 
 def load(folder: Path, name: str) -> dict:
-    return json.loads((folder / f"{name}.json").read_text())
+    """The newest copy of a result, as evals do not all run on the same day."""
+    path = sorted(folder.parent.glob(f"*/{name}.json"))[-1]
+    return json.loads(path.read_text())
 
 
 def deletion_rows(data: dict) -> str:
@@ -50,6 +52,45 @@ def scale_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def pilot_rows(folder: Path) -> str:
+    rows = load(folder, "coding-pilot")["rows"]
+    # rate-limit ran separately. Its first memory run hit the truncation bug,
+    # which was fixed before this rerun.
+    rows += load(folder, "coding-pilot-ratelimit-memory")["rows"]
+    rows += [
+        row
+        for row in load(folder, "coding-smoke")["rows"]
+        if row["setup"] in ("none", "full_history")
+    ]
+    setups = {
+        "none": "No memory",
+        "full_history": "Full history",
+        "memory": "agent-memory-mcp",
+    }
+    lines = ["| Setup | Tasks passed |", "|---|---|"]
+    for key, label in setups.items():
+        runs = [row for row in rows if row["setup"] == key]
+        lines.append(f"| {label} | {sum(r['passed'] for r in runs)} of {len(runs)} |")
+    return "\n".join(lines)
+
+
+def hard_rows(folder: Path) -> str:
+    before = load(folder, "coding-hard-pilot")["summary"]
+    after = load(folder, "coding-hard-pilot-natural")["summary"]
+    setups = {
+        "none": "No memory",
+        "full_history": "Full history",
+        "memory": "agent-memory-mcp",
+    }
+    lines = ["| Setup | First run | Current code, natural wording |", "|---|---|---|"]
+    for key, label in setups.items():
+        lines.append(
+            f"| {label} | {before[key]['passed']} of {before[key]['runs']} "
+            f"| {after[key]['passed']} of {after[key]['runs']} |"
+        )
+    return "\n".join(lines)
+
+
 def main() -> None:
     folder = sorted((ROOT / "eval" / "results").iterdir())[-1]
     deletion = load(folder, "deletion")
@@ -57,9 +98,11 @@ def main() -> None:
     reviewed = deletion["paraphrase_reviewed"]
     template = (ROOT / "eval" / "report.template.md").read_text()
     output = (
-        template.replace("{{date}}", folder.name)
+        template.replace("{{date}}", f"up to {folder.name}")
         .replace("{{deletion}}", deletion_rows(deletion))
         .replace("{{scale}}", scale_rows(folder))
+        .replace("{{pilot}}", pilot_rows(folder))
+        .replace("{{hard}}", hard_rows(folder))
         .replace("{{offered}}", f"{reviewed['facts_offered_for_review']} of {reviewed['facts']}")
         .replace("{{candidates}}", f"{reviewed['candidates_per_preview']:.1f}")
         .replace("{{kept}}", f"{reviewed['facts_kept_by_distiller']} of {reviewed['facts']}")
@@ -68,6 +111,19 @@ def main() -> None:
         .replace("{{replaced}}", str(knowledge["controls_wrongly_replaced"]))
         .replace("{{learned}}", str(knowledge["controls_first_fact_learned"]))
         .replace("{{controls}}", str(knowledge["controls"]))
+    )
+    held = load(folder, "holdout-store")
+    second = load(folder, "holdout2-store")
+    third = load(folder, "holdout3-store")
+    fourth = load(folder, "holdout4-store")
+    output = output.replace(
+        "{{held}}", f"{held['decisions_present']} of {held['decisions_total']}"
+    ).replace(
+        "{{held2}}", f"{second['decisions_present']} of {second['decisions_total']}"
+    ).replace(
+        "{{held3}}", f"{third['decisions_present']} of {third['decisions_total']}"
+    ).replace(
+        "{{held4}}", f"{fourth['decisions_present']} of {fourth['decisions_total']}"
     )
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)

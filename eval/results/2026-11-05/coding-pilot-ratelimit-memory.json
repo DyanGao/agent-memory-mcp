@@ -1,0 +1,44 @@
+{
+  "model": "haiku",
+  "summary": {
+    "memory": {
+      "passed": 1,
+      "runs": 1
+    }
+  },
+  "usage": {
+    "claude_calls": 2,
+    "seconds": 53.3,
+    "cost_usd_equivalent": 0.018424990000000002
+  },
+  "rows": [
+    {
+      "task": "rate-limit",
+      "setup": "memory",
+      "repeat": 0,
+      "passed": true,
+      "test_tail": "TAP version 13\n# Subtest: allows exactly 37 in a window, then refuses as agreed\nok 1 - allows exactly 37 in a window, then refuses as agreed\n  ---\n  duration_ms: 0.532292\n  type: 'test'\n  ...\n# Subtest: the window rolls after 60 seconds, per key\nok 2 - the window rolls after 60 seconds, per key\n  ---\n  duration_ms: 0.408333\n  type: 'test'\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 2\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 34.645583\n",
+      "distilled": {
+        "status": "done",
+        "error": null,
+        "memoriesWritten": 1
+      },
+      "first": {
+        "text": "Acknowledged: acme-orders will return HTTP 429 with body `{\"error\": \"slow_down\"}` when an API key exceeds 37 requests in any rolling 60-second window.",
+        "is_error": false,
+        "seconds": 5.0,
+        "cost_usd_equivalent": 0.0041585400000000005,
+        "input_tokens": 42863,
+        "output_tokens": 62
+      },
+      "second": {
+        "text": "I added `src/ratelimit.mjs` with `createLimiter()`, and the six tests I wrote for it pass (`node --test`). The repo isn't a git repo, so I didn't commit.\n\n**Policy used:** at most 37 accepted requests per API key in any rolling 60-second window. The 38th request gets `{ ok: false, status: 429, body: { error: \"slow_down\" } }`. Once the oldest accepted request is 60 seconds old, a slot frees up.\n\nThe only source for this policy is one session-start memory note. The repo has no docs or config that mention a rate limit, so please confirm the numbers and response shape are the agreed ones.\n\nChoices I made where the spec was silent:\n- **Rejected requests don't count.** Only accepted requests are recorded, so a client that keeps retrying isn't pushed further out. If the policy counts attempts, this changes.\n- **The body is an object**, not a JSON string. The note wrote it as `{'error': 'slow_down'}`, which I read as the object shape. Serialized, it's `{\"error\":\"slow_down\"}`.\n- **Window edge:** a request exactly 60,000 ms after an earlier one is allowed.\n- **Memory:** each key keeps its timestamps (at most 37) until that key is checked again. Keys that never return keep their arrays for the life of the process. That's fine at small scale; a sweep would fix it if needed.\n\nFiles:\n- `src/ratelimit.mjs`\n- `test/ratelimit.test.mjs` (added per the test-first rule; `node --test` picks it up)",
+        "is_error": false,
+        "seconds": 48.3,
+        "cost_usd_equivalent": 0.01426645,
+        "input_tokens": 568896,
+        "output_tokens": 6736
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "memories": [
+    "The pipeline was red earlier due to an unresolved issue, but it is now fixed.",
+    "The exception to that: test tenants need no approval.",
+    "Deleting a tenant needs approval from two people.",
+    "PDF files may go up to 20 MB on uploads.",
+    "Exports exclude reports from before 2020.",
+    "List endpoints use cursor pagination with 100 items per page.",
+    "Admin sessions have their own timeout of 10 minutes.",
+    "User sessions time out after 30 minutes.",
+    "Image uploads are limited to 8 MB.",
+    "Reports are always generated in the Europe/Berlin timezone.",
+    "Standup is at ten tomorrow, not nine.",
+    "Nightly backups run at 02:00 UTC and are kept for 14 days."
+  ],
+  "count": 12,
+  "decisions_present": 10,
+  "decisions_total": 12,
+  "stale_memories": [
+    "Nightly backups run at 02:00 UTC and are kept for 14 days."
+  ],
+  "noise_memories": [
+    "The pipeline was red earlier due to an unresolved issue, but it is now fixed."
+  ]
+}

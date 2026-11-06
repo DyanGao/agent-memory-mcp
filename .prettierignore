@@ -6,3 +6,4 @@ pnpm-lock.yaml
 eval/fixtures
 eval/results
 eval/.venv
+eval/coding

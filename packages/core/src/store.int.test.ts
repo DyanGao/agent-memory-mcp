@@ -155,6 +155,35 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
     });
   });
 
+  describe("overview", () => {
+    it("puts decisions before facts, whatever the order they arrived", async () => {
+      await store.write(alice, { content: "a fact", type: "fact" });
+      await store.write(alice, { content: "a todo", type: "todo" });
+      await store.write(alice, { content: "a decision", type: "decision" });
+      const found = await store.overview(alice);
+      expect(found.map((m) => m.content)).toEqual([
+        "a decision",
+        "a fact",
+        "a todo",
+      ]);
+    });
+
+    it("stays inside the budget and leaves out outdated memories", async () => {
+      const old = await store.write(alice, {
+        content: "old",
+        type: "decision",
+      });
+      await store.write(
+        alice,
+        { content: "new", type: "decision" },
+        { supersedes: [old.id] },
+      );
+      await store.write(alice, { content: "x".repeat(400), type: "fact" });
+      const found = await store.overview(alice, { maxTokens: 50 });
+      expect(found.map((m) => m.content)).toEqual(["new"]);
+    });
+  });
+
   describe("write", () => {
     it("redacts a secret an agent passes straight to memory_write", async () => {
       const secret = "ghp_abcdefghijklmnopqrstuvwxyz0123456789";

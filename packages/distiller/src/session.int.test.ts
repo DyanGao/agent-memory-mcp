@@ -62,7 +62,10 @@ describe("distillSession", () => {
     );
   });
 
-  const seed = (text = "we use REST") =>
+  // Holds what the scripted model returns: memories must be grounded in it.
+  const seed = (
+    text = "The API uses REST. The API moved to gRPC. REST is the API style. Recovered. The order id prefix is now ACM. Alice's fact.",
+  ) =>
     ingestEvents(db.app, alice, "s1", [{ seq: 1, kind: "user_text", text }], {
       retentionDays: 30,
     });
@@ -186,12 +189,24 @@ describe("distillSession", () => {
       await seed();
       await seedExisting("The API uses REST.");
       const { llm } = scripted(
-        memories("REST is the API style."),
-        '{"action":"skip","existing_numbers":[]}',
+        memories("REST is what the API uses."),
+        '{"action":"skip","existing_numbers":[],"merged_content":""}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const { rows } = await db.owner.query("SELECT id FROM memories");
       expect(rows).toHaveLength(1);
+    });
+
+    it("keeps a new rule even if the model calls it a repeat", async () => {
+      await seed("Accounts in dispute are never purged.");
+      await seedExisting("Accounts on legal hold are never purged.");
+      const { llm } = scripted(
+        memories("Accounts in dispute are never purged."),
+        '{"action":"skip","existing_numbers":[],"merged_content":""}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
     });
 
     it("supersedes, so search returns only the newest fact", async () => {
@@ -199,7 +214,7 @@ describe("distillSession", () => {
       const old = await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_numbers":[1]}',
+        '{"action":"replace","existing_numbers":[1],"merged_content":"The API moved to gRPC."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
 
@@ -216,10 +231,10 @@ describe("distillSession", () => {
     it("supersedes every memory the new fact outdates", async () => {
       await seed();
       await seedExisting("The API uses REST.");
-      await seedExisting("Clients are written for REST.");
+      await seedExisting("The API uses REST for clients.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_numbers":[1,2,2,9]}',
+        '{"action":"replace","existing_numbers":[1,2,2,9],"merged_content":"The API moved to gRPC."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const store = new MemoryStore(db.app, sameVector);
@@ -227,12 +242,78 @@ describe("distillSession", () => {
       expect(current.map((m) => m.content)).toEqual(["The API moved to gRPC."]);
     });
 
+    it("stores the merged text, keeping what did not change", async () => {
+      await seed();
+      await seedExisting(
+        "Order ids look like ORD-2026-0042, with a four-digit sequence.",
+      );
+      const { llm } = scripted(
+        memories("The order id prefix is now ACM."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":"Order ids look like ACM-2026-0042, with a four-digit sequence."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect((await store.list(alice)).map((m) => m.content)).toEqual([
+        "Order ids look like ACM-2026-0042, with a four-digit sequence.",
+      ]);
+    });
+
+    it("keeps both memories if merged text came from nowhere", async () => {
+      await seed();
+      await seedExisting("The API uses REST.");
+      const { llm } = scripted(
+        memories("The API moved to gRPC."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":"Payments are settled every 90 days through Stripe."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
+    });
+
+    it("leaves a dependent memory when its details would be lost", async () => {
+      await seed();
+      await seedExisting("The API uses REST.");
+      await seedExisting("Clients are written for REST.");
+      const { llm } = scripted(
+        memories("The API moved to gRPC."),
+        '{"action":"replace","existing_numbers":[1,2],"merged_content":"The API moved to gRPC."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      // Stale but visible, which beats a true fact silently disappearing.
+      expect(await store.list(alice)).toHaveLength(3);
+    });
+
+    it("keeps both memories if nothing said a change happened", async () => {
+      await seed("Refurbished items get 6 months of warranty.");
+      await seedExisting("Our warranty runs for 24 months.");
+      const { llm } = scripted(
+        memories("Refurbished items get 6 months of warranty."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":"Refurbished items get 6 months of warranty."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
+    });
+
+    it("keeps both memories if a replace comes with no text", async () => {
+      await seed();
+      await seedExisting("The API uses REST.");
+      const { llm } = scripted(
+        memories("The API moved to gRPC."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":" "}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
+    });
+
     it("keeps both memories if the model names a memory that does not exist", async () => {
       await seed();
       await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_numbers":[9]}',
+        '{"action":"replace","existing_numbers":[9],"merged_content":"The API moved to gRPC."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const store = new MemoryStore(db.app, sameVector);

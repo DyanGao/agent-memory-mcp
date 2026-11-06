@@ -1,0 +1,1 @@
+Add src/discounts.mjs exporting applyDiscounts(price, {loyaltyPercent, couponAmount}) for a normal customer order. It returns the final price as a number. Follow our discount rules.

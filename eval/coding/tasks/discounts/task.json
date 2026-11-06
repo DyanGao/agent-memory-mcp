@@ -1,0 +1,4 @@
+{
+  "decision": "A decision for the acme-orders project, no code yet: the loyalty discount is applied before the coupon, each as a percentage of the running price, and the combined discount can never exceed 30% of the original price. Please acknowledge in one sentence.",
+  "request": "Add src/discounts.mjs exporting applyDiscounts(price, {loyaltyPercent, couponPercent}), which returns the final price as a number. Follow the discount rule we agreed."
+}

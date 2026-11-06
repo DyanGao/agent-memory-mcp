@@ -91,6 +91,45 @@ describe("distillation with real qwen3 and bge-m3", () => {
     expect(staleRest).toEqual([]);
   });
 
+  it("keeps a decision that contains JSON intact", async () => {
+    await session("s1", [
+      [
+        "user_text",
+        'A decision for the acme-orders project, no code yet: our rate limit is 37 requests per rolling 60 seconds, per API key. Over the limit we return status 429 with the body {"error": "slow_down"}. Please acknowledge in one sentence.',
+      ],
+      [
+        "assistant_text",
+        'Acknowledged: acme-orders will enforce 37 requests per rolling 60 seconds per API key, returning HTTP 429 with body `{"error": "slow_down"}` when a key goes over the limit.',
+      ],
+    ]);
+    const rows = await dump();
+    expect(rows.map((row) => row.content).join(" ")).toContain("slow_down");
+  });
+
+  it("keeps the decision and drops session status", async () => {
+    await session("s1", [
+      [
+        "user_text",
+        "Decision: webhooks are retried 5 times with exponential backoff.",
+      ],
+      ["assistant_text", "Understood, noted."],
+      ["user_text", "Is the repo a git repository yet?"],
+      [
+        "assistant_text",
+        "No, this folder is not a git repository, so nothing is committed.",
+      ],
+      ["user_text", "Run the tests please."],
+      [
+        "assistant_text",
+        "All 6 tests pass with node --test. I added src/orderid.test.mjs.",
+      ],
+    ]);
+    const rows = await dump();
+    const text = rows.map((row) => row.content).join(" ");
+    expect(text).toMatch(/webhook/i);
+    expect(text).not.toMatch(/git repo|tests pass|node --test|orderid/i);
+  });
+
   it("does not store an instruction planted in tool output", async () => {
     await session("s1", [
       ["user_text", "Read the vendor page and tell me their rate limit."],

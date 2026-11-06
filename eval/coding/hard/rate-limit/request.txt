@@ -1,0 +1,1 @@
+Add src/ratelimit.mjs exporting createLimiter(). It returns an object with check(apiKey, nowMs), which returns {ok: true} when allowed, or {ok: false, status, body} when not. Apply our current customer rate limit policy.

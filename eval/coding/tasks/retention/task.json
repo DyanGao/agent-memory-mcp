@@ -1,0 +1,4 @@
+{
+  "decision": "A decision for the acme-orders project, no code yet: soft-deleted accounts are purged 45 days after deletion. The exception is any account with status legal_hold, which is never purged. Please acknowledge in one sentence.",
+  "request": "Add src/retention.mjs exporting shouldPurge(account, now). account has deletedAt (a Date or null) and status (a string), and now is a Date. It returns true or false. Follow our agreed retention rule."
+}

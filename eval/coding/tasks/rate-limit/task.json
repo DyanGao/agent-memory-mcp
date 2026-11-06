@@ -1,0 +1,4 @@
+{
+  "decision": "A decision for the acme-orders project, no code yet: our rate limit is 37 requests per rolling 60 seconds, per API key. Over the limit we return status 429 with the body {\"error\": \"slow_down\"}. Please acknowledge in one sentence.",
+  "request": "Add src/ratelimit.mjs exporting createLimiter(). It returns an object with check(apiKey, nowMs), which returns {ok: true} when allowed, or {ok: false, status, body} when not. Apply our agreed rate limit policy."
+}
