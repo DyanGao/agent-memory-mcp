@@ -64,7 +64,7 @@ describe("distillSession", () => {
 
   // Holds what the scripted model returns: memories must be grounded in it.
   const seed = (
-    text = "The API uses REST. The API moved to gRPC. REST is the API style. Recovered. The id prefix is now ACM. Alice's fact.",
+    text = "The API uses REST. The API moved to gRPC. REST is the API style. Recovered. The order id prefix is now ACM. Alice's fact.",
   ) =>
     ingestEvents(db.app, alice, "s1", [{ seq: 1, kind: "user_text", text }], {
       retentionDays: 30,
@@ -231,7 +231,7 @@ describe("distillSession", () => {
     it("supersedes every memory the new fact outdates", async () => {
       await seed();
       await seedExisting("The API uses REST.");
-      await seedExisting("Clients are written for REST.");
+      await seedExisting("The API uses REST for clients.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
         '{"action":"replace","existing_numbers":[1,2,2,9],"merged_content":"The API moved to gRPC."}',
@@ -245,16 +245,16 @@ describe("distillSession", () => {
     it("stores the merged text, keeping what did not change", async () => {
       await seed();
       await seedExisting(
-        "Ids look like ORD-2026-0042, with a four-digit sequence.",
+        "Order ids look like ORD-2026-0042, with a four-digit sequence.",
       );
       const { llm } = scripted(
-        memories("The id prefix is now ACM."),
-        '{"action":"replace","existing_numbers":[1],"merged_content":"Ids look like ACM-2026-0042, with a four-digit sequence."}',
+        memories("The order id prefix is now ACM."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":"Order ids look like ACM-2026-0042, with a four-digit sequence."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const store = new MemoryStore(db.app, sameVector);
       expect((await store.list(alice)).map((m) => m.content)).toEqual([
-        "Ids look like ACM-2026-0042, with a four-digit sequence.",
+        "Order ids look like ACM-2026-0042, with a four-digit sequence.",
       ]);
     });
 
@@ -264,6 +264,32 @@ describe("distillSession", () => {
       const { llm } = scripted(
         memories("The API moved to gRPC."),
         '{"action":"replace","existing_numbers":[1],"merged_content":"Payments are settled every 90 days through Stripe."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
+    });
+
+    it("leaves a dependent memory when its details would be lost", async () => {
+      await seed();
+      await seedExisting("The API uses REST.");
+      await seedExisting("Clients are written for REST.");
+      const { llm } = scripted(
+        memories("The API moved to gRPC."),
+        '{"action":"replace","existing_numbers":[1,2],"merged_content":"The API moved to gRPC."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      // Stale but visible, which beats a true fact silently disappearing.
+      expect(await store.list(alice)).toHaveLength(3);
+    });
+
+    it("keeps both memories if nothing said a change happened", async () => {
+      await seed("Refurbished items get 6 months of warranty.");
+      await seedExisting("Our warranty runs for 24 months.");
+      const { llm } = scripted(
+        memories("Refurbished items get 6 months of warranty."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":"Refurbished items get 6 months of warranty."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const store = new MemoryStore(db.app, sameVector);

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isGrounded, saysSomethingNew } from "./grounding.js";
+import {
+  isGrounded,
+  isSafeReplacement,
+  saysSomethingNew,
+} from "./grounding.js";
 
 const source =
   "user: Decision: nightly backups run at 02:00 UTC and are kept for 14 days.";
@@ -57,5 +61,75 @@ describe("saysSomethingNew", () => {
         "Accounts are purged after deletion.",
       ),
     ).toBe(false);
+  });
+});
+
+describe("isSafeReplacement", () => {
+  it("allows a stated change that keeps the details", () => {
+    expect(
+      isSafeReplacement(
+        "The badge prefix is STF now instead of EMP.",
+        "The badge prefix is STF.",
+        "Badges look like STF-0421-B: STF, a four-digit number and a site letter.",
+        [
+          "Badges look like EMP-0421-B: EMP, a four-digit number and a site letter.",
+        ],
+      ),
+    ).toBe(true);
+  });
+
+  it("allows a full replacement that names the old value", () => {
+    expect(
+      isSafeReplacement(
+        "We replaced Memcached with Redis for the cache.",
+        "The cache uses Redis.",
+        "The cache uses Redis.",
+        ["The cache uses Memcached."],
+      ),
+    ).toBe(true);
+  });
+
+  it("refuses when no change was stated", () => {
+    expect(
+      isSafeReplacement(
+        "Refurbished items only get 6 months of warranty.",
+        "Refurbished items get 6 months of warranty.",
+        "The warranty runs for 6 months on refurbished items.",
+        ["Our warranty runs for 24 months."],
+      ),
+    ).toBe(false);
+  });
+
+  it("refuses to absorb a memory about something else", () => {
+    expect(
+      isSafeReplacement(
+        "Refurbished warranty is 6 months now.",
+        "Refurbished warranty is 6 months.",
+        "Refurbished warranty is 6 months. Trials last 10 days without credit card.",
+        ["Trials last 10 days without credit card."],
+      ),
+    ).toBe(false);
+  });
+
+  it("refuses when the old details disappear", () => {
+    expect(
+      isSafeReplacement(
+        "Also, we ship to Switzerland from now on.",
+        "We ship to Switzerland.",
+        "We ship to Switzerland.",
+        ["We ship to customers inside the European Union."],
+      ),
+    ).toBe(false);
+  });
+
+  it("allows a merge that keeps both", () => {
+    expect(
+      isSafeReplacement(
+        "Also, we ship to Switzerland from now on.",
+        "We ship to Switzerland.",
+        "We ship to customers inside the European Union and to Switzerland.",
+        ["We ship to customers inside the European Union."],
+      ),
+    ).toBe(true);
   });
 });

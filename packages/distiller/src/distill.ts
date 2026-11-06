@@ -81,6 +81,8 @@ export interface Candidate {
   content: string;
   importance: number;
   sourceEventIds: string[];
+  /** What was actually said. Consolidation checks it for a stated change. */
+  spokenLine: string;
 }
 
 const APPROVAL =
@@ -173,6 +175,7 @@ function clampImportance(value: number): number {
 export function parseCandidates(
   raw: string,
   sourceEventIds: string[],
+  spokenLine = "",
 ): Candidate[] {
   let json: unknown;
   try {
@@ -197,6 +200,7 @@ export function parseCandidates(
       content: memory.content.trim(),
       importance: clampImportance(memory.importance),
       sourceEventIds,
+      spokenLine,
     }));
 }
 
@@ -217,6 +221,7 @@ export async function extractCandidates(
       ...parseCandidates(
         raw,
         unit.events.map((event) => event.id),
+        unit.text,
       ).filter((candidate) => isGrounded(candidate.content, source)),
     );
   }

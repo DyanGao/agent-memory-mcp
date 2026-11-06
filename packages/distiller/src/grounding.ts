@@ -73,3 +73,33 @@ export function saysSomethingNew(content: string, existing: string): boolean {
     numbers(content).some((value) => !known.has(value))
   );
 }
+
+const CHANGE_SIGNAL =
+  /\b(now|instead|replac\w*|no longer|any more|anymore|changed?|moved?|switched|migrated|dropped|rather than|from now on|not \d)\b/i;
+
+// How much of an old memory must survive in text that replaces it.
+const MIN_DETAIL_KEPT = 0.6;
+
+/**
+ * A model will happily merge things that only sound alike, and that loses true
+ * facts. So a replacement must pass these checks, or both memories are kept:
+ * a stale duplicate can be corrected, but a lost fact cannot be noticed.
+ */
+export function isSafeReplacement(
+  spokenLine: string,
+  candidate: string,
+  merged: string,
+  targets: string[],
+): boolean {
+  if (!CHANGE_SIGNAL.test(spokenLine)) return false;
+
+  const said = new Set(significant(`${candidate} ${spokenLine}`).map(stem));
+  // An old word is accounted for if it survives, or if the person named it.
+  const kept = new Set(significant(`${merged} ${spokenLine}`).map(stem));
+  return targets.every((target) => {
+    const old = significant(target).map(stem);
+    const sharesSubject = old.some((word) => said.has(word));
+    const detailsKept = old.filter((word) => kept.has(word)).length;
+    return sharesSubject && detailsKept / old.length >= MIN_DETAIL_KEPT;
+  });
+}

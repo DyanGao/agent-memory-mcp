@@ -7,7 +7,11 @@ import type {
 } from "@agent-memory/core";
 import { z } from "zod";
 import type { Candidate } from "./distill.js";
-import { isGrounded, saysSomethingNew } from "./grounding.js";
+import {
+  isGrounded,
+  isSafeReplacement,
+  saysSomethingNew,
+} from "./grounding.js";
 import type { LlmProvider } from "./llm.js";
 
 const SIMILAR_LIMIT = 5;
@@ -56,6 +60,14 @@ Answer: {"action":"replace","existing_numbers":[1],"merged_content":"Ticket ids 
 Existing: 1. Sessions expire after 30 minutes, and we return 401 with the body 'expired'.
 New: Sessions now expire after 20 minutes instead of 30. The response stays the same.
 Answer: {"action":"replace","existing_numbers":[1],"merged_content":"Sessions expire after 20 minutes, and we return 401 with the body 'expired'."}
+
+Existing: 1. We only accept cards.
+New: We also accept PayPal from now on.
+Answer: {"action":"replace","existing_numbers":[1],"merged_content":"We accept cards and PayPal."}
+
+Existing: 1. Laptops are covered for 3 years.
+New: Used laptops are covered for 1 year.
+Answer: {"action":"add","existing_numbers":[],"merged_content":""}
 
 Existing: 1. The job queue uses RabbitMQ.
 New: The job queue uses RabbitMQ.
@@ -106,23 +118,26 @@ async function decide(
   }
   if (action === "add") return { action };
 
-  const ids = [...new Set(numbers)]
-    .map((number) => similar[number - 1]?.id)
-    .filter((id) => id !== undefined);
-  // A replace with no valid target or no text must not hide a true memory, and
-  // merged text must come from the memories it merges.
+  const targets = [...new Set(numbers)]
+    .map((number) => similar[number - 1])
+    .filter((memory) => memory !== undefined);
   const content = merged.trim();
   const source = [candidate.content, ...similar.map((m) => m.content)].join(
     "\n",
   );
-  if (
-    ids.length === 0 ||
-    content.length === 0 ||
-    !isGrounded(content, source)
-  ) {
-    return { action: "add" };
-  }
-  return { action, ids, content };
+  const safe =
+    targets.length > 0 &&
+    content.length > 0 &&
+    isGrounded(content, source) &&
+    isSafeReplacement(
+      candidate.spokenLine,
+      candidate.content,
+      content,
+      targets.map((memory) => memory.content),
+    );
+  // Anything else keeps both, as replacing wrongly hides a true memory.
+  if (!safe) return { action: "add" };
+  return { action, ids: targets.map((memory) => memory.id), content };
 }
 
 export async function consolidate(
