@@ -22,6 +22,7 @@ import holdout2  # noqa: E402,F401
 import holdout3  # noqa: E402,F401
 import holdout4  # noqa: E402
 import longhistory  # noqa: E402
+import longhistory2  # noqa: E402
 from history import transcript  # noqa: E402
 
 from agent_eval.client import (  # noqa: E402
@@ -150,6 +151,7 @@ def main() -> None:
     parser.add_argument("--seed-only", action="store_true")
     parser.add_argument("--holdout", action="store_true")
     parser.add_argument("--long-store", action="store_true")
+    parser.add_argument("--long-unseen", action="store_true", help="chatter never tuned on")
     parser.add_argument("--long-context", metavar="USER", help="remeasure a seeded long store")
     parser.add_argument("--name", default="coding-hard-pilot")
     args = parser.parse_args()
@@ -158,13 +160,15 @@ def main() -> None:
     if args.long_context:
         print(context_measures(args.long_context, longhistory))
         return
-    if args.long_store:
+    if args.long_store or args.long_unseen:
+        source = longhistory2 if args.long_unseen else longhistory
         started = time.time()
         long_user = f"long-{int(time.time())}"
-        store = seed(long_user, longhistory)
+        store = seed(long_user, source)
         store["seconds"] = round(time.time() - started)
-        store.update(context_measures(long_user, longhistory))
-        print("wrote", write_results("long-store", store))
+        store.update(context_measures(long_user, source))
+        name = "long-unseen-store" if args.long_unseen else "long-store"
+        print("wrote", write_results(name, store))
         print({k: v for k, v in store.items() if k != "memories"})
         for text in store["memories"]:
             print(" ", text)

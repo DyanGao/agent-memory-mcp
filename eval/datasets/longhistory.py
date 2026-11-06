@@ -50,14 +50,14 @@ TEMPLATES = [
 ]
 
 
-def _chatter(rng: random.Random) -> tuple[str, str]:
-    said, reply = rng.choice(TEMPLATES)
-    said = said.format(t=rng.choice(THINGS), p=rng.choice(PEOPLE))
+def _chatter(rng: random.Random, templates, things, people) -> tuple[str, str]:
+    said, reply = rng.choice(templates)
+    said = said.format(t=rng.choice(things), p=rng.choice(people))
     return said[0].upper() + said[1:], reply
 
 
-def sessions() -> list[list[tuple[str, str]]]:
-    rng = random.Random(SEED)
+def build(seed: int, templates, things, people) -> list[list[tuple[str, str]]]:
+    rng = random.Random(seed)
     # Fixed, even spread: a decision and its later change sit far apart.
     placed = {
         round(index * (SESSION_COUNT - 1) / (len(SESSIONS) - 1)): decisions
@@ -65,17 +65,25 @@ def sessions() -> list[list[tuple[str, str]]]:
     }
     history = []
     for number in range(SESSION_COUNT):
-        turns = [_chatter(rng) for _ in range(TURNS_PER_SESSION)]
+        turns = [_chatter(rng, templates, things, people) for _ in range(TURNS_PER_SESSION)]
         for decision in placed.get(number, []):
             turns.insert(rng.randrange(len(turns)), (decision, "Understood, noted."))
         history.append(turns)
     return history
 
 
-def transcript() -> str:
+def sessions() -> list[list[tuple[str, str]]]:
+    return build(SEED, TEMPLATES, THINGS, PEOPLE)
+
+
+def render(history: list[list[tuple[str, str]]]) -> str:
     lines = []
-    for number, turns in enumerate(sessions(), start=1):
+    for number, turns in enumerate(history, start=1):
         lines.append(f"--- Session {number} ---")
         for user, agent in turns:
             lines.append(f"user: {user}\nassistant: {agent}")
     return "\n".join(lines)
+
+
+def transcript() -> str:
+    return render(sessions())
