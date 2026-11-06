@@ -29,6 +29,7 @@ const scripted = (...replies: string[]) => {
     name: "fake",
     hosted: false,
     generateJson: async (request) => {
+      if (request.user.startsWith("<note>")) return '{"lasting":true}';
       requests.push(request);
       const reply = replies.shift();
       if (reply === undefined) throw new Error("LLM unavailable");

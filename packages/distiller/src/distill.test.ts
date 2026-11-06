@@ -16,6 +16,7 @@ const scripted = (...replies: string[]) => {
     name: "fake",
     hosted: false,
     generateJson: async (request) => {
+      if (request.user.startsWith("<note>")) return '{"lasting":true}';
       requests.push(request);
       return replies.shift() ?? '{"memories":[]}';
     },
@@ -237,6 +238,72 @@ describe("extractCandidates", () => {
       event(1, "a hello world greeting"),
     ]);
     expect(found.map((c) => c.content)).toEqual(["Hello world greeting."]);
+  });
+
+  describe("lasting check", () => {
+    const judged = (memories: object[], lasting: (note: string) => string) => {
+      const notes: string[] = [];
+      const llm: LlmProvider = {
+        name: "fake",
+        hosted: false,
+        generateJson: async (request) => {
+          if (!request.user.startsWith("<note>")) {
+            return JSON.stringify({ memories });
+          }
+          notes.push(request.user);
+          return lasting(request.user);
+        },
+      };
+      return { llm, notes };
+    };
+
+    it("drops a memory judged not lasting", async () => {
+      const { llm } = judged(
+        [{ type: "fact", content: "Omar liked the navbar.", importance: 0.5 }],
+        () => '{"lasting":false}',
+      );
+      const found = await extractCandidates(llm, [
+        event(1, "Omar liked the navbar."),
+      ]);
+      expect(found).toEqual([]);
+    });
+
+    it("keeps a memory judged lasting", async () => {
+      const { llm } = judged(
+        [{ type: "fact", content: "Exports run nightly.", importance: 0.5 }],
+        () => '{"lasting":true}',
+      );
+      const found = await extractCandidates(llm, [
+        event(1, "Exports run nightly."),
+      ]);
+      expect(found).toHaveLength(1);
+    });
+
+    it.each(["error_fix", "todo"])(
+      "does not judge %s, which describes an event",
+      async (type) => {
+        const content = "Upgrade the fixture next week because it failed.";
+        const { llm, notes } = judged(
+          [{ type, content, importance: 0.5 }],
+          () => '{"lasting":false}',
+        );
+        const found = await extractCandidates(llm, [event(1, content)]);
+        expect(found).toHaveLength(1);
+        expect(notes).toEqual([]);
+      },
+    );
+
+    it("fails without quoting invalid output", async () => {
+      const { llm } = judged(
+        [{ type: "fact", content: "Exports run nightly.", importance: 0.5 }],
+        () => "private words {",
+      );
+      const failure = extractCandidates(llm, [
+        event(1, "Exports run nightly."),
+      ]);
+      await expect(failure).rejects.toThrow("Lasting check output");
+      await expect(failure).rejects.not.toThrow("private words");
+    });
   });
 
   it("collects memories from every line", async () => {
