@@ -10,7 +10,7 @@
   "controls": 10,
   "controls_first_fact_learned": 10,
   "controls_wrongly_replaced": 0,
-  "seconds": 351,
+  "seconds": 420,
   "rows": [
     {
       "id": "change-0",
@@ -44,7 +44,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "Internal service calls use gRPC."
+      "top": "Internal service calls use gRPC. REST is no longer in use."
     },
     {
       "id": "change-4",
@@ -100,7 +100,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The log pipeline is now Vector."
+      "top": "The log pipeline uses Vector."
     },
     {
       "id": "change-11",
@@ -244,7 +244,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The data warehouse is now Snowflake."
+      "top": "The data warehouse uses Snowflake."
     },
     {
       "id": "change-29",

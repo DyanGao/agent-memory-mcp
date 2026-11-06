@@ -1,6 +1,7 @@
 import { MEMORY_TYPES } from "@agent-memory/core";
 import type { MemoryType, StoredEvent } from "@agent-memory/core";
 import { z } from "zod";
+import { isLasting } from "./durable.js";
 import { isGrounded } from "./grounding.js";
 import type { LlmProvider } from "./llm.js";
 
@@ -204,6 +205,10 @@ export function parseCandidates(
     }));
 }
 
+// An error fix or a todo describes an event, so "still true in months" is the
+// wrong test. They have their own filters: DESCRIBES_A_FIX and DEFERRED.
+const JUDGED_TYPES: readonly MemoryType[] = ["fact", "decision", "preference"];
+
 export async function extractCandidates(
   llm: LlmProvider,
   events: StoredEvent[],
@@ -217,13 +222,19 @@ export async function extractCandidates(
       schema: DISTILL_SCHEMA,
     });
     const source = `${unit.context}\n${unit.text}`;
-    candidates.push(
-      ...parseCandidates(
-        raw,
-        unit.events.map((event) => event.id),
-        unit.text,
-      ).filter((candidate) => isGrounded(candidate.content, source)),
-    );
+    const found = parseCandidates(
+      raw,
+      unit.events.map((event) => event.id),
+      unit.text,
+    ).filter((candidate) => isGrounded(candidate.content, source));
+    for (const candidate of found) {
+      if (
+        !JUDGED_TYPES.includes(candidate.type) ||
+        (await isLasting(llm, candidate.content))
+      ) {
+        candidates.push(candidate);
+      }
+    }
   }
   return candidates;
 }

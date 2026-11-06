@@ -1,0 +1,83 @@
+{
+  "memories": [
+    "Accounts with status dispute are never purged.",
+    "Logs are written as JSON lines.",
+    "Ravi fixed a typo in the csv parser.",
+    "Calculating per line with half-even rounding stays the same.",
+    "VAT is 21%, calculated on each line and rounded to 2 decimals with half-even rounding on that line, then summed. We never calculate VAT on the invoice total.",
+    "Accounts with status legal_hold are never purged.",
+    "The sync worker crashed once on the user's machine, but the issue cannot be reproduced.",
+    "Order ids look like ACM-2026-000042, meaning ACM, the four-digit year, and a six-digit zero-padded sequence that restarts at 1 every calendar year. Partner orders have a separate discount cap of 15%. This applies to partner orders only.",
+    "The loyalty percentage is applied first, and the coupon, which is a fixed euro amount, is taken off after that.",
+    "Avatar picker is to be parked for now.",
+    "The rate limit for acme-orders is 52 requests per rolling 60 seconds, per API key. Over the limit, we return status 429 with the body {'error': 'slow_down'}.",
+    "Partner orders have a separate discount cap of 15%. This applies to partner orders only.",
+    "The billing page crashed once on the user's machine, but it cannot be reproduced.",
+    "The internal admin API has its own limit of 200 requests per minute.",
+    "Soft-deleted accounts are purged 45 days after deletion.",
+    "The image cropper crashed once on the user's machine, but the issue cannot be reproduced.",
+    "The combined discount on an order can never exceed 30% of the original price.",
+    "All prices are in euros, and we do not support other currencies.",
+    "Zoe fixed a typo in the batch runner.",
+    "The mail template crashed once on my machine, but I cannot reproduce it.",
+    "The coupon form crashed once on the user's machine, but the issue cannot be reproduced.",
+    "Release notes will be delayed until the next sprint.",
+    "Webhooks are retried 5 times with exponential backoff.",
+    "The survey form crashed once on the user's machine, but the issue cannot be reproduced.",
+    "The webhook log crashed once on the user's machine, but the issue cannot be reproduced.",
+    "The keyboard shortcuts crashed once on the user's machine, but the issue cannot be reproduced.",
+    "The csv parser crashed once on the user's machine, but the issue cannot be reproduced.",
+    "Release notes are to be parked for now.",
+    "The batch runner should wait until the next sprint."
+  ],
+  "count": 29,
+  "decisions_present": 14,
+  "decisions_total": 14,
+  "stale_memories": [],
+  "noise_memories": [
+    "Ravi fixed a typo in the csv parser.",
+    "The sync worker crashed once on the user's machine, but the issue cannot be reproduced.",
+    "Avatar picker is to be parked for now.",
+    "The billing page crashed once on the user's machine, but it cannot be reproduced.",
+    "The image cropper crashed once on the user's machine, but the issue cannot be reproduced.",
+    "Zoe fixed a typo in the batch runner.",
+    "The mail template crashed once on my machine, but I cannot reproduce it.",
+    "The coupon form crashed once on the user's machine, but the issue cannot be reproduced.",
+    "Release notes will be delayed until the next sprint.",
+    "The survey form crashed once on the user's machine, but the issue cannot be reproduced.",
+    "The webhook log crashed once on the user's machine, but the issue cannot be reproduced.",
+    "The keyboard shortcuts crashed once on the user's machine, but the issue cannot be reproduced.",
+    "The csv parser crashed once on the user's machine, but the issue cannot be reproduced.",
+    "Release notes are to be parked for now.",
+    "The batch runner should wait until the next sprint."
+  ],
+  "seconds": 5272,
+  "history_chars": 583254,
+  "overview_memories": 29,
+  "overview_noise": 15,
+  "overview_chars": 3763,
+  "overview_share_of_history": 0.0065,
+  "overview_decisions_present": 14,
+  "task_context": {
+    "discounts": {
+      "memories": 20,
+      "noise": 6
+    },
+    "invoice-vat": {
+      "memories": 20,
+      "noise": 6
+    },
+    "order-id": {
+      "memories": 20,
+      "noise": 10
+    },
+    "rate-limit": {
+      "memories": 20,
+      "noise": 8
+    },
+    "retention": {
+      "memories": 20,
+      "noise": 10
+    }
+  }
+}

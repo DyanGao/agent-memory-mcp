@@ -91,6 +91,53 @@ def hard_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def setup_cost(runs: dict, setup: str) -> float:
+    return sum(
+        row["second"]["cost_usd_equivalent"] or 0
+        for row in runs["rows"]
+        if row["setup"] == setup
+    )
+
+
+def setup_tokens(runs: dict, setup: str) -> int:
+    return runs["summary"][setup]["input_tokens"]
+
+
+def run_rows(runs: dict) -> str:
+    labels = {
+        "none": "No memory",
+        "full_history": "Full history",
+        "memory": "agent-memory-mcp",
+    }
+    lines = ["| Setup | Passed | Input tokens | Cost |", "|---|---|---|---|"]
+    for setup, label in labels.items():
+        row = runs["summary"][setup]
+        lines.append(
+            f"| {label} | {row['passed']} of {row['runs']} "
+            f"| {row['input_tokens']:,} | ${setup_cost(runs, setup):.2f} |"
+        )
+    return "\n".join(lines)
+
+
+def long_values(store: dict) -> dict[str, str]:
+    task_noise = [row["noise"] for row in store["task_context"].values()]
+    return {
+        "decisions": f"{store['decisions_present']} of {store['decisions_total']}",
+        "stale": str(len(store["stale_memories"])),
+        "count": str(store["count"]),
+        "noise": str(len(store["noise_memories"])),
+        "overview_decisions": (
+            f"{store['overview_decisions_present']} of {store['decisions_total']}"
+        ),
+        "overview_memories": str(store["overview_memories"]),
+        "overview_noise": str(store["overview_noise"]),
+        "overview_chars": f"{store['overview_chars']:,}",
+        "share": f"{store['overview_share_of_history']:.1%}",
+        "task_noise": f"{min(task_noise)} to {max(task_noise)}",
+        "minutes": str(round(store["seconds"] / 60)),
+    }
+
+
 def main() -> None:
     folder = sorted((ROOT / "eval" / "results").iterdir())[-1]
     deletion = load(folder, "deletion")
@@ -124,6 +171,16 @@ def main() -> None:
         "{{held3}}", f"{third['decisions_present']} of {third['decisions_total']}"
     ).replace(
         "{{held4}}", f"{fourth['decisions_present']} of {fourth['decisions_total']}"
+    )
+    for prefix, name in (("long", "long-store"), ("unseen", "long-unseen-store")):
+        for field, value in long_values(load(folder, name)).items():
+            output = output.replace(f"{{{{{prefix}_{field}}}}}", value)
+    runs = load(folder, "coding-long-unseen")
+    output = (
+        output.replace("{{run_rows}}", run_rows(runs))
+        .replace("{{run_chars}}", f"{runs['usage']['transcript_chars']:,}")
+        .replace("{{run_cost_share}}", f"{setup_cost(runs, 'memory') / setup_cost(runs, 'full_history'):.0%}")
+        .replace("{{run_token_share}}", f"{setup_tokens(runs, 'memory') / setup_tokens(runs, 'full_history'):.0%}")
     )
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)
