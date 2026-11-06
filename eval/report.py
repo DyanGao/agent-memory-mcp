@@ -113,8 +113,11 @@ def main() -> None:
         .replace("{{controls}}", str(knowledge["controls"]))
     )
     held = load(folder, "holdout-store")
+    second = load(folder, "holdout2-store")
     output = output.replace(
         "{{held}}", f"{held['decisions_present']} of {held['decisions_total']}"
+    ).replace(
+        "{{held2}}", f"{second['decisions_present']} of {second['decisions_total']}"
     )
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)

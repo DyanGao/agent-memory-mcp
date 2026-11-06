@@ -1,0 +1,542 @@
+{
+  "models": {
+    "distill": "ollama:qwen3",
+    "embed": "bge-m3"
+  },
+  "cases": 50,
+  "cases_where_first_fact_was_learned": 47,
+  "update_correctness": 0.9574468085106383,
+  "update_correctness_all_cases": 0.96,
+  "controls": 10,
+  "controls_first_fact_learned": 10,
+  "controls_wrongly_replaced": 0,
+  "seconds": 361,
+  "rows": [
+    {
+      "id": "change-0",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The job queue uses NATS."
+    },
+    {
+      "id": "change-1",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The primary database is now Postgres."
+    },
+    {
+      "id": "change-2",
+      "first_fact_learned": true,
+      "top_result_has_new": false,
+      "stale_memories": [
+        "The cache uses Memcached."
+      ],
+      "correct": false,
+      "top": "The cache uses Memcached."
+    },
+    {
+      "id": "change-3",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "Internal service calls use gRPC. REST is no longer used."
+    },
+    {
+      "id": "change-4",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The frontend framework used is Svelte."
+    },
+    {
+      "id": "change-5",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The bundler used is Vite."
+    },
+    {
+      "id": "change-6",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The test runner in use is Vitest."
+    },
+    {
+      "id": "change-7",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The package manager is now pnpm."
+    },
+    {
+      "id": "change-8",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The CI system uses Buildkite."
+    },
+    {
+      "id": "change-9",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The deployment tool used is Kamal."
+    },
+    {
+      "id": "change-10",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The log pipeline is now Vector."
+    },
+    {
+      "id": "change-11",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The metrics backend uses Prometheus."
+    },
+    {
+      "id": "change-12",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "Error tracking is done using Sentry."
+    },
+    {
+      "id": "change-13",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The search engine is now Meilisearch."
+    },
+    {
+      "id": "change-14",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The object store in use is Garage."
+    },
+    {
+      "id": "change-15",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The auth provider is Keycloak."
+    },
+    {
+      "id": "change-16",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The feature flag service is now Unleash."
+    },
+    {
+      "id": "change-17",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The email provider used is Postmark. Nothing uses SendGrid anymore."
+    },
+    {
+      "id": "change-18",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The payments provider is Stripe. Braintree is no longer in use."
+    },
+    {
+      "id": "change-19",
+      "first_fact_learned": false,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The CDN is now Cloudflare."
+    },
+    {
+      "id": "change-20",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The container orchestrator in use is Kubernetes."
+    },
+    {
+      "id": "change-21",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "Infrastructure as code is managed using Pulumi."
+    },
+    {
+      "id": "change-22",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "Secrets storage is now Doppler. Vault was dropped last week."
+    },
+    {
+      "id": "change-23",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The mobile framework used is React Native."
+    },
+    {
+      "id": "change-24",
+      "first_fact_learned": false,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The ORM has been migrated from Sequelize to Drizzle."
+    },
+    {
+      "id": "change-25",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The API gateway is now Traefik."
+    },
+    {
+      "id": "change-26",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The linter in use is Biome."
+    },
+    {
+      "id": "change-27",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The Python package tool has been migrated from Poetry to uv."
+    },
+    {
+      "id": "change-28",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [
+        "Redshift was dropped last week."
+      ],
+      "correct": false,
+      "top": "The data warehouse is now Snowflake."
+    },
+    {
+      "id": "change-29",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The stream processor uses Redpanda."
+    },
+    {
+      "id": "change-30",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The design tool used is Figma."
+    },
+    {
+      "id": "change-31",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The issue tracker is now Linear, Jira was dropped last week."
+    },
+    {
+      "id": "change-32",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The chat tool in use is Mattermost."
+    },
+    {
+      "id": "change-33",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The wiki uses Notion. Confluence is no longer in use."
+    },
+    {
+      "id": "change-34",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The on-call tool used is Opsgenie."
+    },
+    {
+      "id": "change-35",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The hosting provider is now Render."
+    },
+    {
+      "id": "change-36",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The cloud provider is Hetzner."
+    },
+    {
+      "id": "change-37",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The state management library in use is Zustand."
+    },
+    {
+      "id": "change-38",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "Sass is no longer used; Tailwind is the CSS approach."
+    },
+    {
+      "id": "change-39",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The date library in use is Luxon."
+    },
+    {
+      "id": "change-40",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The validation library in use is Zod."
+    },
+    {
+      "id": "change-41",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The HTTP framework in use is Fastify."
+    },
+    {
+      "id": "change-42",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The web server uses Caddy."
+    },
+    {
+      "id": "change-43",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The task scheduler is now Dagster, Airflow was dropped last week."
+    },
+    {
+      "id": "change-44",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The vector store uses Qdrant."
+    },
+    {
+      "id": "change-45",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The observability vendor used is Honeycomb."
+    },
+    {
+      "id": "change-46",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The backup tool used is Restic."
+    },
+    {
+      "id": "change-47",
+      "first_fact_learned": false,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "OpenVPN has been replaced with WireGuard for the VPN."
+    },
+    {
+      "id": "change-48",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The docs generator uses Astro."
+    },
+    {
+      "id": "change-49",
+      "first_fact_learned": true,
+      "top_result_has_new": true,
+      "stale_memories": [],
+      "correct": true,
+      "top": "The browser test tool is Playwright."
+    }
+  ],
+  "control_rows": [
+    {
+      "pair": [
+        "We use Postgres for the primary database.",
+        "We use Redis for the cache."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "Redis is used for the cache.",
+        "Postgres is used as the primary database."
+      ]
+    },
+    {
+      "pair": [
+        "Tests run with Vitest in CI.",
+        "Lint runs with ESLint in CI."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "Lint runs with ESLint in CI.",
+        "Tests run with Vitest in CI."
+      ]
+    },
+    {
+      "pair": [
+        "The API is written in Go.",
+        "The admin panel is written in Ruby."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "The admin panel is written in Ruby.",
+        "The API is written in Go."
+      ]
+    },
+    {
+      "pair": [
+        "Deploys go out on Tuesdays.",
+        "Database migrations run on Thursdays."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "Database migrations run on Thursdays.",
+        "Deploys go out on Tuesdays."
+      ]
+    },
+    {
+      "pair": [
+        "The web app is hosted on Render.",
+        "The docs site is hosted on Netlify."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "The docs site is hosted on Netlify.",
+        "The web app is hosted on Render."
+      ]
+    },
+    {
+      "pair": [
+        "Sentry tracks backend errors.",
+        "Bugsnag tracks mobile errors."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "Bugsnag tracks mobile errors.",
+        "Sentry tracks backend errors."
+      ]
+    },
+    {
+      "pair": [
+        "Use tabs in Go files.",
+        "Use spaces in Python files."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "Use spaces in Python files.",
+        "Use tabs in Go files."
+      ]
+    },
+    {
+      "pair": [
+        "Staging refreshes nightly.",
+        "Production backups run hourly."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "Production backups run hourly.",
+        "Staging refreshes nightly."
+      ]
+    },
+    {
+      "pair": [
+        "Kafka carries order events.",
+        "NATS carries internal commands."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "NATS carries internal commands.",
+        "Kafka carries order events."
+      ]
+    },
+    {
+      "pair": [
+        "Code review needs one approval.",
+        "Security changes need two approvals."
+      ],
+      "first_learned": true,
+      "wrongly_replaced": false,
+      "memories": [
+        "Security changes need two approvals.",
+        "Code review needs one approval."
+      ]
+    }
+  ]
+}

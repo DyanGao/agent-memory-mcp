@@ -1,0 +1,12 @@
+{
+  "memories": [
+    "Refunds on sale items are never allowed.",
+    "Invoices are stored as PDF for 7 years.",
+    "Refunds are allowed within 21 days of delivery."
+  ],
+  "count": 3,
+  "decisions_present": 3,
+  "decisions_total": 10,
+  "stale_memories": [],
+  "noise_memories": []
+}
