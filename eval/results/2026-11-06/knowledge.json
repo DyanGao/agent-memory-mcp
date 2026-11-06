@@ -5,12 +5,12 @@
   },
   "cases": 50,
   "cases_where_first_fact_was_learned": 47,
-  "update_correctness": 0.9574468085106383,
-  "update_correctness_all_cases": 0.96,
+  "update_correctness": 0.9787234042553191,
+  "update_correctness_all_cases": 0.98,
   "controls": 10,
   "controls_first_fact_learned": 10,
   "controls_wrongly_replaced": 0,
-  "seconds": 361,
+  "seconds": 351,
   "rows": [
     {
       "id": "change-0",
@@ -44,7 +44,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "Internal service calls use gRPC. REST is no longer used."
+      "top": "Internal service calls use gRPC."
     },
     {
       "id": "change-4",
@@ -68,7 +68,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The test runner in use is Vitest."
+      "top": "The test runner has been migrated from Jest to Vitest."
     },
     {
       "id": "change-7",
@@ -76,7 +76,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The package manager is now pnpm."
+      "top": "The package manager is pnpm."
     },
     {
       "id": "change-8",
@@ -116,7 +116,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "Error tracking is done using Sentry."
+      "top": "Error tracking has been migrated from Rollbar to Sentry. Rollbar is no longer in use."
     },
     {
       "id": "change-13",
@@ -132,7 +132,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The object store in use is Garage."
+      "top": "The object store uses Garage."
     },
     {
       "id": "change-15",
@@ -140,7 +140,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The auth provider is Keycloak."
+      "top": "The auth provider used is Keycloak."
     },
     {
       "id": "change-16",
@@ -156,7 +156,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The email provider used is Postmark. Nothing uses SendGrid anymore."
+      "top": "The email provider used is Postmark."
     },
     {
       "id": "change-18",
@@ -164,7 +164,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The payments provider is Stripe. Braintree is no longer in use."
+      "top": "The payments provider is Stripe."
     },
     {
       "id": "change-19",
@@ -180,7 +180,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The container orchestrator in use is Kubernetes."
+      "top": "The container orchestrator used is Kubernetes."
     },
     {
       "id": "change-21",
@@ -196,7 +196,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "Secrets storage is now Doppler. Vault was dropped last week."
+      "top": "Secrets storage is now Doppler."
     },
     {
       "id": "change-23",
@@ -228,7 +228,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The linter in use is Biome."
+      "top": "The linter used is Biome."
     },
     {
       "id": "change-27",
@@ -236,16 +236,14 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The Python package tool has been migrated from Poetry to uv."
+      "top": "The Python package tool used is uv."
     },
     {
       "id": "change-28",
       "first_fact_learned": true,
       "top_result_has_new": true,
-      "stale_memories": [
-        "Redshift was dropped last week."
-      ],
-      "correct": false,
+      "stale_memories": [],
+      "correct": true,
       "top": "The data warehouse is now Snowflake."
     },
     {
@@ -270,7 +268,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The issue tracker is now Linear, Jira was dropped last week."
+      "top": "The issue tracker is now Linear."
     },
     {
       "id": "change-32",
@@ -278,7 +276,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The chat tool in use is Mattermost."
+      "top": "The chat tool used is Mattermost."
     },
     {
       "id": "change-33",
@@ -286,7 +284,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The wiki uses Notion. Confluence is no longer in use."
+      "top": "The wiki uses Notion."
     },
     {
       "id": "change-34",
@@ -310,7 +308,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The cloud provider is Hetzner."
+      "top": "The cloud provider used is Hetzner."
     },
     {
       "id": "change-37",
@@ -318,7 +316,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The state management library in use is Zustand."
+      "top": "The state management library used is Zustand."
     },
     {
       "id": "change-38",
@@ -350,7 +348,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The HTTP framework in use is Fastify."
+      "top": "The HTTP framework used is Fastify."
     },
     {
       "id": "change-42",
@@ -366,7 +364,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "The task scheduler is now Dagster, Airflow was dropped last week."
+      "top": "The task scheduler is now Dagster. Airflow was dropped last week."
     },
     {
       "id": "change-44",
@@ -398,7 +396,7 @@
       "top_result_has_new": true,
       "stale_memories": [],
       "correct": true,
-      "top": "OpenVPN has been replaced with WireGuard for the VPN."
+      "top": "We replaced OpenVPN with WireGuard for the VPN, so nothing uses OpenVPN any more."
     },
     {
       "id": "change-48",

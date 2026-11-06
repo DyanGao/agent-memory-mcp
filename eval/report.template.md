@@ -73,23 +73,31 @@ Each of these histories was written after a round of fixes and scored once, with
 
 Those were fixed: memories must now be grounded in their source text, and a short approval brings the proposal it answers. On the seen histories no invented memories remained, and the proposal was stored.
 
-**Second held-out history: {{held2}} decisions. This is the most important number in this report.** The first two histories mostly labelled decisions with the word "Decision:". This one states them as people do, such as "Free accounts get 3 projects", and the distiller stored almost nothing. Each statement is extracted correctly on its own, yet a window of 15 to 19 mixed lines returned nothing at all. So the earlier scores were flattered by a label that real conversations do not have, and **extraction with `qwen3` is not yet reliable on natural conversation**.
+**Second held-out history: {{held2}} decisions.** The first two histories mostly labelled decisions with the word "Decision:". This one states them as people do, such as "Free accounts get 3 projects", and the distiller stored almost nothing. Each statement was extracted correctly alone, yet a window of 15 to 19 mixed lines returned nothing. So the earlier scores were flattered by a label real conversations do not have. Those labels have since been removed from every test history.
 
-The harder pilot above predates this code and has not been rerun on it. Its 4 of 5 also relies on that same label.
+Extraction now reads one line at a time, with the line before as context.
+
+**Third held-out history: {{held3}} decisions. This is the most trustworthy number in this report.** It is plainly worded, written with the code frozen, scored once, and stricter: a decision's details must sit together in one memory. It stored no stale values, no noise and no invented memories, and a change kept the details around it: "Employee badges follow the format STF-0421-B: STF, a four-digit number, and a site letter".
+
+Both losses come from consolidation still merging unrelated things. "The warranty period is 6 months for refurbished items. Trials last 10 days" fused two subjects and replaced the 24-month warranty, and "We ship to Switzerland" replaced "We only ship inside the EU".
+
+This covers store quality on one small history, one run. The harder pilot above predates line extraction and has not been rerun on it, so its 4 of 5 is out of date and relied on those labels.
 
 ## What this eval changed in the product
 
 - Reworded topics now need human review, because automatic matching could not be made safe.
 - Forgetting a memory also removes transcripts repeating its words.
 - The distiller no longer cuts a memory off at a double quote. The pilot found this on its first task: a rate limit arrived with its response body missing. The fix is a prompt rule, so another model could still do it.
-- Consolidation now replaces only a specific changed value, and writes merged text that keeps everything else. Extraction reads what people said, in small pieces. Session status is filtered in code. A new session gets decisions first instead of a vague search.
+- Memories must now be grounded in their source text, after one was invented from a prompt example. Extraction reads one line at a time, and a short approval brings the proposal it answers.
+- Consolidation now replaces only a specific changed value, and writes merged text that keeps everything else. Session status is filtered in code. A new session gets decisions first instead of a vague search.
 - `ef_search` went from 100 to 400, nearly doubling worst-case recall at 10k for under 3 ms.
 - Postgres now gets 1 GB of shared memory. Docker's default of 64 MB is too small for parallel vector index builds, including the one in the nightly scrub.
 - The scrub now holds its lock for 19.6 s at 100k clustered, down from 82 s, and retries after a failure.
 
 ## Known weaknesses
 
-- **Extraction on natural conversation** is the main open problem: see the second held-out history.
+- **Consolidation can still merge unrelated memories,** which loses facts: see the third held-out history.
+- **Extraction is one model call per line,** which is slower. A history of 8 sessions took about 2 minutes here.
 - **Vector ranking on real data.** One real query ranked the right memory last of 4 by meaning, and the importance score rescued it.
 - **No minimum relevance.** Small stores return unrelated memories.
 - **Memory poisoning.** Skipping tool output closes the main route, but text the user pastes, or that the agent repeats, can still be stored. No poisoning case is scored yet.

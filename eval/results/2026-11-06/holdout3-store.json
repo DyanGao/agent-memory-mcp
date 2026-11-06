@@ -1,0 +1,18 @@
+{
+  "memories": [
+    "Webinar recordings are kept for 30 days.",
+    "Admin passwords need 16 characters. Passwords need at least 12 characters.",
+    "We ship to Switzerland from now on.",
+    "The warranty period is 6 months for refurbished items. Trials last 10 days and require no credit card.",
+    "Trials last 10 days and require no credit card.",
+    "Enterprise customers get support around the clock.",
+    "Employee badges follow the format STF-0421-B: STF, a four-digit number, and a site letter.",
+    "Support hours are 8 to 18 CET.",
+    "Use ClickHouse for analytics, partitioned by month."
+  ],
+  "count": 9,
+  "decisions_present": 10,
+  "decisions_total": 12,
+  "stale_memories": [],
+  "noise_memories": []
+}
