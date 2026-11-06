@@ -18,7 +18,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "datasets"))
 
 import history  # noqa: E402
 import holdout  # noqa: E402,F401
-import holdout2  # noqa: E402
+import holdout2  # noqa: E402,F401
+import holdout3  # noqa: E402
 from history import transcript  # noqa: E402
 
 from agent_eval.client import (  # noqa: E402
@@ -53,12 +54,13 @@ def seed(user: str, source=history) -> dict:
         memories = client.get("/v1/memories", params={"limit": 500}).json()["memories"]
 
     texts = [memory["content"] for memory in memories]
-    joined = " ".join(texts).lower()
     return {
         "memories": texts,
         "count": len(texts),
+        # Together in one memory: scattered words are not a remembered decision.
         "decisions_present": sum(
-            all(word.lower() in joined for word in words) for words in source.CURRENT
+            any(all(word.lower() in text.lower() for word in words) for text in texts)
+            for words in source.CURRENT
         ),
         "decisions_total": len(source.CURRENT),
         "stale_memories": [t for t in texts if any(s.lower() in t.lower() for s in source.STALE)],
@@ -111,8 +113,8 @@ def main() -> None:
 
     user = f"hard-{int(time.time())}"
     if args.holdout:
-        store = seed(f"holdout-{int(time.time())}", holdout2)
-        print("wrote", write_results("holdout2-store", store))
+        store = seed(f"holdout-{int(time.time())}", holdout3)
+        print("wrote", write_results("holdout3-store", store))
         print({k: v for k, v in store.items() if k != "memories"})
         for text in store["memories"]:
             print(" ", text)

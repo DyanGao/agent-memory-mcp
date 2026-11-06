@@ -4,10 +4,8 @@ import { z } from "zod";
 import { isGrounded } from "./grounding.js";
 import type { LlmProvider } from "./llm.js";
 
-// Counts only the text the model sees. Given 40 to 60 short lines, qwen3
-// ignored decisions near the top, yet extracted each one correctly alone. So
-// it gets about a dozen lines at a time, at the cost of more model calls.
-const MAX_CHUNK_CHARS = 500;
+// Lines this short are thanks and acknowledgements. Skipping them saves a call.
+const MIN_WORDS = 3;
 const DEFAULT_IMPORTANCE = 0.5;
 
 const DistillOutput = z.object({
@@ -33,6 +31,8 @@ Keep only what a person decided, stated or prefers, that would still matter in a
 Never record what happened during the session: files created or changed, commands run, test or build results, repository or git state, what the agent did or plans to do, or that something was noted. The code itself records those. A request that was carried out in the session is not a memory either, so "Rename that helper" is not a todo. A memory must make sense to someone who never saw this session.
 
 When someone changes an earlier decision, always record the change, with the new value and what it replaces. When the agent proposes something and the user agrees, record what was agreed as a decision. Each memory is one standalone statement that makes sense with no other context.
+
+You are given one line at a time. Record only what the line in <transcript> says. <earlier> is the line before it, there only to explain words like "that" or "also", so never record it. Most lines hold nothing worth keeping, so return an empty list for those. A plain statement of how the project or product works counts, even with no word like "decision": "Free plans get 2 seats" is a decision.
 
 Types:
 - preference: how the user likes things done. "Use pnpm, not npm" is a preference, not a todo.
@@ -72,7 +72,7 @@ Third example output:
 
 If nothing is worth keeping, return {"memories":[]}.`;
 
-/** Why agent text is mostly withheld: see formatTranscript. */
+/** Agent lines worth reading: see buildUnits. */
 const DESCRIBES_A_FIX =
   /\b(fix|fixed|fixes|failed|failing|broke|broken|bug|caused|because)\b/i;
 
@@ -87,70 +87,57 @@ const APPROVAL =
   /^\s*(yes|yep|yeah|ok|okay|sure|agreed|sounds good|go with|go ahead|do that|lgtm|please do|that works|perfect)\b/i;
 const MAX_APPROVAL_CHARS = 80;
 
+const isApproval = (event: StoredEvent, previous?: StoredEvent): boolean =>
+  previous?.kind === "assistant_text" &&
+  event.text.length <= MAX_APPROVAL_CHARS &&
+  APPROVAL.test(event.text);
+
+/** One thing for the model to read. Context explains it but is not extracted. */
+export interface Unit {
+  context: string;
+  text: string;
+  /** The line's events, so forget can find everything a memory came from. */
+  events: StoredEvent[];
+}
+
 /**
- * What the model reads. A short approval means nothing without the proposal it
- * approves, so an agent line before one goes in too.
+ * Splits a session into single statements. Given a window of mixed lines,
+ * qwen3 returned nothing for plainly stated decisions, yet extracted each one
+ * correctly on its own, so it reads one line at a time. This costs a model call
+ * per line, which the queue absorbs. Most agent text is status that the model
+ * turns into memories, so only lines explaining a failure or fix go in. A short
+ * approval brings the proposal it answers.
  */
-function selectForModel(events: StoredEvent[]): Set<StoredEvent> {
-  const sent = new Set<StoredEvent>();
+export function buildUnits(events: StoredEvent[]): Unit[] {
+  const units: Unit[] = [];
+  let context = "";
+  let current: Unit | null = null;
+
   events.forEach((event, index) => {
+    const previous = events[index - 1];
     if (event.kind === "user_text") {
-      sent.add(event);
-      const previous = events[index - 1];
-      if (
-        previous?.kind === "assistant_text" &&
-        event.text.length <= MAX_APPROVAL_CHARS &&
-        APPROVAL.test(event.text)
-      ) {
-        sent.add(previous);
+      current = null;
+      const line = event.text.trim();
+      if (isApproval(event, previous)) {
+        current = {
+          context,
+          text: `agent: ${previous!.text}\nuser: ${line}`,
+          events: [previous!, event],
+        };
+        units.push(current);
+      } else if (!line.endsWith("?") && line.split(/\s+/).length >= MIN_WORDS) {
+        current = { context, text: `user: ${line}`, events: [event] };
+        units.push(current);
       }
+      context = line;
     } else if (DESCRIBES_A_FIX.test(event.text)) {
-      sent.add(event);
+      units.push({ context, text: `agent: ${event.text}`, events: [event] });
+    } else {
+      // Withheld, but still a source of what was said just before it.
+      (current as Unit | null)?.events.push(event);
     }
   });
-  return sent;
-}
-
-/**
- * Splits on event boundaries. A single long event becomes its own chunk.
- * Withheld events stay in their chunk so they remain sources of its memories,
- * which is what lets forget find them.
- */
-export function chunkEvents(events: StoredEvent[]): StoredEvent[][] {
-  const sent = selectForModel(events);
-  const chunks: StoredEvent[][] = [];
-  let current: StoredEvent[] = [];
-  let size = 0;
-  for (const event of events) {
-    const length = sent.has(event) ? event.text.length : 0;
-    // An approval must stay with the proposal it answers.
-    const last = current.at(-1);
-    const answersProposal =
-      last?.kind === "assistant_text" && sent.has(last) && sent.has(event);
-    if (size > 0 && size + length > MAX_CHUNK_CHARS && !answersProposal) {
-      chunks.push(current);
-      current = [];
-      size = 0;
-    }
-    current.push(event);
-    size += length;
-  }
-  if (current.length > 0) chunks.push(current);
-  return chunks;
-}
-
-/**
- * Most agent text is status, and qwen3 turns it into memories however it is
- * told not to. It also buried real decisions: on a long session it missed a
- * changed rate limit until the chatter around it was gone. So the model sees
- * what the person said, plus agent lines that explain a failure or a fix.
- */
-function formatTranscript(events: StoredEvent[]): string {
-  const sent = selectForModel(events);
-  return events
-    .filter((event) => sent.has(event))
-    .map((e) => `${e.kind === "user_text" ? "user" : "agent"}: ${e.text}`)
-    .join("\n");
+  return units;
 }
 
 // A todo is work left for later. Without any sign of that, it is a request that
@@ -218,17 +205,18 @@ export async function extractCandidates(
   events: StoredEvent[],
 ): Promise<Candidate[]> {
   const candidates: Candidate[] = [];
-  for (const chunk of chunkEvents(events)) {
+  for (const unit of buildUnits(events)) {
+    const earlier = unit.context ? `<earlier>${unit.context}</earlier>\n` : "";
     const raw = await llm.generateJson({
       system: SYSTEM_PROMPT,
-      user: `<transcript>\n${formatTranscript(chunk)}\n</transcript>`,
+      user: `${earlier}<transcript>\n${unit.text}\n</transcript>`,
       schema: DISTILL_SCHEMA,
     });
-    const source = chunk.map((event) => event.text).join("\n");
+    const source = `${unit.context}\n${unit.text}`;
     candidates.push(
       ...parseCandidates(
         raw,
-        chunk.map((event) => event.id),
+        unit.events.map((event) => event.id),
       ).filter((candidate) => isGrounded(candidate.content, source)),
     );
   }

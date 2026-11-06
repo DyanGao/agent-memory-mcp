@@ -4,6 +4,8 @@ Deterministic, so every setup sees the same text. The filler is what a real
 session is mostly made of, including status lines a memory should not keep.
 """
 
+import re
+
 FILLER = [
     ("Can you tidy the README wording a little?", "Done, I shortened the intro and fixed two typos."),
     ("The CI run looked slow this morning.", "It was a cold cache. The next run took half the time."),
@@ -61,7 +63,7 @@ SESSIONS = [
 # What a good memory store holds at the end. Each entry is words that must
 # appear together in one current memory.
 CURRENT = [
-    ["52"], ["slow_down"], ["ACM"], ["21%"], ["half-even"], ["30%"], ["euro"],
+    ["52"], ["slow_down"], ["ACM", "six-digit"], ["21%"], ["half-even"], ["30%"], ["euro"],
     ["45 days"], ["legal_hold"], ["dispute"], ["200"], ["15%"], ["JSON"], ["loyalty"],
 ]
 # Words that must not survive in a current memory.
@@ -70,6 +72,14 @@ NOISE = ["git repo", "tests pass", "test pass", "node --test", "src/index", "REA
 
 FILLER_TURNS = 60
 
+_LABEL = re.compile(r"^Decision( (on|for) [^:]+)?:\s*")
+
+
+def _natural(text: str) -> str:
+    """People rarely announce a decision. A label here flattered earlier scores."""
+    plain = _LABEL.sub("", text)
+    return plain[0].upper() + plain[1:]
+
 
 def sessions() -> list[list[tuple[str, str]]]:
     history = []
@@ -77,7 +87,7 @@ def sessions() -> list[list[tuple[str, str]]]:
     for decisions in SESSIONS:
         turns = []
         for decision in decisions:
-            turns.append((decision, "Understood, noted."))
+            turns.append((_natural(decision), "Understood, noted."))
             for _ in range(FILLER_TURNS // len(decisions)):
                 turns.append(FILLER[cursor % len(FILLER)])
                 cursor += 1

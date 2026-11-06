@@ -5,6 +5,8 @@ from tuning against that file. It includes a decision the agent proposes and
 the user only approves, which extraction is expected to find hard.
 """
 
+import re
+
 FILLER = [
     ("Could you reformat that table?", "Sure, the columns line up now."),
     ("Why was the pipeline red earlier?", "A flaky network step. A retry cleared it."),
@@ -64,6 +66,14 @@ NOISE = ["uncommitted", "branch", "changelog", "smoke test", "pipeline", "warnin
 
 FILLER_TURNS = 40
 
+_LABEL = re.compile(r"^Decision( (on|for) [^:]+)?:\s*")
+
+
+def _natural(text: str) -> str:
+    """People rarely announce a decision. A label here flattered earlier scores."""
+    plain = _LABEL.sub("", text)
+    return plain[0].upper() + plain[1:]
+
 
 def sessions() -> list[list[tuple[str, str]]]:
     history = []
@@ -75,7 +85,7 @@ def sessions() -> list[list[tuple[str, str]]]:
                 turns.append((decision, AGENT_PROPOSAL[0]))
                 turns.append((AGENT_PROPOSAL[1], "Great, noted."))
             else:
-                turns.append((decision, "Understood."))
+                turns.append((_natural(decision), "Understood."))
             for _ in range(FILLER_TURNS // len(decisions)):
                 turns.append(FILLER[cursor % len(FILLER)])
                 cursor += 1
