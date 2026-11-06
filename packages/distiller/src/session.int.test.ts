@@ -187,7 +187,7 @@ describe("distillSession", () => {
       await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("REST is the API style."),
-        '{"action":"skip","existing_numbers":[]}',
+        '{"action":"skip","existing_numbers":[],"merged_content":""}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const { rows } = await db.owner.query("SELECT id FROM memories");
@@ -199,7 +199,7 @@ describe("distillSession", () => {
       const old = await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_numbers":[1]}',
+        '{"action":"replace","existing_numbers":[1],"merged_content":"The API moved to gRPC."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
 
@@ -219,7 +219,7 @@ describe("distillSession", () => {
       await seedExisting("Clients are written for REST.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_numbers":[1,2,2,9]}',
+        '{"action":"replace","existing_numbers":[1,2,2,9],"merged_content":"The API moved to gRPC."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const store = new MemoryStore(db.app, sameVector);
@@ -227,12 +227,40 @@ describe("distillSession", () => {
       expect(current.map((m) => m.content)).toEqual(["The API moved to gRPC."]);
     });
 
+    it("stores the merged text, keeping what did not change", async () => {
+      await seed();
+      await seedExisting(
+        "Ids look like ORD-2026-0042, with a four-digit sequence.",
+      );
+      const { llm } = scripted(
+        memories("The id prefix is now ACM."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":"Ids look like ACM-2026-0042, with a four-digit sequence."}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect((await store.list(alice)).map((m) => m.content)).toEqual([
+        "Ids look like ACM-2026-0042, with a four-digit sequence.",
+      ]);
+    });
+
+    it("keeps both memories if a replace comes with no text", async () => {
+      await seed();
+      await seedExisting("The API uses REST.");
+      const { llm } = scripted(
+        memories("The API moved to gRPC."),
+        '{"action":"replace","existing_numbers":[1],"merged_content":" "}',
+      );
+      await distillSession(deps(llm, sameVector), alice, "s1");
+      const store = new MemoryStore(db.app, sameVector);
+      expect(await store.list(alice)).toHaveLength(2);
+    });
+
     it("keeps both memories if the model names a memory that does not exist", async () => {
       await seed();
       await seedExisting("The API uses REST.");
       const { llm } = scripted(
         memories("The API moved to gRPC."),
-        '{"action":"supersede","existing_numbers":[9]}',
+        '{"action":"replace","existing_numbers":[9],"merged_content":"The API moved to gRPC."}',
       );
       await distillSession(deps(llm, sameVector), alice, "s1");
       const store = new MemoryStore(db.app, sameVector);

@@ -366,6 +366,37 @@ export class MemoryStore {
     });
   }
 
+  /**
+   * What a new session should know before it has a task: lasting decisions
+   * first, not whatever matches a vague query.
+   */
+  async overview(
+    scope: Scope,
+    options: { maxTokens?: number } = {},
+  ): Promise<Memory[]> {
+    return traced("memory.overview", async () => {
+      const rows = await withScope(this.pool, scope, async (client) => {
+        const { rows } = await client.query<MemoryRow>(
+          `SELECT ${MEMORY_COLUMNS}
+           FROM memories
+           WHERE ${IS_CURRENT}
+           ORDER BY array_position(
+                      ARRAY['decision', 'preference', 'error_fix', 'fact', 'todo'],
+                      type
+                    ),
+                    importance DESC,
+                    created_at DESC
+           LIMIT 200`,
+        );
+        return rows;
+      });
+      return packToBudget(
+        rows.map(toMemory),
+        options.maxTokens ?? DEFAULT_TOKEN_BUDGET,
+      );
+    });
+  }
+
   /** Hard delete, including the transcript it came from. Returns memory ids removed. */
   async forget(scope: Scope, ids: string[]): Promise<string[]> {
     const before = await withScope(

@@ -57,7 +57,7 @@ const EventsBody = z.object({
 });
 
 const ContextBody = z.object({
-  task: z.string().min(1),
+  task: z.string().min(1).optional(),
   max_tokens: z.number().int().positive().optional(),
 });
 
@@ -174,11 +174,15 @@ export function buildApp(options: {
     if (scope === null) return reply;
     const body = ContextBody.safeParse(request.body);
     if (!body.success) return reply.code(400).send({ error: "Invalid body" });
-    const memories = await options.store.contextFor(scope, body.data.task, {
-      ...(body.data.max_tokens !== undefined && {
-        maxTokens: body.data.max_tokens,
-      }),
-    });
+    const limits =
+      body.data.max_tokens === undefined
+        ? {}
+        : { maxTokens: body.data.max_tokens };
+    // With no task yet, as at session start, a search has nothing to aim at.
+    const memories =
+      body.data.task === undefined
+        ? await options.store.overview(scope, limits)
+        : await options.store.contextFor(scope, body.data.task, limits);
     return { memories };
   });
 
