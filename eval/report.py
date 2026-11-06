@@ -76,13 +76,13 @@ def pilot_rows(folder: Path) -> str:
 
 def hard_rows(folder: Path) -> str:
     before = load(folder, "coding-hard-pilot")["summary"]
-    after = load(folder, "coding-hard-pilot-fixed")["summary"]
+    after = load(folder, "coding-hard-pilot-natural")["summary"]
     setups = {
         "none": "No memory",
         "full_history": "Full history",
         "memory": "agent-memory-mcp",
     }
-    lines = ["| Setup | Before fixes | After fixes |", "|---|---|---|"]
+    lines = ["| Setup | First run | Current code, natural wording |", "|---|---|---|"]
     for key, label in setups.items():
         lines.append(
             f"| {label} | {before[key]['passed']} of {before[key]['runs']} "
@@ -115,12 +115,15 @@ def main() -> None:
     held = load(folder, "holdout-store")
     second = load(folder, "holdout2-store")
     third = load(folder, "holdout3-store")
+    fourth = load(folder, "holdout4-store")
     output = output.replace(
         "{{held}}", f"{held['decisions_present']} of {held['decisions_total']}"
     ).replace(
         "{{held2}}", f"{second['decisions_present']} of {second['decisions_total']}"
     ).replace(
         "{{held3}}", f"{third['decisions_present']} of {third['decisions_total']}"
+    ).replace(
+        "{{held4}}", f"{fourth['decisions_present']} of {fourth['decisions_total']}"
     )
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)

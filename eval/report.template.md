@@ -59,11 +59,11 @@ The same 5 tasks, on one long history of 8 sessions (about 49,000 characters): t
 - **Retrieval favoured noise.** A vague session-start query put "not a git repository" first and left out the 30% discount cap.
 - **Session status was stored as memories.**
 
-**What the "after" figure does and does not show:**
+**What the current figure does and does not show:**
 
-- These are the tasks and history the fixes were tuned on, so 4 of 5 is not an unbiased score. It is one run of each.
-- Full history still passes more. The remaining failure is the dispute rule, which was never extracted.
-- This history is about 49,000 characters. Memory cost about 30% less than full history per task, but a history this size is too short to show the token saving the project is meant to deliver.
+- The history no longer labels decisions, so this score does not lean on that word. The tasks are the ones used while tuning, though, so it is still not an unbiased score, and it is one run of each.
+- Full history still passes more. In the one failure, the agent refused to guess and said the memory lacked the format. The line stating that format was stored as an event, but no memory came from it. The replacement guards were not at fault.
+- This history is about 49,000 characters. Memory cost about 24% less than full history per task, from 0.95 to 0.72 US cents at API prices, which is too small a sample to rely on, and the history is too short to show the token saving the project is meant to deliver.
 
 ### Held-out store checks
 
@@ -77,11 +77,13 @@ Those were fixed: memories must now be grounded in their source text, and a shor
 
 Extraction now reads one line at a time, with the line before as context.
 
-**Third held-out history: {{held3}} decisions. This is the most trustworthy number in this report.** It is plainly worded, written with the code frozen, scored once, and stricter: a decision's details must sit together in one memory. It stored no stale values, no noise and no invented memories, and a change kept the details around it: "Employee badges follow the format STF-0421-B: STF, a four-digit number, and a site letter".
+**Third held-out history: {{held3}} decisions.** Written with the code frozen, plainly worded, and stricter: a decision's details must sit together in one memory. It stored no stale values, no noise and no invented memories. Both losses came from consolidation merging unrelated things: a 24-month warranty was replaced by a rule about refurbished items, and the EU by Switzerland.
 
-Both losses come from consolidation still merging unrelated things. "The warranty period is 6 months for refurbished items. Trials last 10 days" fused two subjects and replaced the 24-month warranty, and "We ship to Switzerland" replaced "We only ship inside the EU".
+A replacement must now state a change, share a subject with what it replaces, and keep or name the old details. Otherwise both memories stay. The cost is that a dependent memory can stay stale, which is the better failure: a stale line can be noticed, and a lost fact cannot.
 
-This covers store quality on one small history, one run. The harder pilot above predates line extraction and has not been rerun on it, so its 4 of 5 is out of date and relied on those labels.
+**Fourth held-out history: {{held4}} decisions. This is the most trustworthy number in this report.** Written with the code frozen, plainly worded, strictly scored, and scored once. It stored no stale values, no noise and no invented memories, and changes kept the details around them. Across the four histories seen before it, the same code stored 46 of 48.
+
+Limits on that number: it is one small history and one run, written by the author of the system, and scored by key words. That scoring missed that "Clearance orders expire after 3 months" dropped the word "points", so meaning can drift. Real conversations will be messier.
 
 ## What this eval changed in the product
 
@@ -96,7 +98,9 @@ This covers store quality on one small history, one run. The harder pilot above 
 
 ## Known weaknesses
 
-- **Consolidation can still merge unrelated memories,** which loses facts: see the third held-out history.
+- **Extraction still drops the odd line.** In the harder pilot, that lost the order id format.
+- **Dependent memories can stay stale,** a deliberate cost of the replacement guards.
+- **Consolidation can still merge a new subject into a memory.** "Order IDs now use ACM" landed inside the partner discount memory. No fact was lost, but it is harder to find.
 - **Extraction is one model call per line,** which is slower. A history of 8 sessions took about 2 minutes here.
 - **Vector ranking on real data.** One real query ranked the right memory last of 4 by meaning, and the importance score rescued it.
 - **No minimum relevance.** Small stores return unrelated memories.
