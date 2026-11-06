@@ -23,7 +23,6 @@ import holdout3  # noqa: E402,F401
 import holdout4  # noqa: E402
 import longhistory  # noqa: E402
 import longhistory2  # noqa: E402
-from history import transcript  # noqa: E402
 
 from agent_eval.client import (  # noqa: E402
     rest,
@@ -119,13 +118,13 @@ def hidden_tests_pass(repo: Path, task: str) -> dict:
     return {"passed": done.returncode == 0, "tail": done.stdout[-500:]}
 
 
-def run(task: str, setup: str, user: str) -> dict:
+def run(task: str, setup: str, user: str, source=history) -> dict:
     request = (HARD / task / "request.txt").read_text().strip()
     with tempfile.TemporaryDirectory(prefix="config-") as config:
         extra: list[str] = []
         prompt = request
         if setup == "full_history":
-            prompt = f"Transcript of our earlier sessions:\n{transcript()}\n\nNow: {request}"
+            prompt = f"Transcript of our earlier sessions:\n{source.transcript()}\n\nNow: {request}"
         if setup == "memory":
             settings, mcp = memory_settings(Path(config), user, PROJECT)
             hooks = json.loads(settings.read_text())
@@ -146,6 +145,38 @@ def run(task: str, setup: str, user: str) -> dict:
     }
 
 
+def run_all(user: str, source, store: dict, name: str) -> None:
+    rows = []
+    for task in sorted(p.name for p in HARD.iterdir()):
+        for setup in SETUPS:
+            rows.append(run(task, setup, user, source))
+            row = rows[-1]
+            print(
+                f"{task} {setup} passed={row['passed']} {row['second']['seconds']}s "
+                f"input={row['second']['input_tokens']} "
+                f"cost={row['second']['cost_usd_equivalent']}",
+                flush=True,
+            )
+    summary = {
+        setup: {
+            "passed": sum(r["passed"] for r in rows if r["setup"] == setup),
+            "runs": sum(r["setup"] == setup for r in rows),
+            "input_tokens": sum(r["second"]["input_tokens"] for r in rows if r["setup"] == setup),
+        }
+        for setup in SETUPS
+    }
+    calls = [r["second"] for r in rows]
+    usage = {
+        "claude_calls": len(calls),
+        "seconds": sum(c["seconds"] for c in calls),
+        "cost_usd_equivalent": sum(c["cost_usd_equivalent"] or 0 for c in calls),
+        "transcript_chars": len(source.transcript()),
+    }
+    print(summary, usage)
+    payload = {"model": MODEL, "summary": summary, "usage": usage, "store": store, "rows": rows}
+    print("wrote", write_results(name, payload))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed-only", action="store_true")
@@ -153,12 +184,25 @@ def main() -> None:
     parser.add_argument("--long-store", action="store_true")
     parser.add_argument("--long-unseen", action="store_true", help="chatter never tuned on")
     parser.add_argument("--long-context", metavar="USER", help="remeasure a seeded long store")
+    parser.add_argument("--long-run", metavar="USER", help="agent runs on a seeded unseen store")
+    parser.add_argument("--trial", action="store_true", help="with --long-run: one costly run")
     parser.add_argument("--name", default="coding-hard-pilot")
     args = parser.parse_args()
 
     user = f"hard-{int(time.time())}"
     if args.long_context:
         print(context_measures(args.long_context, longhistory))
+        return
+    if args.long_run:
+        if args.trial:
+            row = run("discounts", "full_history", args.long_run, longhistory2)
+            print({k: v for k, v in row["second"].items() if k != "text"})
+            print("passed", row["passed"], row["second"]["text"][:400])
+            return
+        with rest(args.long_run) as client:
+            client.headers["x-memory-project"] = PROJECT
+            found = client.get("/v1/memories", params={"limit": 500}).json()["memories"]
+        run_all(args.long_run, longhistory2, {"count": len(found)}, "coding-long-unseen")
         return
     if args.long_store or args.long_unseen:
         source = longhistory2 if args.long_unseen else longhistory
@@ -187,35 +231,7 @@ def main() -> None:
     if args.seed_only:
         return
 
-    rows = []
-    for task in sorted(p.name for p in HARD.iterdir()):
-        for setup in SETUPS:
-            rows.append(run(task, setup, user))
-            row = rows[-1]
-            print(
-                f"{task} {setup} passed={row['passed']} {row['second']['seconds']}s "
-                f"input={row['second']['input_tokens']} "
-                f"cost={row['second']['cost_usd_equivalent']}",
-                flush=True,
-            )
-    summary = {
-        setup: {
-            "passed": sum(r["passed"] for r in rows if r["setup"] == setup),
-            "runs": sum(r["setup"] == setup for r in rows),
-            "input_tokens": sum(r["second"]["input_tokens"] for r in rows if r["setup"] == setup),
-        }
-        for setup in SETUPS
-    }
-    calls = [r["second"] for r in rows]
-    usage = {
-        "claude_calls": len(calls),
-        "seconds": sum(c["seconds"] for c in calls),
-        "cost_usd_equivalent": sum(c["cost_usd_equivalent"] or 0 for c in calls),
-        "transcript_chars": len(transcript()),
-    }
-    print(summary, usage)
-    payload = {"model": MODEL, "summary": summary, "usage": usage, "store": store, "rows": rows}
-    print("wrote", write_results(args.name, payload))
+    run_all(user, history, store, args.name)
 
 
 if __name__ == "__main__":
