@@ -56,7 +56,7 @@ def seed(user: str, source=history, project: str = PROJECT) -> dict:
                 "/v1/events",
                 json={"session_id": session_id, "events": events, "final": True},
             ).raise_for_status()
-            status = wait_for_distill(client, session_id, timeout=600)
+            status = wait_for_distill(client, session_id, timeout=3600)
             if status["status"] != "done":
                 raise RuntimeError(f"Session {number} failed: {status}")
             print(f"seeded session {number + 1}: {status['memoriesWritten']} written", flush=True)

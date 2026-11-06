@@ -1,0 +1,27 @@
+{
+  "memories": [
+    "Fuel costs 2.40 euros per litre, and the first 10 litres are included.",
+    "The refundable deposit is 18% of the rental price, with a minimum of 150 euros.",
+    "Staff bookings get 50% off and need no deposit.",
+    "The role picker flickered during the call.",
+    "Booking references follow the format HBR-Q3-00451, where HBR is the prefix, Q3 is the calendar quarter, and 00451 is a five-digit zero-padded counter that restarts each quarter.",
+    "Prices are 35% higher during high season.",
+    "High season runs from 15 June to 31 August inclusive.",
+    "The partner marina in Split bills the user monthly.",
+    "Renters must be at least 23, or 21 with a skipper licence.",
+    "Late returns cost 25 euros per started 30 minutes.",
+    "Earlier cancellations are free.",
+    "Cancelling less than 72 hours before the start costs 40% of the price.",
+    "Bookings of 3 or 4 boats get 10% off, and 5 or more boats get 15% off.",
+    "The VPN dropped again."
+  ],
+  "count": 14,
+  "decisions_present": 7,
+  "decisions_total": 8,
+  "stale_memories": [],
+  "noise_memories": [
+    "The role picker flickered during the call.",
+    "The VPN dropped again."
+  ],
+  "seconds": 2051
+}

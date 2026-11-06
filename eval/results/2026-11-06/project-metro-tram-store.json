@@ -1,0 +1,27 @@
+{
+  "memories": [
+    "The VPN dropped again.",
+    "Transfers are free for 90 minutes after the first validation.",
+    "Ticket ids follow the format TK, followed by the date as two-digit year, month and day, a dash, and a four-digit zero-padded sequence.",
+    "Monthly passes renew on the first of the month.",
+    "The fine for travelling without a ticket is now 70 euros, halved if paid within 7 days.",
+    "Peak hours are 07:00 to 09:30 and 16:30 to 18:30 on weekdays. The end times are not included.",
+    "Passengers aged 65 or over get 30% off, but not during peak hours.",
+    "Nobody pays more than 8.50 euros in one day.",
+    "Ages 6 to 14 pay half fare, rounded up to the next 5 cents.",
+    "Children under 6 travel free.",
+    "An unused ticket can be refunded within 15 minutes of purchase, minus a 0.50 euro fee.",
+    "The base fare is now 2.10 euros, each zone after the first adds 0.60, and a fare is capped at 5.40.",
+    "Night buses have a flat fare of 3 euros.",
+    "The sidebar badge flickered during the call."
+  ],
+  "count": 14,
+  "decisions_present": 7,
+  "decisions_total": 9,
+  "stale_memories": [],
+  "noise_memories": [
+    "The VPN dropped again.",
+    "The sidebar badge flickered during the call."
+  ],
+  "seconds": 2008
+}

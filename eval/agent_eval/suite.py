@@ -161,15 +161,16 @@ def hit_limit(row: dict) -> bool:
     return row["second"]["is_error"] and any(word in text for word in LIMIT_WORDS)
 
 
-def run_all() -> None:
+def run_all(setups: list[str] = SETUPS) -> None:
     RUNS.parent.mkdir(exist_ok=True)
     context = Context()
     done = finished()
     tasks = all_tasks()
     total = len(tasks) * len(SETUPS) * REPEATS
+    print(f"{len(done)} of {total} already finished", flush=True)
     for repeat in range(REPEATS):
         for task in tasks:
-            for setup in SETUPS:
+            for setup in setups:
                 key = (task["id"], setup, repeat)
                 if key in done:
                     continue
@@ -211,4 +212,7 @@ def seed_mem0() -> None:
 
 
 if __name__ == "__main__":
-    {"seed": seed_projects, "mem0": seed_mem0, "run": run_all}[sys.argv[1]]()
+    if sys.argv[1] == "run" and len(sys.argv) > 2:
+        run_all(sys.argv[2].split(","))
+    else:
+        {"seed": seed_projects, "mem0": seed_mem0, "run": run_all}[sys.argv[1]]()
