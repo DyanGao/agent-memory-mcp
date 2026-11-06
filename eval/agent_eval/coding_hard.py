@@ -21,6 +21,7 @@ import holdout  # noqa: E402,F401
 import holdout2  # noqa: E402,F401
 import holdout3  # noqa: E402,F401
 import holdout4  # noqa: E402
+import longhistory  # noqa: E402
 from history import transcript  # noqa: E402
 
 from agent_eval.client import (  # noqa: E402
@@ -109,10 +110,20 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed-only", action="store_true")
     parser.add_argument("--holdout", action="store_true")
+    parser.add_argument("--long-store", action="store_true")
     parser.add_argument("--name", default="coding-hard-pilot")
     args = parser.parse_args()
 
     user = f"hard-{int(time.time())}"
+    if args.long_store:
+        started = time.time()
+        store = seed(f"long-{int(time.time())}", longhistory)
+        store["seconds"] = round(time.time() - started)
+        print("wrote", write_results("long-store", store))
+        print({k: v for k, v in store.items() if k != "memories"})
+        for text in store["memories"]:
+            print(" ", text)
+        return
     if args.holdout:
         store = seed(f"holdout-{int(time.time())}", holdout4)
         print("wrote", write_results("holdout4-store", store))
