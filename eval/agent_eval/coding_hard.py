@@ -16,7 +16,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "datasets"))
 
-from history import CURRENT, NOISE, STALE, sessions, transcript  # noqa: E402
+import history  # noqa: E402
+import holdout  # noqa: E402
+from history import transcript  # noqa: E402
 
 from agent_eval.client import (  # noqa: E402
     rest,
@@ -30,10 +32,10 @@ SETUPS = ["none", "full_history", "memory"]
 PROJECT = "acme-orders"
 
 
-def seed(user: str) -> dict:
+def seed(user: str, source=history) -> dict:
     with rest(user) as client:
         client.headers["x-memory-project"] = PROJECT
-        for number, turns in enumerate(sessions()):
+        for number, turns in enumerate(source.sessions()):
             events = []
             for index, (said, reply) in enumerate(turns):
                 events.append({"seq": index * 2, "kind": "user_text", "text": said})
@@ -55,11 +57,11 @@ def seed(user: str) -> dict:
         "memories": texts,
         "count": len(texts),
         "decisions_present": sum(
-            all(word.lower() in joined for word in words) for words in CURRENT
+            all(word.lower() in joined for word in words) for words in source.CURRENT
         ),
-        "decisions_total": len(CURRENT),
-        "stale_memories": [t for t in texts if any(s.lower() in t.lower() for s in STALE)],
-        "noise_memories": [t for t in texts if any(n.lower() in t.lower() for n in NOISE)],
+        "decisions_total": len(source.CURRENT),
+        "stale_memories": [t for t in texts if any(s.lower() in t.lower() for s in source.STALE)],
+        "noise_memories": [t for t in texts if any(n.lower() in t.lower() for n in source.NOISE)],
     }
 
 
@@ -102,10 +104,18 @@ def run(task: str, setup: str, user: str) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed-only", action="store_true")
+    parser.add_argument("--holdout", action="store_true")
     parser.add_argument("--name", default="coding-hard-pilot")
     args = parser.parse_args()
 
     user = f"hard-{int(time.time())}"
+    if args.holdout:
+        store = seed(f"holdout-{int(time.time())}", holdout)
+        print("wrote", write_results("holdout-store", store))
+        print({k: v for k, v in store.items() if k != "memories"})
+        for text in store["memories"]:
+            print(" ", text)
+        return
     store = seed(user)
     print({k: v for k, v in store.items() if k != "memories"})
     print("stale:", store["stale_memories"])
