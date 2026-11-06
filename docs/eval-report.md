@@ -117,39 +117,43 @@ Limits on that number: it is one small history and one run, written by the autho
 
 ## Known weaknesses
 
-- **Extraction still drops the odd line.** In the harder pilot, that lost the order id format.
+- **Extraction still drops the odd line.** In the harder pilot, that lost the order id format, and it did so again on the 8-session history (13 of 14 decisions with the lasting check). The model rewrites `ORD-2026-000042` as `ORD-YYYY-000000`, and the grounding check rejects digits nobody said. The lasting check never sees it. The 40-session histories kept that line, so this varies from run to run.
 - **Dependent memories can stay stale,** a deliberate cost of the replacement guards.
 - **Consolidation can still merge a new subject into a memory.** "Order IDs now use ACM" landed inside the partner discount memory. No fact was lost, but it is harder to find.
-- **Extraction is one model call per line,** which is slower. A history of 8 sessions took about 2 minutes here, and 40 long sessions took 57 minutes.
+- **Extraction is one model call per line,** which is slower. A history of 8 sessions took about 2 minutes here, and 40 long sessions took 88 minutes.
 - **Vector ranking on real data.** One real query ranked the right memory last of 4 by meaning, and the importance score rescued it.
 - **No minimum relevance.** Small stores return unrelated memories.
 - **Memory poisoning.** Skipping tool output closes the main route, but text the user pastes, or that the agent repeats, can still be stored. No poisoning case is scored yet.
 - **Importance scores** are narrow, mostly 0.5 and 0.7.
-- **Session noise is not solved.** The 8-session history gives 15 memories, 1 of them noise, but that was tuning on a small sample. On the 40-session history 241 of 254 memories are chatter: see the long-history section.
+- **Session noise is reduced, not solved.** On unseen chatter in the 40-session history, 15 of 29 memories are chatter: see the long-history section.
 
 ## Long history
 
-The same 14 decisions, spread through 40 sessions of generated chatter (596,326 characters). This run is local only: no coding agent has used this store yet, so it says nothing about task success.
+The same 14 decisions, spread through 40 sessions of chatter, about 590,000 characters. "Before" is the first run, before the lasting check, on chatter the filters had been read against. "After" is the run with that check, on different chatter committed before the check existed. This is local only: no coding agent has used either store, so it says nothing about task success.
 
-| Measure | Result |
-|---|---|
-| Decisions kept | 14 of 14 |
-| Stale memories | 0 |
-| Memories stored | 254 |
-| Of those, chatter | 241 |
-| Decisions in the session-start context | 14 of 14 |
-| Session-start context | 141 memories, 128 of them chatter |
-| Session-start context, size | 12,857 characters, 2.2% of the history |
-| Chatter in each task search, top 20 | 15 to 18 |
-| Time to distill | 57 minutes |
+| Measure | Before | After, unseen chatter |
+|---|---|---|
+| Decisions kept | 14 of 14 | 14 of 14 |
+| Stale memories | 0 | 0 |
+| Memories stored | 254 | 29 |
+| Of those, chatter | 241 | 15 |
+| Decisions in the session-start context | 14 of 14 | 14 of 14 |
+| Session-start context | 141 memories, 128 chatter | 29 memories, 15 chatter |
+| Session-start context, size | 12,857 characters, 2.2% of the history | 3,763 characters, 0.7% of the history |
+| Chatter in each task search, top 20 | 15 to 18 | 6 to 10 |
+| Time to distill | 57 minutes | 88 minutes |
 
-- **The decisions all survived, and the changes all landed.** No superseded value remains.
-- **The filters failed on chatter they had not seen.** They were tuned on one set of filler lines. New filler went straight through, as lines like "Lena liked the new cart page". Some also came out garbled: "The export button does not look liked".
-- **Ranking is what protected the decisions.** All 13 real memories carry importance 0.7, as do 3 chatter lines, and the other 238 chatter lines carry 0.5. So the session-start context lists the real ones first. That margin comes from one model's scoring on one history.
-- **Task search is badly crowded.** Most of each top 20 is chatter. In the `discounts` task the loyalty rule missed the top 20, though it is in the session-start context.
-- **An earlier score here was wrong.** This run first reported 0 noise, because the noise check only knew the short history's phrases. Reading the memories showed the error. The check now covers this history and accounts for all 254 memories.
-- **The 2% size is the store's output, not a token result.** It compares one injected block with one history. The token target in the plan needs agent runs.
-- **The chatter is templated,** and real sessions vary more. All of this history was written by the author of the code it tests.
+- **The fix is a second question.** After extraction, the model is asked whether each fact, decision and preference will still be true and useful in months. It judges what a note is, not how it is worded. The word lists tried first only fitted the filler they were written for.
+- **The two columns use different chatter, so this is not a controlled before and after.** The "after" chatter was built to be harder, with numbers, names and lines that sound like plans.
+- **Most of what remains comes from one gap.** 11 of the 15 chatter lines are typed `error_fix`, such as "The billing page crashed once on the user's machine". Those skip the check, because a first version dropped real fixes. The other 4 are short-term plans such as "Release notes are to be parked for now".
+- **Fixing that now would spoil this test,** since these lines have now been read. Any further change needs new unseen chatter.
+- **One real memory is a fragment.** "Calculating per line with half-even rounding stays the same" means little alone, and one memory holds two unrelated rules, because consolidation merged them. Nothing was lost, and all 5 coding tasks now find their rules in the top 20 of a search.
+- **The store is now only 29 memories,** so a top 20 returns most of it. Chatter there is partly a sign that there is no minimum relevance.
+- **The check costs recall on changes.** On 13 hand-written change wordings it kept 12, dropping "The deploy day moved to Tuesday". The knowledge-update score held at 98%, but that test uses plain wording.
+- **Personal facts: no measured change.** Asked about the 50 raw personal statements on their own, the check rejected 24. Through the full pipeline the distiller still kept 24 of 50, the same as before the check, because it judges the extracted text and not the raw line. Text written directly with `memory_write` is not checked.
+- **An earlier score here was wrong.** The first run reported 0 noise, because the noise check only knew the short history's phrases. Reading the memories showed the error. The check now accounts for every memory.
+- **The size figure is the store's output, not a token result.** It compares one injected block with one history. The token target in the plan needs agent runs.
+- **The chatter is templated,** and real sessions vary more. The same person wrote the chatter and the fix, so "unseen" means committed first, not independent.
 
 ## Reproduce
 

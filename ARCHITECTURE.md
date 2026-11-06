@@ -65,6 +65,7 @@ audit_log(id bigserial, action text, actor text, target_ids uuid[], ts timestamp
 | 13 | Dashboard served by the server | a separate container | one origin, no CORS, one fewer process |
 | 14 | Forget deletes now, scrubs bytes nightly | `VACUUM FULL` on every forget | a scan proved plain `VACUUM` leaves deleted text in table files, but `VACUUM FULL` locks tables and rebuilds the index |
 | 15 | Tombstones for forgotten events | none | a resumed session re-sends its transcript and would restore forgotten text |
+| 16 | Ask if each fact, decision and preference will last | more word lists, an importance cutoff | 241 of 254 memories on a long history were chatter. Word lists fit only the filler they were written for, and ordinary real facts also score 0.5. Fixes and todos skip it because they describe events |
 | 10 | `english` text config | `simple` | `simple` keeps stop words, which then count as matches. Other languages still match exact words |
 
 ## 7. Security & privacy

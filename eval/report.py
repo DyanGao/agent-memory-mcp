@@ -91,6 +91,25 @@ def hard_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def long_values(store: dict) -> dict[str, str]:
+    task_noise = [row["noise"] for row in store["task_context"].values()]
+    return {
+        "decisions": f"{store['decisions_present']} of {store['decisions_total']}",
+        "stale": str(len(store["stale_memories"])),
+        "count": str(store["count"]),
+        "noise": str(len(store["noise_memories"])),
+        "overview_decisions": (
+            f"{store['overview_decisions_present']} of {store['decisions_total']}"
+        ),
+        "overview_memories": str(store["overview_memories"]),
+        "overview_noise": str(store["overview_noise"]),
+        "overview_chars": f"{store['overview_chars']:,}",
+        "share": f"{store['overview_share_of_history']:.1%}",
+        "task_noise": f"{min(task_noise)} to {max(task_noise)}",
+        "minutes": str(round(store["seconds"] / 60)),
+    }
+
+
 def main() -> None:
     folder = sorted((ROOT / "eval" / "results").iterdir())[-1]
     deletion = load(folder, "deletion")
@@ -125,26 +144,9 @@ def main() -> None:
     ).replace(
         "{{held4}}", f"{fourth['decisions_present']} of {fourth['decisions_total']}"
     )
-    long = load(folder, "long-store")
-    task_noise = [row["noise"] for row in long["task_context"].values()]
-    long_values = {
-        "long_chars": f"{long['history_chars']:,}",
-        "long_decisions": f"{long['decisions_present']} of {long['decisions_total']}",
-        "long_stale": str(len(long["stale_memories"])),
-        "long_count": str(long["count"]),
-        "long_noise": str(len(long["noise_memories"])),
-        "long_overview_decisions": (
-            f"{long['overview_decisions_present']} of {long['decisions_total']}"
-        ),
-        "long_overview_memories": str(long["overview_memories"]),
-        "long_overview_noise": str(long["overview_noise"]),
-        "long_overview_chars": f"{long['overview_chars']:,}",
-        "long_share": f"{long['overview_share_of_history']:.1%}",
-        "long_task_noise": f"{min(task_noise)} to {max(task_noise)}",
-        "long_minutes": str(round(long["seconds"] / 60)),
-    }
-    for name, value in long_values.items():
-        output = output.replace(f"{{{{{name}}}}}", value)
+    for prefix, name in (("long", "long-store"), ("unseen", "long-unseen-store")):
+        for field, value in long_values(load(folder, name)).items():
+            output = output.replace(f"{{{{{prefix}_{field}}}}}", value)
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)
     print("wrote", target)
