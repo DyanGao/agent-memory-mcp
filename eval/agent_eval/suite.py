@@ -36,6 +36,7 @@ RUNS = ROOT / "eval" / "suite" / "runs.jsonl"
 SETUPS = ["none", "memory", "rag", "mem0", "full_history"]
 REPEATS = 3
 LONG_USER = "long-1793960361"
+MEM0_W3_PROJECT = "harbor-rentals"
 READ_ONLY = ["--disallowedTools", "mcp__memory__memory_write,mcp__memory__memory_forget"]
 LIMIT_WORDS = ("usage limit", "rate limit", "hit your limit", "limit reached")
 
@@ -177,8 +178,9 @@ def run_all(setups: list[str] = SETUPS) -> None:
         for task in tasks:
             for setup in setups:
                 key = (task["id"], setup, repeat)
-                # The long history was not reseeded: about 20 hours for 5 tuned tasks.
-                skip = setup == "mem0_w3" and task["group"] == "tuned"
+                # Seeding at 3 turns runs about 70 calls an hour here, so only one
+                # project was reseeded: about 7 hours, against about 34 for all.
+                skip = setup == "mem0_w3" and task["project"] != MEM0_W3_PROJECT
                 if key in done or skip:
                     continue
                 row = run_one(task, setup, context)
