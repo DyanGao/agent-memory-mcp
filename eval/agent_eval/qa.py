@@ -24,6 +24,7 @@ SHEET = RAW / "label-sheet.csv"
 SEED = 20261109
 PER_CONVERSATION = 15
 SHEET_SIZE = 50
+SHEET_SETUPS = ("rag", "full_history", "memory-off")
 SETUPS = ["none", "memory", "rag", "mem0", "full_history"]
 PROJECT = "locomo"
 TIMEOUT = 180
@@ -231,9 +232,23 @@ def summary() -> None:
     print(result)
 
 
+def agreement() -> None:
+    """Compares the judge with the person's marks: y or n in the last column."""
+    with SHEET.open(newline="") as file:
+        marks = [row["your_label"].strip().lower() for row in csv.DictReader(file)]
+    verdicts = json.loads((RAW / "label-sheet-key.json").read_text())
+    pairs = [(mark == "y", verdict) for mark, verdict in zip(marks, verdicts) if mark in ("y", "n")]
+    agreed = sum(person == judge for person, judge in pairs)
+    result = {"labelled": len(pairs), "agreed": agreed, "agreement": round(agreed / len(pairs), 3)}
+    print("wrote", write_results("judge-agreement", result))
+    print(result)
+
+
 def sheet() -> None:
     """Fifty answers for a person to mark, half of each verdict, verdict hidden."""
     rows = [json.loads(line) for line in RUNS.read_text().splitlines()]
+    # No memory and the small store nearly always refuse, which tests nothing.
+    rows = [row for row in rows if row["setup"] in SHEET_SETUPS]
     by_id = {question["id"]: question for question in questions()}
     rng = random.Random(SEED)
     right = [row for row in rows if row["correct"]]
@@ -263,3 +278,5 @@ if __name__ == "__main__":
         summary()
     elif command == "sheet":
         sheet()
+    elif command == "agreement":
+        agreement()
