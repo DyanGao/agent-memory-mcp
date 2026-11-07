@@ -1,0 +1,24 @@
+{
+  "memories": [
+    "Patient codes follow the format PC-BE-000042, where PC is the prefix, BE is the two-letter clinic code, and 000042 is a seven-digit zero-padded number.",
+    "Reminders now go out 48 hours and 2 hours before an appointment.",
+    "Records are kept for 10 years after the last visit, and for minors at least until the year they turn 28.",
+    "Dental patients have a separate co-pay of 20 euros.",
+    "An appointment can be rebooked at most twice.",
+    "The co-pay is now 12 euros, waived for patients under 18 or over 75.",
+    "The waiting room order is urgent cases first, then patients aged 80 or over, then everyone else, each group by arrival time.",
+    "The VPN dropped again.",
+    "Lab results are archived for 3 years.",
+    "Three no-shows within 12 months block online booking.",
+    "First visits last 30 minutes and follow-ups last 20 minutes.",
+    "Appointments start on the hour or at 10, 20, 30, 40 or 50 past."
+  ],
+  "count": 12,
+  "decisions_present": 7,
+  "decisions_total": 8,
+  "stale_memories": [],
+  "noise_memories": [
+    "The VPN dropped again."
+  ],
+  "seconds": 2018
+}

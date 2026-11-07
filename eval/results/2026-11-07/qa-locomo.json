@@ -1,0 +1,32 @@
+{
+  "full_history": {
+    "questions": 150,
+    "accuracy": 0.573,
+    "mean_context_chars": 94278,
+    "cost": 1.322
+  },
+  "memory": {
+    "questions": 150,
+    "accuracy": 0.007,
+    "mean_context_chars": 627,
+    "cost": 0.214
+  },
+  "memory-off": {
+    "questions": 150,
+    "accuracy": 0.08,
+    "mean_context_chars": 1397,
+    "cost": 0.223
+  },
+  "none": {
+    "questions": 150,
+    "accuracy": 0.0,
+    "mean_context_chars": 0,
+    "cost": 0.213
+  },
+  "rag": {
+    "questions": 150,
+    "accuracy": 0.447,
+    "mean_context_chars": 6024,
+    "cost": 0.284
+  }
+}

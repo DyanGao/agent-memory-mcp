@@ -29,16 +29,23 @@ from agent_eval.client import (  # noqa: E402
     wait_for_distill,
     write_results,
 )
-from agent_eval.coding import CODING, MODEL, claude, memory_settings, workspace  # noqa: E402
+from agent_eval.coding import (  # noqa: E402
+    CODING,
+    MODEL,
+    claude,
+    memory_settings,
+    sealed_settings,
+    workspace,
+)
 
 HARD = CODING / "hard"
 SETUPS = ["none", "full_history", "memory"]
 PROJECT = "acme-orders"
 
 
-def seed(user: str, source=history) -> dict:
+def seed(user: str, source=history, project: str = PROJECT) -> dict:
     with rest(user) as client:
-        client.headers["x-memory-project"] = PROJECT
+        client.headers["x-memory-project"] = project
         for number, turns in enumerate(source.sessions()):
             events = []
             for index, (said, reply) in enumerate(turns):
@@ -49,7 +56,7 @@ def seed(user: str, source=history) -> dict:
                 "/v1/events",
                 json={"session_id": session_id, "events": events, "final": True},
             ).raise_for_status()
-            status = wait_for_distill(client, session_id, timeout=600)
+            status = wait_for_distill(client, session_id, timeout=3600)
             if status["status"] != "done":
                 raise RuntimeError(f"Session {number} failed: {status}")
             print(f"seeded session {number + 1}: {status['memoriesWritten']} written", flush=True)
@@ -121,7 +128,7 @@ def hidden_tests_pass(repo: Path, task: str) -> dict:
 def run(task: str, setup: str, user: str, source=history) -> dict:
     request = (HARD / task / "request.txt").read_text().strip()
     with tempfile.TemporaryDirectory(prefix="config-") as config:
-        extra: list[str] = []
+        extra = ["--settings", str(sealed_settings(Path(config)))]
         prompt = request
         if setup == "full_history":
             prompt = f"Transcript of our earlier sessions:\n{source.transcript()}\n\nNow: {request}"

@@ -15,6 +15,8 @@ export interface DistillerDeps {
   store: MemoryStore;
   embedder: Embedder;
   llm: LlmProvider;
+  /** Off only to measure what the check costs. See durable.ts. */
+  lastingCheck?: boolean;
 }
 
 /**
@@ -38,7 +40,9 @@ async function runDistill(
 ): Promise<void> {
   try {
     const events = await loadDistillableEvents(deps.pool, scope, sessionId);
-    const candidates = await extractCandidates(deps.llm, events);
+    const candidates = await extractCandidates(deps.llm, events, {
+      lastingCheck: deps.lastingCheck,
+    });
 
     let memoriesWritten = 0;
     for (const candidate of candidates) {

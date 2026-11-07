@@ -293,6 +293,20 @@ describe("extractCandidates", () => {
       },
     );
 
+    it("can be switched off, for measuring what it costs", async () => {
+      const { llm, notes } = judged(
+        [{ type: "fact", content: "Omar liked the navbar.", importance: 0.5 }],
+        () => '{"lasting":false}',
+      );
+      const found = await extractCandidates(
+        llm,
+        [event(1, "Omar liked the navbar.")],
+        { lastingCheck: false },
+      );
+      expect(found).toHaveLength(1);
+      expect(notes).toEqual([]);
+    });
+
     it("fails without quoting invalid output", async () => {
       const { llm } = judged(
         [{ type: "fact", content: "Exports run nightly.", importance: 0.5 }],

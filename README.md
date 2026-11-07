@@ -19,15 +19,21 @@ Agents forget everything between sessions. Stuffing full history into the contex
 ## Demo
 <!-- 2-minute video / GIF: agent solves task, session restarts, agent recalls decision from yesterday -->
 
-## Results (fill in from eval/)
-| Setup | Answer accuracy | Tokens / query | p95 latency |
-|---|---|---|---|
-| No memory | TBD | TBD | TBD |
-| Full history in context | TBD | TBD | TBD |
-| Naive RAG over transcripts | TBD | TBD | TBD |
-| **agent-memory-mcp** | **TBD** | **TBD** | **TBD** |
+## Results
+On 30 coding tasks where an agent needs a decision from earlier sessions, 3 runs each, with Claude Haiku in Claude Code:
 
-The table needs baselines that have not been run yet. Results so far are in the [evaluation report](docs/eval-report.md), including what failed: deletion, knowledge updates, scale, and a small coding-agent pilot on a long history. See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
+| Setup | Tasks passed | Cost | Context injected |
+|---|---|---|---|
+| No memory | 1% | $0.41 | none |
+| Full history in context | 97% | $13.28 | the whole history |
+| Naive RAG over transcripts | 77% | $0.52 | about 6,000 characters |
+| **agent-memory-mcp** | **99%** | **$0.52** | **under 1% of the history** |
+
+Search takes 16 to 20 ms at p95 with 10,000 memories, excluding embedding.
+
+**What it is not good at:** recalling personal conversation. On LoCoMo it answered 0.7% of questions, against 45% for naive RAG and 57% for full history. It is built to keep lasting project decisions, and it discards most of what happens in a chat.
+
+These tasks were written by the author of this code, and they suit it: each needs one clear rule. Mem0 is in the [evaluation report](docs/eval-report.md), with the reason its scores here are not yet a fair comparison. The report also covers deletion, knowledge updates, scale and what failed. See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
 
 ## Features
 - [x] MCP server: `memory_write`, `memory_search`, `memory_forget`, `memory_list`, `memory_context_for` tools

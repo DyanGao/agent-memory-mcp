@@ -26,3 +26,12 @@ eval/datasets/raw/
 .DS_Store
 .idea/
 .vscode/
+eval/.rag-cache/
+eval/.mem0-store/
+eval/suite.log
+eval/suite-mem0.log
+eval/qa-seed.log
+eval/qa-run.log
+eval/qa-off.log
+eval/mem0-w3.log
+eval/mem0-w3-run.log

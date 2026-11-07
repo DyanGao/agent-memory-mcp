@@ -1,0 +1,22 @@
+{
+  "acme-orders": {
+    "session_start_chars": 3763,
+    "history_chars": 583254,
+    "share": 0.0065
+  },
+  "harbor-rentals": {
+    "session_start_chars": 1553,
+    "history_chars": 200537,
+    "share": 0.0077
+  },
+  "pulse-clinic": {
+    "session_start_chars": 1431,
+    "history_chars": 200088,
+    "share": 0.0072
+  },
+  "metro-tram": {
+    "session_start_chars": 1591,
+    "history_chars": 201061,
+    "share": 0.0079
+  }
+}
