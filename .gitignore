@@ -28,3 +28,4 @@ eval/datasets/raw/
 .vscode/
 eval/.rag-cache/
 eval/.mem0-store/
+eval/suite.log
