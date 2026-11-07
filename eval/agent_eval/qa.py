@@ -103,6 +103,22 @@ def seed(variant: str) -> None:
     print(variant, "seconds", round(time.time() - started), "written", written, flush=True)
 
 
+def seed_mem0() -> None:
+    from agent_eval import mem0_baseline
+
+    for conversation in conversations():
+        key = f"locomo_{conversation['sample_id']}".replace("-", "_")
+        memory = mem0_baseline.client(key)
+        lines = [line for session in turns(conversation) for line in session]
+        for start in range(0, len(lines), mem0_baseline.WINDOW_TURNS):
+            messages = [
+                {"role": "user", "content": line}
+                for line in lines[start : start + mem0_baseline.WINDOW_TURNS]
+            ]
+            memory.add(messages, user_id=mem0_baseline.USER)
+        print(key, "done", flush=True)
+
+
 def ask(prompt: str) -> dict:
     with tempfile.TemporaryDirectory(prefix="qa-") as folder:
         done = subprocess.run(
@@ -238,6 +254,8 @@ if __name__ == "__main__":
     command = sys.argv[1]
     if command == "seed":
         seed(sys.argv[2])
+    elif command == "mem0":
+        seed_mem0()
     elif command == "run":
         run(sys.argv[2].split(","), *sys.argv[3:])
     elif command == "summary":

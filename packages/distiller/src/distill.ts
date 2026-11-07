@@ -212,7 +212,9 @@ const JUDGED_TYPES: readonly MemoryType[] = ["fact", "decision", "preference"];
 export async function extractCandidates(
   llm: LlmProvider,
   events: StoredEvent[],
+  options: { lastingCheck?: boolean | undefined } = {},
 ): Promise<Candidate[]> {
+  const lastingCheck = options.lastingCheck ?? true;
   const candidates: Candidate[] = [];
   for (const unit of buildUnits(events)) {
     const earlier = unit.context ? `<earlier>${unit.context}</earlier>\n` : "";
@@ -229,6 +231,7 @@ export async function extractCandidates(
     ).filter((candidate) => isGrounded(candidate.content, source));
     for (const candidate of found) {
       if (
+        !lastingCheck ||
         !JUDGED_TYPES.includes(candidate.type) ||
         (await isLasting(llm, candidate.content))
       ) {

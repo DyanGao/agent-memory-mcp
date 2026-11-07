@@ -41,6 +41,9 @@ if (llm.hosted) {
   );
 }
 
+const lastingCheck = process.env.DISTILL_LASTING_CHECK !== "off";
+if (!lastingCheck) log("lasting check is off, so chatter will be stored");
+
 const appUrl = required("APP_DATABASE_URL");
 const pool = new pg.Pool({ connectionString: appUrl });
 const store = new MemoryStore(pool, embedder);
@@ -49,7 +52,7 @@ const retentionDays = Number(process.env.RETENTION_DAYS ?? 365);
 const queue = await MemoryQueue.start(appUrl);
 await queue.workDistill(async (job) => {
   await distillSession(
-    { pool, store, embedder, llm },
+    { pool, store, embedder, llm, lastingCheck },
     scopeOf(job),
     job.sessionId,
   );
