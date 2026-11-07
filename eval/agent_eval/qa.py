@@ -110,10 +110,11 @@ def seed_mem0() -> None:
         key = f"locomo_{conversation['sample_id']}".replace("-", "_")
         memory = mem0_baseline.client(key)
         lines = [line for session in turns(conversation) for line in session]
-        for start in range(0, len(lines), mem0_baseline.WINDOW_TURNS):
+        window = mem0_baseline.FAIR_WINDOW_TURNS
+        for start in range(0, len(lines), window):
             messages = [
                 {"role": "user", "content": line}
-                for line in lines[start : start + mem0_baseline.WINDOW_TURNS]
+                for line in lines[start : start + window]
             ]
             memory.add(messages, user_id=mem0_baseline.USER)
         print(key, "done", flush=True)

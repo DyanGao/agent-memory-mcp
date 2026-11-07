@@ -45,19 +45,22 @@ def client(collection: str) -> Memory:
 
 
 WINDOW_TURNS = 20
+# Measured on 8 rules with their real neighbouring lines: stored 8 alone, 7 at 3
+# turns, 5 at 5 turns and 4 at 10. One call per turn would take about 94 hours.
+FAIR_WINDOW_TURNS = 3
 BUDGET_CHARS = 6000
 
 
-def seed(source, collection: str) -> dict:
+def seed(source, collection: str, window: int = WINDOW_TURNS) -> dict:
     """Feeds a history in small windows: one call per turn would take days here."""
     memory = client(collection)
     calls, failures = 0, 0
     started = time.time()
     history = source.sessions()
     for number, turns in enumerate(history, start=1):
-        for start in range(0, len(turns), WINDOW_TURNS):
+        for start in range(0, len(turns), window):
             messages = []
-            for said, reply in turns[start : start + WINDOW_TURNS]:
+            for said, reply in turns[start : start + window]:
                 messages.append({"role": "user", "content": said})
                 messages.append({"role": "assistant", "content": reply})
             calls += 1

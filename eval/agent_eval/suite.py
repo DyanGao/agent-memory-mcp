@@ -130,8 +130,10 @@ def run_one(task: dict, setup: str, context: Context) -> dict:
             prompt = f"Transcript of our earlier sessions:\n{task['source'].transcript()}\n\nNow: {prompt}"
         elif setup == "rag":
             prompt = f"Excerpts from our earlier sessions:\n{context.excerpts(task)}\n\nNow: {prompt}"
-        elif setup in ("mem0", "mem0_budget"):
+        elif setup in ("mem0", "mem0_budget", "mem0_w3"):
             top_k = TOP_K if setup == "mem0" else FULL_BUDGET_K
+            if setup == "mem0_w3":
+                task = {**task, "collection": f"{task['collection']}_w3"}
             notes = context.mem0_notes(task, top_k)
             prompt = f"Memories from our earlier sessions:\n{notes}\n\nNow: {prompt}"
         elif setup == "memory":
@@ -175,7 +177,9 @@ def run_all(setups: list[str] = SETUPS) -> None:
         for task in tasks:
             for setup in setups:
                 key = (task["id"], setup, repeat)
-                if key in done:
+                # The long history was not reseeded: about 20 hours for 5 tuned tasks.
+                skip = setup == "mem0_w3" and task["group"] == "tuned"
+                if key in done or skip:
                     continue
                 row = run_one(task, setup, context)
                 if hit_limit(row):
@@ -209,9 +213,10 @@ def seed_mem0() -> None:
     from agent_eval import mem0_baseline
 
     for name in projects.PROJECTS:
-        project = projects.Project(name)
-        store = mem0_baseline.seed(project, collection(name))
-        print("wrote", write_results(f"mem0-{name}-store", store), flush=True)
+        store = mem0_baseline.seed(
+            projects.Project(name), f"{collection(name)}_w3", mem0_baseline.FAIR_WINDOW_TURNS
+        )
+        print("wrote", write_results(f"mem0-{name}-w3-store", store), flush=True)
 
 
 if __name__ == "__main__":
