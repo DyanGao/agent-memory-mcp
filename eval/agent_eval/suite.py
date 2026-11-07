@@ -29,6 +29,7 @@ from agent_eval.coding import (  # noqa: E402
 )
 from agent_eval.coding_hard import HARD, is_noise, seed  # noqa: E402
 from agent_eval.projects_check import hidden_test  # noqa: E402
+from agent_eval.mem0_baseline import FULL_BUDGET_K, TOP_K  # noqa: E402
 from agent_eval.rag import Index  # noqa: E402
 
 RUNS = ROOT / "eval" / "suite" / "runs.jsonl"
@@ -111,13 +112,13 @@ class Context:
             self.rag[key] = Index(task["source"].transcript())
         return "\n---\n".join(self.rag[key].search(task["request"]))
 
-    def mem0_notes(self, task: dict) -> str:
+    def mem0_notes(self, task: dict, top_k: int) -> str:
         from agent_eval import mem0_baseline
 
         key = task["collection"]
         if key not in self.mem0:
             self.mem0[key] = mem0_baseline.client(key)
-        return "\n".join(f"- {text}" for text in mem0_baseline.search(self.mem0[key], task["request"]))
+        return "\n".join(f"- {text}" for text in mem0_baseline.search(self.mem0[key], task["request"], top_k))
 
 
 def run_one(task: dict, setup: str, context: Context) -> dict:
@@ -129,8 +130,10 @@ def run_one(task: dict, setup: str, context: Context) -> dict:
             prompt = f"Transcript of our earlier sessions:\n{task['source'].transcript()}\n\nNow: {prompt}"
         elif setup == "rag":
             prompt = f"Excerpts from our earlier sessions:\n{context.excerpts(task)}\n\nNow: {prompt}"
-        elif setup == "mem0":
-            prompt = f"Memories from our earlier sessions:\n{context.mem0_notes(task)}\n\nNow: {prompt}"
+        elif setup in ("mem0", "mem0_budget"):
+            top_k = TOP_K if setup == "mem0" else FULL_BUDGET_K
+            notes = context.mem0_notes(task, top_k)
+            prompt = f"Memories from our earlier sessions:\n{notes}\n\nNow: {prompt}"
         elif setup == "memory":
             settings, mcp = memory_settings(folder, task["user"], task["project"])
             hooks = json.loads(settings.read_text())

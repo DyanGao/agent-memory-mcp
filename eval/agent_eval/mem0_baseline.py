@@ -9,6 +9,9 @@ from mem0 import Memory
 OLLAMA = "http://127.0.0.1:11434"
 STORE = Path(__file__).resolve().parents[1] / ".mem0-store"
 TOP_K = 20
+# Short memories leave most of the budget unused at 20 results, so a fair run
+# asks for enough to fill it.
+FULL_BUDGET_K = 200
 USER = "eval"
 
 
@@ -74,8 +77,8 @@ def seed(source, collection: str) -> dict:
     }
 
 
-def search(memory: Memory, query: str) -> list[str]:
-    found = memory.search(query, filters={"user_id": USER}, top_k=TOP_K)["results"]
+def search(memory: Memory, query: str, top_k: int = FULL_BUDGET_K) -> list[str]:
+    found = memory.search(query, filters={"user_id": USER}, top_k=top_k)["results"]
     picked, used = [], 0
     for row in found:
         used += len(row["memory"])
