@@ -1,6 +1,7 @@
 """Builds docs/eval-report.md from the newest eval/results folder."""
 
 import json
+import statistics
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -119,6 +120,76 @@ def run_rows(runs: dict) -> str:
     return "\n".join(lines)
 
 
+SUITE_LABELS = {
+    "memory": "agent-memory-mcp",
+    "full_history": "Full history",
+    "rag": "Naive RAG",
+    "mem0": "Mem0, 20-turn windows",
+    "mem0_budget": "Mem0, 20-turn windows, full budget",
+    "none": "No memory",
+}
+
+
+def suite_runs() -> list[dict]:
+    path = ROOT / "eval" / "suite" / "runs.jsonl"
+    return [json.loads(line) for line in path.read_text().splitlines()]
+
+
+def pass_stats(rows: list[dict]) -> tuple[int, int, float, float]:
+    rates = []
+    for repeat in sorted({row["repeat"] for row in rows}):
+        picked = [row for row in rows if row["repeat"] == repeat]
+        rates.append(sum(row["passed"] for row in picked) / len(picked))
+    return sum(row["passed"] for row in rows), len(rows), statistics.mean(rates), statistics.pstdev(rates)
+
+
+def suite_rows() -> str:
+    runs = suite_runs()
+    lines = [
+        "| Setup | Passed, all 30 | Unseen 25 | Mean ± std over 3 runs | Input tokens | Cost |",
+        "|---|---|---|---|---|---|",
+    ]
+    for setup, label in SUITE_LABELS.items():
+        rows = [row for row in runs if row["setup"] == setup]
+        unseen = [row for row in rows if row["group"] == "unseen"]
+        passed, total, mean, spread = pass_stats(rows)
+        tokens = sum(row["second"]["input_tokens"] for row in rows)
+        cost = sum(row["second"]["cost_usd_equivalent"] or 0 for row in rows)
+        lines.append(
+            f"| {label} | {passed} of {total} | {sum(r['passed'] for r in unseen)} of {len(unseen)} "
+            f"| {mean:.1%} ± {spread:.1%} | {tokens / 1e6:.1f}M | ${cost:.2f} |"
+        )
+    return "\n".join(lines)
+
+
+def harbor_rows() -> str:
+    runs = suite_runs()
+    labels = {**SUITE_LABELS, "mem0_w3": "Mem0, 3-turn windows"}
+    lines = ["| Setup | Passed |", "|---|---|"]
+    for setup in ["memory", "full_history", "rag", "mem0_w3", "mem0", "mem0_budget", "none"]:
+        rows = [r for r in runs if r["setup"] == setup and r["task"].startswith("harbor-rentals/")]
+        lines.append(f"| {labels[setup]} | {sum(r['passed'] for r in rows)} of {len(rows)} |")
+    return "\n".join(lines)
+
+
+def qa_rows(folder: Path) -> str:
+    qa = load(folder, "qa-locomo")
+    labels = {
+        "full_history": "Full history",
+        "rag": "Naive RAG",
+        "memory-off": "agent-memory-mcp, lasting check off",
+        "memory": "agent-memory-mcp",
+        "none": "No memory",
+    }
+    lines = ["| Setup | Correct | Context per question |", "|---|---|---|"]
+    for key, label in labels.items():
+        row = qa[key]
+        lines.append(
+            f"| {label} | {row['accuracy']:.1%} of {row['questions']} | {row['mean_context_chars']:,} characters |"
+        )
+    return "\n".join(lines)
+
+
 def long_values(store: dict) -> dict[str, str]:
     task_noise = [row["noise"] for row in store["task_context"].values()]
     return {
@@ -175,6 +246,28 @@ def main() -> None:
     for prefix, name in (("long", "long-store"), ("unseen", "long-unseen-store")):
         for field, value in long_values(load(folder, name)).items():
             output = output.replace(f"{{{{{prefix}_{field}}}}}", value)
+    agreement = load(folder, "judge-agreement")
+    context = load(folder, "suite-context")
+    shares = [row["share"] for row in context.values()]
+    output = (
+        output.replace("{{suite_rows}}", suite_rows())
+        .replace("{{harbor_rows}}", harbor_rows())
+        .replace("{{qa_rows}}", qa_rows(folder))
+        .replace("{{agreed}}", f"{agreement['agreed']} of {agreement['labelled']}")
+        .replace("{{agreement}}", f"{agreement['agreement']:.0%}")
+        .replace("{{context_share}}", f"{min(shares):.1%} to {max(shares):.1%}")
+    )
+    qa = load(folder, "qa-locomo")
+    runs_all = suite_runs()
+    by_setup = lambda name: [row for row in runs_all if row["setup"] == name]  # noqa: E731
+    tokens = lambda name: sum(row["second"]["input_tokens"] for row in by_setup(name))  # noqa: E731
+    output = (
+        output.replace("{{qa_memory}}", f"{qa['memory']['accuracy']:.1%}")
+        .replace("{{qa_rag}}", f"{qa['rag']['accuracy']:.1%}")
+        .replace("{{suite_memory}}", f"{pass_stats(by_setup('memory'))[2]:.1%}")
+        .replace("{{suite_none}}", f"{pass_stats(by_setup('none'))[2]:.1%}")
+        .replace("{{token_share}}", f"{tokens('memory') / tokens('full_history'):.0%}")
+    )
     runs = load(folder, "coding-long-unseen")
     output = (
         output.replace("{{run_rows}}", run_rows(runs))
