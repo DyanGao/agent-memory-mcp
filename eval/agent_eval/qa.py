@@ -71,6 +71,7 @@ def questions() -> list[dict]:
                     "category": q["category"],
                     "question": q["question"],
                     "gold": str(q["answer"]),
+                    "evidence": q.get("evidence", []),
                 }
             )
     return picked
@@ -232,6 +233,36 @@ def summary() -> None:
     print(result)
 
 
+def evidence_text(question: dict) -> str:
+    """The conversation lines LoCoMo cites for the answer, so extra details can be checked."""
+    talk = question["conversation"]["conversation"]
+    lines = {}
+    for key, session in talk.items():
+        if key.startswith("session_") and isinstance(session, list):
+            when = talk.get(f"{key}_date_time", "")
+            for turn in session:
+                lines[turn["dia_id"]] = f"[{when}] {turn['speaker']}: {turn['text']}"
+    ids = [part.strip() for item in question["evidence"] for part in str(item).split(";")]
+    return "\n".join(lines.get(i, f"({i} not found)") for i in ids)
+
+
+def add_evidence() -> None:
+    """Adds the evidence column to a sheet already started, keeping its labels."""
+    rows = [json.loads(line) for line in RUNS.read_text().splitlines()]
+    by_id = {question["id"]: question for question in questions()}
+    find = {(by_id[r["id"]]["question"], r["answer"]): by_id[r["id"]] for r in rows}
+    with SHEET.open(newline="") as file:
+        old = list(csv.DictReader(file))
+    with SHEET.open("w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["row", "question", "correct_answer", "system_answer", "evidence", "your_label"])
+        for row in old:
+            question = find[(row["question"], row["system_answer"])]
+            writer.writerow([row["row"], row["question"], row["correct_answer"],
+                             row["system_answer"], evidence_text(question), row["your_label"]])
+    print("added evidence to", len(old), "rows")
+
+
 def agreement() -> None:
     """Compares the judge with the person's marks: y or n in the last column."""
     with SHEET.open(newline="") as file:
@@ -258,10 +289,11 @@ def sheet() -> None:
     rng.shuffle(picked)
     with SHEET.open("w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["row", "question", "correct_answer", "system_answer", "your_label"])
+        writer.writerow(["row", "question", "correct_answer", "system_answer", "evidence", "your_label"])
         for number, row in enumerate(picked, start=1):
             question = by_id[row["id"]]
-            writer.writerow([number, question["question"], question["gold"], row["answer"], ""])
+            writer.writerow([number, question["question"], question["gold"], row["answer"],
+                             evidence_text(question), ""])
     (RAW / "label-sheet-key.json").write_text(json.dumps([row["correct"] for row in picked]))
     print("wrote", SHEET)
 
@@ -278,5 +310,7 @@ if __name__ == "__main__":
         summary()
     elif command == "sheet":
         sheet()
+    elif command == "evidence":
+        add_evidence()
     elif command == "agreement":
         agreement()
