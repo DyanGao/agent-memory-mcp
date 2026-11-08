@@ -29,7 +29,7 @@ On 30 coding tasks where an agent needs a decision from earlier sessions, 3 runs
 | Naive RAG over transcripts | 77% | $0.52 | about 6,000 characters |
 | **agent-memory-mcp** | **99%** | **$0.52** | **under 1% of the history** |
 
-Search takes 16 to 20 ms at p95 with 10,000 memories, excluding embedding, and about 315 ms with 100,000 real ones.
+Search takes 7 to 10 ms at p95 with 10,000 memories, excluding embedding, and about 64 ms with 100,000 real ones.
 
 **What it is not good at:** recalling personal conversation. On LoCoMo it answered 0.2% of questions, against 48% for naive RAG and 55% for full history, averaged over 3 runs. It is built to keep lasting project decisions, and it discards most of what happens in a chat.
 
