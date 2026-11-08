@@ -30,6 +30,21 @@ describe("scoreCandidate", () => {
     expect(scoreCandidate({ ...base, createdAt: future }, now).recency).toBe(1);
   });
 
+  it("still gives relevance 1 for first in both lists at any text weight", () => {
+    const score = scoreCandidate({ ...base, vectorRank: 1, textRank: 1 }, now, {
+      textWeight: 0.3,
+    });
+    expect(score.relevance).toBeCloseTo(1);
+  });
+
+  it("counts a text-only match for less at a lower text weight", () => {
+    const full = scoreCandidate({ ...base, textRank: 1 }, now);
+    const light = scoreCandidate({ ...base, textRank: 1 }, now, {
+      textWeight: 0.3,
+    });
+    expect(light.relevance).toBeLessThan(full.relevance);
+  });
+
   it("reports null ranks for a list the result was not in", () => {
     const score = scoreCandidate({ ...base, textRank: 2 }, now);
     expect(score.vectorRank).toBeNull();

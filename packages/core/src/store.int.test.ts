@@ -111,6 +111,22 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       },
     );
 
+    it("can require every query word for a text match", async () => {
+      await store.write(alice, {
+        content: "deploy uses kubernetes",
+        type: "fact",
+      });
+      const any = await store.search(alice, "kubernetes billing", {
+        retrievers: "text",
+      });
+      const all = await store.search(alice, "kubernetes billing", {
+        retrievers: "text",
+        textMatch: "all",
+      });
+      expect(any).toHaveLength(1);
+      expect(all).toHaveLength(0);
+    });
+
     it("does not count stop words as a text match", async () => {
       await store.write(alice, {
         content: "The standup moved to Tuesdays on the calendar",

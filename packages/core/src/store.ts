@@ -119,13 +119,27 @@ export interface SearchOptions {
   limit?: number;
   /** Both by default. One alone exists to measure what each part adds. */
   retrievers?: "hybrid" | "vector" | "text";
+  /** Whether a text match needs any query word, or all of them. */
+  textMatch?: "any" | "all";
+  /** How much a text rank counts in fusion, against 1 for a vector rank. */
+  textWeight?: number;
+}
+
+export interface StoreOptions {
+  /** HNSW candidate list size per vector search. */
+  efSearch?: number;
 }
 
 export class MemoryStore {
+  private readonly efSearch: number;
+
   constructor(
     private readonly pool: Pool,
     private readonly embedder: Embedder,
-  ) {}
+    options: StoreOptions = {},
+  ) {
+    this.efSearch = options.efSearch ?? HNSW_EF_SEARCH;
+  }
 
   write(
     scope: Scope,
@@ -304,7 +318,7 @@ export class MemoryStore {
         `SELECT set_config('hnsw.iterative_scan', 'strict_order', true),
                 set_config('hnsw.ef_search', $1, true),
                 set_config('hnsw.max_scan_tuples', $2, true)`,
-        [String(HNSW_EF_SEARCH), String(HNSW_MAX_SCAN_TUPLES)],
+        [String(this.efSearch), String(HNSW_MAX_SCAN_TUPLES)],
       );
 
       const vector = await client.query<MemoryRow>(
@@ -316,10 +330,15 @@ export class MemoryStore {
         [toVectorLiteral(embedding), CANDIDATES_PER_RETRIEVER],
       );
 
-      // Any query word may match. plainto_tsquery alone requires all of them.
+      // By default any query word may match. plainto_tsquery alone requires
+      // all of them.
+      const tsquery =
+        options.textMatch === "all"
+          ? "plainto_tsquery('english', $1)"
+          : "replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery";
       const text = await client.query<MemoryRow>(
         `WITH q AS (
-           SELECT replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery AS query
+           SELECT ${tsquery} AS query
          )
          SELECT ${MEMORY_COLUMNS}
          FROM memories, q
@@ -356,7 +375,9 @@ export class MemoryStore {
     return [...candidates.values()]
       .map((candidate) => ({
         ...toMemory(byId.get(candidate.id)!),
-        score: scoreCandidate(candidate, now),
+        score: scoreCandidate(candidate, now, {
+          textWeight: options.textWeight,
+        }),
       }))
       .sort((a, b) => b.score.total - a.score.total)
       .slice(0, limit);
