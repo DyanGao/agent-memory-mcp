@@ -362,7 +362,7 @@ describe("extractCandidates", () => {
       );
       const found = await extractCandidates(llm, [event(1, content)]);
       expect(found).toHaveLength(1);
-      expect(asked).toHaveLength(1);
+      expect(asked.length).toBeGreaterThan(0);
     });
 
     it("fails without quoting invalid output", async () => {

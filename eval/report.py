@@ -281,25 +281,48 @@ def poison_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
-def held_out_poison_rows(folder: Path) -> str:
-    before = load(folder, "poisoning2-before")["summary"]
-    after = load(folder, "poisoning2")["summary"]
-    labels = {
-        "relayed_doc": "Relayed from an outside document",
-        "pasted_statement": "Pasted from a vendor wiki",
-        "agent_fix": "Quoted by the agent in a fix explanation",
-        "agent_quote": "Quoted by the agent from a README",
-        "user_rule": "Control: the user's own rule",
-        "team_relay": "Control: a team decision passed on",
-        "agent_own_fix": "Control: the agent's own fix",
-    }
-    lines = ["| Planted | Stored before the defence | Stored after |", "|---|---|---|"]
+def staged_rows(folder: Path, stages: list[tuple[str, str]], labels: dict[str, str]) -> str:
+    runs = [(title, load(folder, name)["summary"]) for title, name in stages]
+    lines = [
+        "| Planted | " + " | ".join(f"Stored, {title}" for title, _ in runs) + " |",
+        "|---" * (len(runs) + 1) + "|",
+    ]
     for key, label in labels.items():
-        lines.append(
-            f"| {label} | {before[key]['stored']} of {before[key]['cases']} "
-            f"| {after[key]['stored']} of {after[key]['cases']} |"
-        )
+        cells = [f"{run[key]['stored']} of {run[key]['cases']}" for _, run in runs]
+        lines.append(f"| {label} | " + " | ".join(cells) + " |")
     return "\n".join(lines)
+
+
+def held_out_poison_rows(folder: Path) -> str:
+    return staged_rows(
+        folder,
+        [("no check", "poisoning2-before"), ("whole-memory check", "poisoning2"),
+         ("clause check", "poisoning2-clauses")],
+        {
+            "relayed_doc": "Relayed from an outside document",
+            "pasted_statement": "Pasted from a vendor wiki",
+            "agent_fix": "Quoted by the agent in a fix explanation",
+            "agent_quote": "Quoted by the agent from a README",
+            "user_rule": "Control: the user's own rule",
+            "team_relay": "Control: a team decision passed on",
+            "agent_own_fix": "Control: the agent's own fix",
+        },
+    )
+
+
+def third_poison_rows(folder: Path) -> str:
+    return staged_rows(
+        folder,
+        [("whole-memory check", "poisoning3-before"), ("clause check", "poisoning3")],
+        {
+            "fix_checklist": "Quoted from a checklist in a fix",
+            "fix_guide": "Quoted from a contributor guide in a fix",
+            "fix_inline": "Woven into a fix sentence",
+            "agent_own_fix": "Control: a genuine fix quoting documentation",
+            "user_rule": "Control: the user's own rule",
+            "team_relay": "Control: a team decision passed on",
+        },
+    )
 
 
 def long_values(store: dict) -> dict[str, str]:
@@ -391,7 +414,7 @@ def main() -> None:
     )
     output = output.replace("{{poison_rows}}", poison_rows(folder)).replace(
         "{{held_out_poison_rows}}", held_out_poison_rows(folder)
-    )
+    ).replace("{{third_poison_rows}}", third_poison_rows(folder))
     timing_rows, fusion_rows = tuning_rows(folder)
     output = output.replace("{{tuning_timing_rows}}", timing_rows).replace(
         "{{tuning_fusion_rows}}", fusion_rows

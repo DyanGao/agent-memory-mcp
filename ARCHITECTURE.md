@@ -86,5 +86,5 @@ eval/  docs/  docker-compose.yml  .github/workflows/
 ## 10. Open questions
 - Best default token budget per task type?
 - When to forget automatically (decay vs. explicit TTL)?
-- How far can memory poisoning be reduced when the planted text comes from the user or is repeated by the agent? A harm check cut held-out poisoning from 22 of 40 stored to 7 of 40, with no genuine rule lost. What remains is an instruction the agent quotes inside a fix explanation. See the evaluation report
+- How far can memory poisoning be reduced when the planted text comes from the user or is repeated by the agent? A harm check on each memory and each of its clauses cut held-out poisoning to 3 of 30, with no genuine rule lost. What remains are instructions the model rewrites as the fix itself. See the evaluation report
 - What minimum relevance should retrieval require? Rank fusion has no absolute cutoff, so a small store returns unrelated memories. Tune against the eval.
