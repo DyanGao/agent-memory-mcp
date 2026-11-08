@@ -53,6 +53,30 @@ def scale_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def real_rows(folder: Path) -> tuple[str, str, dict]:
+    run = load(folder, "scale-real-100000")
+    recall = ["| `ef_search` | Recall@10 against exact | Vector p95 |", "|---|---|---|"]
+    for row in run["recallByEfSearch"]:
+        recall.append(f"| {row['efSearch']} | {row['recallAt10']:.3f} | {row['vectorP95Ms']} ms |")
+    found = run["answerTurnInTop10"]
+    labels = {"hybrid": "Both, the default", "vector": "Vectors only", "text": "Keywords only"}
+    ablation = [
+        f"| Search | Answer turn in the top 10, {found['hybrid']['questions']} questions | Full search p95 |",
+        "|---|---|---|",
+    ]
+    for key, label in labels.items():
+        ablation.append(
+            f"| {label} | {found[key]['answerInTop10']:.1%} | {found[key]['searchP95Ms']} ms |"
+        )
+    values = {
+        "real_hybrid": f"{found['hybrid']['answerInTop10']:.1%}",
+        "real_vector": f"{found['vector']['answerInTop10']:.1%}",
+        "real_hybrid_loss": f"{(found['vector']['answerInTop10'] - found['hybrid']['answerInTop10']) * 100:.0f}",
+        "real_p95": f"{found['hybrid']['searchP95Ms']:.0f}",
+    }
+    return "\n".join(recall), "\n".join(ablation), values
+
+
 def pilot_rows(folder: Path) -> str:
     rows = load(folder, "coding-pilot")["rows"]
     # rate-limit ran separately. Its first memory run hit the truncation bug,
@@ -342,6 +366,12 @@ def main() -> None:
     output = output.replace("{{poison_rows}}", poison_rows(folder)).replace(
         "{{held_out_poison_rows}}", held_out_poison_rows(folder)
     )
+    recall_rows, ablation_rows, real_values = real_rows(folder)
+    output = output.replace("{{real_recall_rows}}", recall_rows).replace(
+        "{{real_ablation_rows}}", ablation_rows
+    )
+    for name, value in real_values.items():
+        output = output.replace(f"{{{{{name}}}}}", value)
     write_pareto(folder)
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)

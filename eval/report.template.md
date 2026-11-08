@@ -100,9 +100,23 @@ Synthetic vectors, one client, excluding embedding and LLM calls, at the default
 {{scale}}
 
 - **Latency meets the target:** the plan asks for under 150 ms at 10k.
-- **Recall is unresolved at 100k.** Clustered vectors stay near 1.0, while uniform random vectors, HNSW's hard case, fall to about 0.26. Real embeddings sit somewhere between, and synthetic clusters may be easier than real data. Only a real corpus can settle this, and it should be measured before any claim is made about retrieval at this size.
+- **Random vectors fall to about 0.26 at 100k, but real ones do not.** See the next section.
 - **Rows at `ef_search` 200 in the raw results are not index recall.** Their recall of 1.0 at about 130 ms shows the planner chose an exact scan.
-- **Search also uses full-text ranking,** so vector recall alone does not decide retrieval quality. How much that helps has not been measured.
+- **Search also uses full-text ranking.** On real text it made results worse. See the next section.
+
+## Scale and search on real text
+
+100,000 real chat turns from LongMemEval (MIT), embedded with `bge-m3`, including the 870 turns that answer its questions. One client, excluding embedding.
+
+{{real_recall_rows}}
+
+{{real_ablation_rows}}
+
+- **Recall at 100k on real embeddings is 0.99 to 1.0.** The 0.26 seen with random vectors does not happen on real text.
+- **Keyword search lowers the share of questions that find an answer, by {{real_hybrid_loss}} points.** Both together found an answer turn in the top 10 for {{real_hybrid}} of questions, against {{real_vector}} for vectors alone. Matching any word of a long question against long chat turns ranks many weak matches high, and fusion lets them push out good vector matches. This is one dataset of natural-language questions. Keyword search should still help with exact identifiers, such as error codes and ticket ids, which this set barely has. The default is unchanged until both kinds are measured.
+- **Search is slow at this size.** Full search took {{real_p95}} ms at p95. The target is under 150 ms at 10,000 memories, so this does not miss it, but it is slow. Searches run the keyword query in every mode, so its cost is in all three rows.
+- **The default `ef_search` of 400 may be too high here.** At 100 and 200 the index answered in under 10 ms with recall of 0.99 and 1.0. At 400 and 800 it took about 110 ms, which suggests the planner switched to an exact scan. That was not confirmed with a query plan.
+- **Not tested here:** recency and importance, since every turn has the same age and score; reranking, since no reranker exists; and consolidation, which belongs to distillation, not search.
 
 ## Coding-agent pilot
 
