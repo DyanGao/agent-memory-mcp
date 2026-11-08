@@ -90,7 +90,7 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
         content: "deploy uses kubernetes",
         type: "fact",
       });
-      const [hit] = await store.search(alice, "kubernetes rollout");
+      const [hit] = await store.search(alice, "kubernetes deploy");
       expect(hit?.content).toBe("deploy uses kubernetes");
       expect(hit?.score.textRank).toBe(1);
     });
@@ -110,6 +110,22 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
         expect(found.every((hit) => hit.score[unused] === null)).toBe(true);
       },
     );
+
+    it("needs every query word for a text match, unless asked for any", async () => {
+      await store.write(alice, {
+        content: "deploy uses kubernetes",
+        type: "fact",
+      });
+      const all = await store.search(alice, "kubernetes billing", {
+        retrievers: "text",
+      });
+      const any = await store.search(alice, "kubernetes billing", {
+        retrievers: "text",
+        textMatch: "any",
+      });
+      expect(any).toHaveLength(1);
+      expect(all).toHaveLength(0);
+    });
 
     it("does not count stop words as a text match", async () => {
       await store.write(alice, {

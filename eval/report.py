@@ -5,7 +5,9 @@ import statistics
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EF_DEFAULT = 400
+EF_DEFAULT = 200
+# The 100k synthetic runs predate the change to 200, so they show 400.
+EF_BEFORE_CHANGE = 400
 
 
 def load(folder: Path, name: str) -> dict:
@@ -37,20 +39,44 @@ def deletion_rows(data: dict) -> str:
 
 def scale_rows(folder: Path) -> str:
     lines = [
-        "| Vectors | Memories | Recall@10 | Vector p95 | Full search p95 | Scrub lock |",
-        "|---|---|---|---|---|---|",
+        "| Vectors | Memories | `ef_search` | Recall@10 | Vector p95 | Full search p95 | Scrub lock |",
+        "|---|---|---|---|---|---|---|",
     ]
     for shape in ("clustered", "random"):
         for size in (1000, 10000, 100000):
             run = load(folder, f"scale-{shape}-{size}")
-            row = next(r for r in run["recallByEfSearch"] if r["efSearch"] == EF_DEFAULT)
+            ef = EF_DEFAULT if size < 100000 else EF_BEFORE_CHANGE
+            row = next(r for r in run["recallByEfSearch"] if r["efSearch"] == ef)
             scrub = run.get("scrubSeconds")
             lines.append(
-                f"| {shape.capitalize()} | {size:,} | {row['recallAt10']:.3f} "
+                f"| {shape.capitalize()} | {size:,} | {ef} | {row['recallAt10']:.3f} "
                 f"| {row['vectorP95Ms']} ms | {run['searchP95Ms']} ms "
                 f"| {f'{scrub} s' if scrub else 'not measured'} |"
             )
     return "\n".join(lines)
+
+
+def tuning_rows(folder: Path) -> tuple[str, str]:
+    tune = load(folder, "search-tuning-tune")
+    held = load(folder, "search-tuning-holdout")
+    timing = ["| `ef_search` | Query plan | Vector p95 | Keyword p95, any word | Full search p95, old setting |", "|---|---|---|---|---|"]
+    for ef, row in tune["timing"].items():
+        timing.append(
+            f"| {ef} | {', '.join(row['plans'])} | {row['vectorP95Ms']} ms "
+            f"| {row['textAnyWordP95Ms']} ms | {row['fullSearchP95Ms']} ms |"
+        )
+    fusion = [
+        f"| Half | Search | Plain questions ({tune['questions']['plain']}/{held['questions']['plain']}) "
+        "| Identifier questions | Full search p95 |",
+        "|---|---|---|---|---|",
+    ]
+    for half, run in (("Tuning", tune), ("Held out", held)):
+        for name, row in run["variants"].items():
+            speed = f"{row['searchP95Ms']} ms" if "searchP95Ms" in row else "not timed"
+            fusion.append(
+                f"| {half} | {name} | {row['plain']:.1%} | {row['identifiers']:.1%} | {speed} |"
+            )
+    return "\n".join(timing), "\n".join(fusion)
 
 
 def real_rows(folder: Path) -> tuple[str, str, dict]:
@@ -365,6 +391,10 @@ def main() -> None:
     )
     output = output.replace("{{poison_rows}}", poison_rows(folder)).replace(
         "{{held_out_poison_rows}}", held_out_poison_rows(folder)
+    )
+    timing_rows, fusion_rows = tuning_rows(folder)
+    output = output.replace("{{tuning_timing_rows}}", timing_rows).replace(
+        "{{tuning_fusion_rows}}", fusion_rows
     )
     recall_rows, ablation_rows, real_values = real_rows(folder)
     output = output.replace("{{real_recall_rows}}", recall_rows).replace(

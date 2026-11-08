@@ -1,0 +1,24 @@
+{
+  "split": "holdout",
+  "variants": {
+    "vector only": {
+      "plain": 0.515,
+      "identifiers": 1,
+      "searchP95Ms": 66.2
+    },
+    "old default: any word, weight 1": {
+      "plain": 0.377,
+      "identifiers": 0.99,
+      "searchP95Ms": 199.1
+    },
+    "new default": {
+      "plain": 0.527,
+      "identifiers": 1,
+      "searchP95Ms": 63.7
+    }
+  },
+  "questions": {
+    "plain": 239,
+    "identifiers": 100
+  }
+}

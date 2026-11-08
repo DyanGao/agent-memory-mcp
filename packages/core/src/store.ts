@@ -22,9 +22,16 @@ export const DEFAULT_TOKEN_BUDGET = 1500;
 
 // Candidates fetched from each retriever before fusion.
 const CANDIDATES_PER_RETRIEVER = 50;
-// Measured at 10k memories. On uniform random vectors, HNSW's hard case, 100
-// gave recall@10 of 0.44 and 400 gave 0.85, for under 3 ms more at p95.
-const HNSW_EF_SEARCH = 400;
+// At 400 the planner abandoned the index for a full scan on 100,000 real
+// memories, taking 116 ms. At 200 the index answered in under 5 ms with recall
+// of 1.0. Uniform random vectors, HNSW's hard case, need more, but real
+// embeddings are not uniform.
+const HNSW_EF_SEARCH = 200;
+// Matching any word of a long question against long memories ranked many weak
+// matches above good vector ones, and cut answers in the top 10 from 52% to
+// 40% on real text. Requiring every word, at half weight, removed the harm.
+const DEFAULT_TEXT_MATCH = "all";
+const DEFAULT_TEXT_WEIGHT = 0.5;
 // Upper bound on index tuples visited when a narrow scope filters most out.
 const HNSW_MAX_SCAN_TUPLES = 200_000;
 
@@ -119,13 +126,27 @@ export interface SearchOptions {
   limit?: number;
   /** Both by default. One alone exists to measure what each part adds. */
   retrievers?: "hybrid" | "vector" | "text";
+  /** Whether a text match needs all query words, the default, or any. */
+  textMatch?: "any" | "all";
+  /** How much a text rank counts in fusion, against 1 for a vector rank. Default 0.5. */
+  textWeight?: number;
+}
+
+export interface StoreOptions {
+  /** HNSW candidate list size per vector search. */
+  efSearch?: number;
 }
 
 export class MemoryStore {
+  private readonly efSearch: number;
+
   constructor(
     private readonly pool: Pool,
     private readonly embedder: Embedder,
-  ) {}
+    options: StoreOptions = {},
+  ) {
+    this.efSearch = options.efSearch ?? HNSW_EF_SEARCH;
+  }
 
   write(
     scope: Scope,
@@ -304,7 +325,7 @@ export class MemoryStore {
         `SELECT set_config('hnsw.iterative_scan', 'strict_order', true),
                 set_config('hnsw.ef_search', $1, true),
                 set_config('hnsw.max_scan_tuples', $2, true)`,
-        [String(HNSW_EF_SEARCH), String(HNSW_MAX_SCAN_TUPLES)],
+        [String(this.efSearch), String(HNSW_MAX_SCAN_TUPLES)],
       );
 
       const vector = await client.query<MemoryRow>(
@@ -316,10 +337,14 @@ export class MemoryStore {
         [toVectorLiteral(embedding), CANDIDATES_PER_RETRIEVER],
       );
 
-      // Any query word may match. plainto_tsquery alone requires all of them.
+      // plainto_tsquery requires every word. Rewriting AND to OR lets any match.
+      const tsquery =
+        (options.textMatch ?? DEFAULT_TEXT_MATCH) === "all"
+          ? "plainto_tsquery('english', $1)"
+          : "replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery";
       const text = await client.query<MemoryRow>(
         `WITH q AS (
-           SELECT replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery AS query
+           SELECT ${tsquery} AS query
          )
          SELECT ${MEMORY_COLUMNS}
          FROM memories, q
@@ -356,7 +381,9 @@ export class MemoryStore {
     return [...candidates.values()]
       .map((candidate) => ({
         ...toMemory(byId.get(candidate.id)!),
-        score: scoreCandidate(candidate, now),
+        score: scoreCandidate(candidate, now, {
+          textWeight: options.textWeight ?? DEFAULT_TEXT_WEIGHT,
+        }),
       }))
       .sort((a, b) => b.score.total - a.score.total)
       .slice(0, limit);

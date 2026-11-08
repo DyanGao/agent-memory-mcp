@@ -135,21 +135,20 @@ Memory sits top left on coding, high accuracy at low cost. On LoCoMo it sits bot
 
 ## Scale
 
-Synthetic vectors, one client, excluding embedding and LLM calls, at the default `ef_search` of 400.
+Synthetic vectors, one client, excluding embedding and LLM calls. The default `ef_search` is now 200, and the 100k rows predate that change.
 
-| Vectors | Memories | Recall@10 | Vector p95 | Full search p95 | Scrub lock |
-|---|---|---|---|---|---|
-| Clustered | 1,000 | 1.000 | 1.9 ms | 6.1 ms | not measured |
-| Clustered | 10,000 | 1.000 | 3 ms | 15.7 ms | not measured |
-| Clustered | 100,000 | 0.983 | 2.1 ms | 50.5 ms | 19.6 s |
-| Random | 1,000 | 1.000 | 2 ms | 6.2 ms | not measured |
-| Random | 10,000 | 0.857 | 6.4 ms | 19.5 ms | not measured |
-| Random | 100,000 | 0.257 | 21.7 ms | 72.2 ms | 51.4 s |
+| Vectors | Memories | `ef_search` | Recall@10 | Vector p95 | Full search p95 | Scrub lock |
+|---|---|---|---|---|---|---|
+| Clustered | 1,000 | 200 | 1.000 | 1.7 ms | 5.3 ms | 0.3 s |
+| Clustered | 10,000 | 200 | 1.000 | 1.4 ms | 7.1 ms | 3.2 s |
+| Clustered | 100,000 | 400 | 0.983 | 2.1 ms | 50.5 ms | 19.6 s |
+| Random | 1,000 | 200 | 1.000 | 1.7 ms | 5 ms | 0.5 s |
+| Random | 10,000 | 200 | 0.657 | 3.3 ms | 9.7 ms | 8.4 s |
+| Random | 100,000 | 400 | 0.257 | 21.7 ms | 72.2 ms | 51.4 s |
 
 - **Latency meets the target:** the plan asks for under 150 ms at 10k.
+- **Lowering `ef_search` costs recall on random vectors.** At 10k, random vectors drop from 0.85 at 400 to about 0.66 at 200. Real embeddings kept 1.0 at 200, and 400 made the planner abandon the index on real data, so 200 is the default. This trades the synthetic worst case for real speed.
 - **Random vectors fall to about 0.26 at 100k, but real ones do not.** See the next section.
-- **Rows at `ef_search` 200 in the raw results are not index recall.** Their recall of 1.0 at about 130 ms shows the planner chose an exact scan.
-- **Search also uses full-text ranking.** On real text it made results worse. See the next section.
 
 ## Scale and search on real text
 
@@ -169,9 +168,36 @@ Synthetic vectors, one client, excluding embedding and LLM calls, at the default
 | Keywords only | 5.8% | 310.6 ms |
 
 - **Recall at 100k on real embeddings is 0.99 to 1.0.** The 0.26 seen with random vectors does not happen on real text.
-- **Keyword search lowers the share of questions that find an answer, by 13 points.** Both together found an answer turn in the top 10 for 39.7% of questions, against 52.4% for vectors alone. Matching any word of a long question against long chat turns ranks many weak matches high, and fusion lets them push out good vector matches. This is one dataset of natural-language questions. Keyword search should still help with exact identifiers, such as error codes and ticket ids, which this set barely has. The default is unchanged until both kinds are measured.
-- **Search is slow at this size.** Full search took 315 ms at p95. The target is under 150 ms at 10,000 memories, so this does not miss it, but it is slow. Searches run the keyword query in every mode, so its cost is in all three rows.
-- **The default `ef_search` of 400 may be too high here.** At 100 and 200 the index answered in under 10 ms with recall of 0.99 and 1.0. At 400 and 800 it took about 110 ms, which suggests the planner switched to an exact scan. That was not confirmed with a query plan.
+- **With the old settings, keyword search lowered the share of questions that find an answer, by 13 points.** Both together found an answer turn in the top 10 for 39.7% of questions, against 52.4% for vectors alone. Matching any word of a long question against long chat turns ranks many weak matches high, and fusion lets them push out good vector matches. This is one dataset of natural-language questions. Keyword search should still help with exact identifiers, such as error codes and ticket ids, which this set barely has. The tuning below fixed this.
+- **Search was slow at this size with the old settings,** at 315 ms p95. The tuning below brought it to about 64 ms.
+### Tuning
+
+The same corpus plus 200 planted memories with exact codes, such as "E4009 in the cache warmer is caused by a bad config value". Each question set was split in half by position. Ways of combining the two searches were compared on the tuning half, one was chosen and committed, and only then was the held-out half scored.
+
+| `ef_search` | Query plan | Vector p95 | Keyword p95, any word | Full search p95, old setting |
+|---|---|---|---|---|
+| 100 | index | 2.9 ms | 126.5 ms | 133.6 ms |
+| 200 | index | 4.5 ms | 128 ms | 136.7 ms |
+| 400 | full scan | 116.2 ms | 128.7 ms | 242.4 ms |
+
+| Half | Search | Plain questions (240/239) | Identifier questions | Full search p95 |
+|---|---|---|---|---|
+| Tuning | vector only | 51.7% | 100.0% | not timed |
+| Tuning | both, any word, weight 1 (current) | 40.0% | 100.0% | not timed |
+| Tuning | both, any word, weight 0.5 | 49.2% | 100.0% | not timed |
+| Tuning | both, any word, weight 0.25 | 50.0% | 100.0% | not timed |
+| Tuning | both, all words, weight 1 | 51.7% | 100.0% | not timed |
+| Tuning | both, all words, weight 0.5 | 52.1% | 100.0% | not timed |
+| Held out | vector only | 51.5% | 100.0% | 66.2 ms |
+| Held out | old default: any word, weight 1 | 37.7% | 99.0% | 199.1 ms |
+| Held out | new default | 52.7% | 100.0% | 63.7 ms |
+
+- **`ef_search` 400 made Postgres abandon the index.** The query plans show a full scan at 400 and the index at 100 and 200. The default is now 200.
+- **Requiring every word removed the harm.** A keyword match now needs every query word, and counts half as much as a vector match. On the held-out half it found an answer for 52.7% of plain questions, against 37.7% for the old setting and 51.5% for vectors alone, and searched about 3 times faster.
+- **The identifier test was too easy.** Vectors alone found 100% of the codes, because `bge-m3` embeds a code it has seen in the question. So it shows the new setting does no harm on exact codes, but not that keyword search is needed for them. Keyword search stays on for exact matches that vectors might miss, which this eval did not find.
+- **A keyword match must now match word for word.** "kubernetes rollout" no longer finds "deploy uses kubernetes" through keywords, only through meaning. Two tests that relied on partial matches were updated.
+- **The 30 coding tasks were not rerun.** Instead, each task's rule was checked in the agent's context before and after the change: 28 of 30 both times, and the 2 misses are wording differences in the scoring, not missing rules.
+
 - **Not tested here:** recency and importance, since every turn has the same age and score; reranking, since no reranker exists; and consolidation, which belongs to distillation, not search.
 
 ## Coding-agent pilot

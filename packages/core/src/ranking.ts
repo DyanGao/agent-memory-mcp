@@ -30,12 +30,17 @@ function reciprocalRank(rank: number | undefined): number {
   return rank === undefined ? 0 : 1 / (RRF_K + rank);
 }
 
+export interface FusionOptions {
+  /** How much a text rank counts against a vector rank, which counts 1. */
+  textWeight?: number | undefined;
+}
+
 /** Reciprocal rank fusion, scaled so ranking first in both lists gives 1. */
-function relevanceScore(candidate: Candidate): number {
-  const best = 2 / (RRF_K + 1);
+function relevanceScore(candidate: Candidate, textWeight: number): number {
+  const best = (1 + textWeight) / (RRF_K + 1);
   return (
     (reciprocalRank(candidate.vectorRank) +
-      reciprocalRank(candidate.textRank)) /
+      textWeight * reciprocalRank(candidate.textRank)) /
     best
   );
 }
@@ -48,8 +53,9 @@ function recencyScore(createdAt: Date, now: Date): number {
 export function scoreCandidate(
   candidate: Candidate,
   now: Date,
+  options: FusionOptions = {},
 ): ScoreBreakdown {
-  const relevance = relevanceScore(candidate);
+  const relevance = relevanceScore(candidate, options.textWeight ?? 1);
   const recency = recencyScore(candidate.createdAt, now);
   return {
     vectorRank: candidate.vectorRank ?? null,

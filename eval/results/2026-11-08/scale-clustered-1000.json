@@ -1,0 +1,28 @@
+{
+  "memories": 1000,
+  "vectors": "clustered",
+  "recallByEfSearch": [
+    {
+      "efSearch": 100,
+      "recallAt10": 1,
+      "vectorP95Ms": 1.7
+    },
+    {
+      "efSearch": 200,
+      "recallAt10": 1,
+      "vectorP95Ms": 1.7
+    },
+    {
+      "efSearch": 400,
+      "recallAt10": 1,
+      "vectorP95Ms": 1.8
+    },
+    {
+      "efSearch": 800,
+      "recallAt10": 1,
+      "vectorP95Ms": 1.9
+    }
+  ],
+  "searchP95Ms": 5.3,
+  "scrubSeconds": 0.3
+}

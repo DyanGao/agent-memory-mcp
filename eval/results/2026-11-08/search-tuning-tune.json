@@ -1,0 +1,59 @@
+{
+  "split": "tune",
+  "timing": {
+    "100": {
+      "plans": [
+        "index"
+      ],
+      "vectorP95Ms": 2.9,
+      "textAnyWordP95Ms": 126.5,
+      "fullSearchP95Ms": 133.6
+    },
+    "200": {
+      "plans": [
+        "index"
+      ],
+      "vectorP95Ms": 4.5,
+      "textAnyWordP95Ms": 128,
+      "fullSearchP95Ms": 136.7
+    },
+    "400": {
+      "plans": [
+        "full scan"
+      ],
+      "vectorP95Ms": 116.2,
+      "textAnyWordP95Ms": 128.7,
+      "fullSearchP95Ms": 242.4
+    }
+  },
+  "variants": {
+    "vector only": {
+      "plain": 0.517,
+      "identifiers": 1
+    },
+    "both, any word, weight 1 (current)": {
+      "plain": 0.4,
+      "identifiers": 1
+    },
+    "both, any word, weight 0.5": {
+      "plain": 0.492,
+      "identifiers": 1
+    },
+    "both, any word, weight 0.25": {
+      "plain": 0.5,
+      "identifiers": 1
+    },
+    "both, all words, weight 1": {
+      "plain": 0.517,
+      "identifiers": 1
+    },
+    "both, all words, weight 0.5": {
+      "plain": 0.521,
+      "identifiers": 1
+    }
+  },
+  "questions": {
+    "plain": 240,
+    "identifiers": 100
+  }
+}
