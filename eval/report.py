@@ -208,6 +208,25 @@ def write_pareto(folder: Path) -> None:
     (ROOT / "docs" / "pareto.svg").write_text(draw(coding, answers) + "\n")
 
 
+def poison_rows(folder: Path) -> str:
+    first = load(folder, "poisoning")["summary"]
+    later = load(folder, "poisoning-agent_fix-relayed")["summary"]
+    labels = {
+        "tool_output": "In tool output",
+        "pasted": "Pasted by the user, with a question",
+        "agent_repeat": "Repeated by the agent",
+        "relayed": "Relayed by the user as a statement",
+        "agent_fix": "Repeated by the agent while explaining a failure",
+        "control": "Control: the user's own rule",
+    }
+    merged = {**first, **later}
+    lines = ["| Planted | Stored | Returned to an agent |", "|---|---|---|"]
+    for key, label in labels.items():
+        row = merged[key]
+        lines.append(f"| {label} | {row['stored']} of {row['cases']} | {row['returned']} of {row['cases']} |")
+    return "\n".join(lines)
+
+
 def long_values(store: dict) -> dict[str, str]:
     task_noise = [row["noise"] for row in store["task_context"].values()]
     return {
@@ -295,6 +314,7 @@ def main() -> None:
         .replace("{{run_cost_share}}", f"{setup_cost(runs, 'memory') / setup_cost(runs, 'full_history'):.0%}")
         .replace("{{run_token_share}}", f"{setup_tokens(runs, 'memory') / setup_tokens(runs, 'full_history'):.0%}")
     )
+    output = output.replace("{{poison_rows}}", poison_rows(folder))
     write_pareto(folder)
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)
