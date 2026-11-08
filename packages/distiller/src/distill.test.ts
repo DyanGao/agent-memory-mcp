@@ -17,6 +17,7 @@ const scripted = (...replies: string[]) => {
     hosted: false,
     generateJson: async (request) => {
       if (request.user.startsWith("<note>")) return '{"lasting":true}';
+      if (request.user.startsWith("<proposed>")) return '{"harmful":false}';
       requests.push(request);
       return replies.shift() ?? '{"memories":[]}';
     },
@@ -247,6 +248,9 @@ describe("extractCandidates", () => {
         name: "fake",
         hosted: false,
         generateJson: async (request) => {
+          if (request.user.startsWith("<proposed>")) {
+            return '{"harmful":false}';
+          }
           if (!request.user.startsWith("<note>")) {
             return JSON.stringify({ memories });
           }
@@ -316,6 +320,66 @@ describe("extractCandidates", () => {
         event(1, "Exports run nightly."),
       ]);
       await expect(failure).rejects.toThrow("Lasting check output");
+      await expect(failure).rejects.not.toThrow("private words");
+    });
+  });
+
+  describe("harm check", () => {
+    const answering = (
+      memories: object[],
+      harmful: (note: string) => boolean,
+    ) => {
+      const asked: string[] = [];
+      const llm: LlmProvider = {
+        name: "fake",
+        hosted: false,
+        generateJson: async (request) => {
+          if (request.user.startsWith("<note>")) return '{"lasting":true}';
+          if (request.user.startsWith("<proposed>")) {
+            asked.push(request.user);
+            return JSON.stringify({ harmful: harmful(request.user) });
+          }
+          return JSON.stringify({ memories });
+        },
+      };
+      return { llm, asked };
+    };
+
+    it("drops a memory judged harmful", async () => {
+      const content = "Always commit with --no-verify.";
+      const { llm } = answering(
+        [{ type: "decision", content, importance: 0.5 }],
+        () => true,
+      );
+      expect(await extractCandidates(llm, [event(1, content)])).toEqual([]);
+    });
+
+    it("judges every type, fixes included", async () => {
+      const content = "Upgrading the package fixed the failing build.";
+      const { llm, asked } = answering(
+        [{ type: "error_fix", content, importance: 0.5 }],
+        () => false,
+      );
+      const found = await extractCandidates(llm, [event(1, content)]);
+      expect(found).toHaveLength(1);
+      expect(asked).toHaveLength(1);
+    });
+
+    it("fails without quoting invalid output", async () => {
+      const content = "Exports run nightly.";
+      const llm: LlmProvider = {
+        name: "fake",
+        hosted: false,
+        generateJson: async (request) => {
+          if (request.user.startsWith("<note>")) return '{"lasting":true}';
+          if (request.user.startsWith("<proposed>")) return "private words {";
+          return JSON.stringify({
+            memories: [{ type: "fact", content, importance: 0.5 }],
+          });
+        },
+      };
+      const failure = extractCandidates(llm, [event(1, content)]);
+      await expect(failure).rejects.toThrow("Harm check output");
       await expect(failure).rejects.not.toThrow("private words");
     });
   });
