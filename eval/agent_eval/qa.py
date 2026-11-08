@@ -25,6 +25,7 @@ SEED = 20261109
 PER_CONVERSATION = 15
 SHEET_SIZE = 50
 SHEET_SETUPS = ("rag", "full_history", "memory-off")
+REPEATS = 3
 SETUPS = ["none", "memory", "rag", "mem0", "full_history"]
 PROJECT = "locomo"
 TIMEOUT = 180
@@ -174,48 +175,55 @@ class Contexts:
             return "\n".join(memory["content"] for memory in found["memories"])
 
 
-def finished() -> set[tuple[str, str]]:
+def finished() -> set[tuple[str, str, int]]:
     if not RUNS.exists():
         return set()
     rows = [json.loads(line) for line in RUNS.read_text().splitlines()]
-    return {(row["id"], row["setup"]) for row in rows}
+    # The first run predates repeats, so its rows carry none.
+    return {(row["id"], row["setup"], row.get("repeat", 0)) for row in rows}
 
 
-def run(setups: list[str], variant: str = "checked") -> None:
+def run(setups: list[str], variant: str = "checked", repeats: int = REPEATS) -> None:
     done = finished()
     contexts = Contexts()
-    for question in questions():
-        for setup in setups:
-            label = setup if variant == "checked" or setup != "memory" else f"memory-{variant}"
-            if (question["id"], label) in done:
-                continue
-            notes = "" if setup == "none" else contexts.get(question, setup, variant)
-            prompt = (
-                f"Notes from earlier conversations:\n{notes}\n\n"
-                f"Answer in one short sentence, using the notes.\nQuestion: {question['question']}"
-                if notes
-                else f"Answer in one short sentence.\nQuestion: {question['question']}"
-            )
-            reply = ask(prompt)
-            if reply["is_error"]:
-                print("stopping:", reply["text"][:200], flush=True)
-                return
-            verdict = judged(question, reply["text"])
-            if verdict["is_error"]:
-                print("stopping at judge", flush=True)
-                return
-            row = {
-                "id": question["id"],
-                "category": question["category"],
-                "setup": label,
-                "answer": reply["text"],
-                "correct": verdict["correct"],
-                "context_chars": len(notes),
-                "cost": reply["cost"] + verdict["cost"],
-            }
-            with RUNS.open("a") as file:
-                file.write(json.dumps(row) + "\n")
-            print(question["id"], label, row["correct"], flush=True)
+    # Whole repeats in order, so stopping early leaves balanced runs.
+    for repeat in range(repeats):
+        for question in questions():
+            for setup in setups:
+                run_one(question, setup, variant, repeat, done, contexts)
+
+
+def run_one(question: dict, setup: str, variant: str, repeat: int, done: set, contexts) -> None:
+    label = setup if variant == "checked" or setup != "memory" else f"memory-{variant}"
+    if (question["id"], label, repeat) in done:
+        return
+    notes = "" if setup == "none" else contexts.get(question, setup, variant)
+    prompt = (
+        f"Notes from earlier conversations:\n{notes}\n\n"
+        f"Answer in one short sentence, using the notes.\nQuestion: {question['question']}"
+        if notes
+        else f"Answer in one short sentence.\nQuestion: {question['question']}"
+    )
+    reply = ask(prompt)
+    if reply["is_error"]:
+        raise SystemExit(f"stopping: {reply['text'][:200]}")
+    verdict = judged(question, reply["text"])
+    if verdict["is_error"]:
+        raise SystemExit("stopping at judge")
+    row = {
+        "id": question["id"],
+        "category": question["category"],
+        "setup": label,
+        "repeat": repeat,
+        "answer": reply["text"],
+        "correct": verdict["correct"],
+        "context_chars": len(notes),
+        "cost": reply["cost"] + verdict["cost"],
+    }
+    with RUNS.open("a") as file:
+        file.write(json.dumps(row) + "\n")
+    done.add((question["id"], label, repeat))
+    print(question["id"], label, repeat, row["correct"], flush=True)
 
 
 def summary() -> None:
@@ -223,9 +231,16 @@ def summary() -> None:
     result = {}
     for setup in sorted({row["setup"] for row in rows}):
         picked = [row for row in rows if row["setup"] == setup]
+        runs = sorted({row.get("repeat", 0) for row in picked})
+        rates = []
+        for repeat in runs:
+            one = [row for row in picked if row.get("repeat", 0) == repeat]
+            rates.append(sum(row["correct"] for row in one) / len(one))
         result[setup] = {
-            "questions": len(picked),
-            "accuracy": round(sum(row["correct"] for row in picked) / len(picked), 3),
+            "questions": len(picked) // len(runs),
+            "runs": len(runs),
+            "accuracy": round(statistics.mean(rates), 3),
+            "std": round(statistics.pstdev(rates), 3),
             "mean_context_chars": round(statistics.mean(row["context_chars"] for row in picked)),
             "cost": round(sum(row["cost"] for row in picked), 3),
         }
@@ -305,7 +320,8 @@ if __name__ == "__main__":
     elif command == "mem0":
         seed_mem0()
     elif command == "run":
-        run(sys.argv[2].split(","), *sys.argv[3:])
+        variant = sys.argv[3] if len(sys.argv) > 3 else "checked"
+        run(sys.argv[2].split(","), variant)
     elif command == "summary":
         summary()
     elif command == "sheet":
