@@ -190,6 +190,24 @@ def qa_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def write_pareto(folder: Path) -> None:
+    from pareto import draw
+
+    runs = suite_runs()
+    coding = []
+    for setup in ("memory", "full_history", "rag", "mem0", "none"):
+        rows = [row for row in runs if row["setup"] == setup]
+        cost = sum(row["second"]["cost_usd_equivalent"] or 0 for row in rows)
+        # Memory and full history land at the same height: one label up, one down.
+        lift = {"memory": -12, "full_history": 14}.get(setup, 0)
+        coding.append((SUITE_LABELS[setup], cost, pass_stats(rows)[2], lift))
+    qa = load(folder, "qa-locomo")
+    names = {"memory": "agent-memory-mcp", "memory-off": "check off", "rag": "Naive RAG",
+             "full_history": "Full history"}
+    answers = [(label, qa[key]["mean_context_chars"], qa[key]["accuracy"]) for key, label in names.items()]
+    (ROOT / "docs" / "pareto.svg").write_text(draw(coding, answers) + "\n")
+
+
 def long_values(store: dict) -> dict[str, str]:
     task_noise = [row["noise"] for row in store["task_context"].values()]
     return {
@@ -275,6 +293,7 @@ def main() -> None:
         .replace("{{run_cost_share}}", f"{setup_cost(runs, 'memory') / setup_cost(runs, 'full_history'):.0%}")
         .replace("{{run_token_share}}", f"{setup_tokens(runs, 'memory') / setup_tokens(runs, 'full_history'):.0%}")
     )
+    write_pareto(folder)
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)
     print("wrote", target)
