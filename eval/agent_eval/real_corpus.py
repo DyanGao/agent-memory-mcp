@@ -91,5 +91,60 @@ def embed() -> None:
     print("done", flush=True)
 
 
+IDENTIFIER_COUNT = 200
+COMPONENTS = [
+    "billing worker", "export job", "login service", "search indexer", "upload queue",
+    "invoice renderer", "webhook relay", "cache warmer", "report builder", "sync daemon",
+]
+CAUSES = [
+    ("an expired token", "refreshing the token"),
+    ("a full disk", "clearing the temp folder"),
+    ("a stale lock", "removing the lock file"),
+    ("a missing index", "adding the index"),
+    ("a timeout to the database", "raising the pool size"),
+    ("a bad config value", "restoring the default config"),
+    ("a clock skew between hosts", "syncing the clocks"),
+    ("an unhandled empty input", "adding a guard for empty input"),
+]
+QUESTIONS = ["What causes {code}?", "How do I fix {code}?", "{code} happened again, what is it?"]
+
+
+def _code(rng: random.Random, number: int) -> str:
+    shapes = [
+        lambda: f"E{rng.randint(1000, 9999)}",
+        lambda: f"TCK-{rng.randint(10000, 99999)}",
+        lambda: f"INV_{rng.randint(100, 999)}",
+        lambda: f"0x{rng.randint(0x1000, 0xFFFF):04X}",
+        lambda: f"{''.join(rng.choice('BCDFGHJKLMNPQRSTVWXZ') for _ in range(3))}-{rng.randint(10, 99)}{rng.choice('ABCDEF')}",
+    ]
+    return shapes[number % len(shapes)]()
+
+
+def identifiers() -> None:
+    """Exact codes, where keyword search should matter and meaning alone cannot.
+
+    Parts and causes repeat across codes, so only the code itself tells two
+    memories apart. LongMemEval has almost none of these.
+    """
+    rng = random.Random(SEED + 1)
+    codes: list[str] = []
+    while len(codes) < IDENTIFIER_COUNT:
+        code = _code(rng, len(codes))
+        if code not in codes:
+            codes.append(code)
+    texts, queries = [], []
+    for number, code in enumerate(codes):
+        cause, fix = rng.choice(CAUSES)
+        part = rng.choice(COMPONENTS)
+        texts.append(f"{code} in the {part} is caused by {cause}, and {fix} fixes it.")
+        queries.append({"id": f"id-{number}", "type": "identifier",
+                        "question": rng.choice(QUESTIONS).format(code=code), "gold": [number]})
+    (OUT / "id-texts.jsonl").write_text("".join(json.dumps(t) + "\n" for t in texts))
+    (OUT / "id-queries.json").write_text(json.dumps(queries))
+    embed_file([q["question"] for q in queries], OUT / "id-queries.f32")
+    embed_file(texts, OUT / "id-texts.f32")
+    print(len(texts), "identifier memories and questions")
+
+
 if __name__ == "__main__":
-    {"build": build, "embed": embed}[sys.argv[1]]()
+    {"build": build, "embed": embed, "identifiers": identifiers}[sys.argv[1]]()
