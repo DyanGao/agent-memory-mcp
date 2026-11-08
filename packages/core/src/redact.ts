@@ -31,6 +31,13 @@ const RULES: Rule[] = [
     pattern:
       /\b(?:password|passwd|pwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token)\b["']?\s*[:=]\s*["']?[^\s"',;]{4,}/gi,
   },
+  {
+    // Secrets stated in words, as in "the password for staging is X". The value
+    // must hold a digit, so "the password is required" is left alone.
+    kind: "credential",
+    pattern:
+      /\b(?:password|passwd|passphrase|pwd|token|secret|api[ _-]?key)\b(?:\s+(?!is\b|was\b)[\w-]+){0,4}?\s+(?:is|was)\s+["']?(?=[^\s"',;]*\d)[^\s"',;]+?(?=[.,;]?(?:\s|$))/gi,
+  },
   { kind: "email", pattern: /\b[\w.+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+\b/g },
 ];
 

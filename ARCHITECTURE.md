@@ -66,6 +66,7 @@ audit_log(id bigserial, action text, actor text, target_ids uuid[], ts timestamp
 | 14 | Forget deletes now, scrubs bytes nightly | `VACUUM FULL` on every forget | a scan proved plain `VACUUM` leaves deleted text in table files, but `VACUUM FULL` locks tables and rebuilds the index |
 | 15 | Tombstones for forgotten events | none | a resumed session re-sends its transcript and would restore forgotten text |
 | 16 | Ask if each fact, decision and preference will last | more word lists, an importance cutoff | 241 of 254 memories on a long history were chatter. Word lists fit only the filler they were written for, and ordinary real facts also score 0.5. Fixes and todos skip it because they describe events |
+| 17 | Ask whether acting on each candidate would cause harm | trust the source, or a word list | planted text reaches memory when a person relays it or the agent quotes it, and reads as a lasting rule. A source check would also drop genuine team decisions passed on by the user |
 | 10 | `english` text config | `simple` | `simple` keeps stop words, which then count as matches. Other languages still match exact words |
 
 ## 7. Security & privacy
@@ -85,5 +86,5 @@ eval/  docs/  docker-compose.yml  .github/workflows/
 ## 10. Open questions
 - Best default token budget per task type?
 - When to forget automatically (decay vs. explicit TTL)?
-- How far can memory poisoning be reduced when the planted text comes from the user or is repeated by the agent? Measured: an agent repeating vendor text while explaining a failure got 8 of 10 harmful instructions stored. See the evaluation report
+- How far can memory poisoning be reduced when the planted text comes from the user or is repeated by the agent? A harm check cut held-out poisoning from 22 of 40 stored to 7 of 40, with no genuine rule lost. What remains is an instruction the agent quotes inside a fix explanation. See the evaluation report
 - What minimum relevance should retrieval require? Rank fusion has no absolute cutoff, so a small store returns unrelated memories. Tune against the eval.

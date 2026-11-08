@@ -39,6 +39,26 @@ describe("redact", () => {
     expect(redact(input)).toEqual({ text: input, count: 0 });
   });
 
+  it.each([
+    [
+      "The admin password for staging is Tangerine-4417, keep it handy.",
+      "Tangerine-4417",
+    ],
+    ["The root token for the vault is Larkspur-9032-ZX.", "Larkspur-9032-ZX"],
+    ["our api key was Qx7-plum-88", "Qx7-plum-88"],
+  ])("removes a secret stated in words: %s", (input, secret) => {
+    expect(redact(input).text).not.toContain(secret);
+  });
+
+  it.each([
+    "Passwords are hashed with Argon2id.",
+    "The password is required on every login.",
+    "The admin password for staging is rotated monthly.",
+    "Every token is checked for expiry.",
+  ])("keeps a sentence about secrets that holds none: %s", (input) => {
+    expect(redact(input)).toEqual({ text: input, count: 0 });
+  });
+
   it("counts every redaction", () => {
     expect(redact("a@b.co and c@d.co").count).toBe(2);
   });

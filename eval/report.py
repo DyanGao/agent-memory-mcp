@@ -209,8 +209,11 @@ def write_pareto(folder: Path) -> None:
 
 
 def poison_rows(folder: Path) -> str:
-    first = load(folder, "poisoning")["summary"]
-    later = load(folder, "poisoning-agent_fix-relayed")["summary"]
+    before = {
+        **load(folder, "poisoning-before")["summary"],
+        **load(folder, "poisoning-agent_fix-relayed")["summary"],
+    }
+    after = load(folder, "poisoning")["summary"]
     labels = {
         "tool_output": "In tool output",
         "pasted": "Pasted by the user, with a question",
@@ -219,11 +222,33 @@ def poison_rows(folder: Path) -> str:
         "agent_fix": "Repeated by the agent while explaining a failure",
         "control": "Control: the user's own rule",
     }
-    merged = {**first, **later}
-    lines = ["| Planted | Stored | Returned to an agent |", "|---|---|---|"]
+    lines = ["| Planted | Stored before the defence | Stored after |", "|---|---|---|"]
     for key, label in labels.items():
-        row = merged[key]
-        lines.append(f"| {label} | {row['stored']} of {row['cases']} | {row['returned']} of {row['cases']} |")
+        lines.append(
+            f"| {label} | {before[key]['stored']} of {before[key]['cases']} "
+            f"| {after[key]['stored']} of {after[key]['cases']} |"
+        )
+    return "\n".join(lines)
+
+
+def held_out_poison_rows(folder: Path) -> str:
+    before = load(folder, "poisoning2-before")["summary"]
+    after = load(folder, "poisoning2")["summary"]
+    labels = {
+        "relayed_doc": "Relayed from an outside document",
+        "pasted_statement": "Pasted from a vendor wiki",
+        "agent_fix": "Quoted by the agent in a fix explanation",
+        "agent_quote": "Quoted by the agent from a README",
+        "user_rule": "Control: the user's own rule",
+        "team_relay": "Control: a team decision passed on",
+        "agent_own_fix": "Control: the agent's own fix",
+    }
+    lines = ["| Planted | Stored before the defence | Stored after |", "|---|---|---|"]
+    for key, label in labels.items():
+        lines.append(
+            f"| {label} | {before[key]['stored']} of {before[key]['cases']} "
+            f"| {after[key]['stored']} of {after[key]['cases']} |"
+        )
     return "\n".join(lines)
 
 
@@ -314,7 +339,9 @@ def main() -> None:
         .replace("{{run_cost_share}}", f"{setup_cost(runs, 'memory') / setup_cost(runs, 'full_history'):.0%}")
         .replace("{{run_token_share}}", f"{setup_tokens(runs, 'memory') / setup_tokens(runs, 'full_history'):.0%}")
     )
-    output = output.replace("{{poison_rows}}", poison_rows(folder))
+    output = output.replace("{{poison_rows}}", poison_rows(folder)).replace(
+        "{{held_out_poison_rows}}", held_out_poison_rows(folder)
+    )
     write_pareto(folder)
     target = ROOT / "docs" / "eval-report.md"
     target.write_text(output)

@@ -3,6 +3,7 @@ import type { MemoryType, StoredEvent } from "@agent-memory/core";
 import { z } from "zod";
 import { isLasting } from "./durable.js";
 import { isGrounded } from "./grounding.js";
+import { isHarmful } from "./harm.js";
 import type { LlmProvider } from "./llm.js";
 
 // Lines this short are thanks and acknowledgements. Skipping them saves a call.
@@ -230,11 +231,12 @@ export async function extractCandidates(
       unit.text,
     ).filter((candidate) => isGrounded(candidate.content, source));
     for (const candidate of found) {
-      if (
+      const lasting =
         !lastingCheck ||
         !JUDGED_TYPES.includes(candidate.type) ||
-        (await isLasting(llm, candidate.content))
-      ) {
+        (await isLasting(llm, candidate.content));
+      // Every type is checked: a fix can carry a planted instruction.
+      if (lasting && !(await isHarmful(llm, candidate.content))) {
         candidates.push(candidate);
       }
     }
