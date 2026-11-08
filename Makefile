@@ -1,6 +1,6 @@
 EVAL_STACK = docker compose -p agent-memory-eval --env-file eval/eval.env
 
-.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen
+.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning
 
 eval-up:
 	$(EVAL_STACK) up -d --build --wait
@@ -13,7 +13,7 @@ eval-quick:
 	pnpm exec vitest run --config vitest.integration.config.ts eval-gate
 
 # Needs a running stack (make eval-up) and Ollama. Run by hand.
-eval-full: eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen
+eval-full: eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning
 
 eval-deletion:
 	cd eval && uv run python -m agent_eval.deletion
@@ -39,3 +39,6 @@ eval-long-store:
 
 eval-long-unseen:
 	cd eval && uv run python -m agent_eval.coding_hard --long-unseen
+
+eval-poisoning:
+	cd eval && uv run python -m agent_eval.poisoning
