@@ -77,7 +77,7 @@ Add these hooks to `.claude/settings.json`, with `MEMORY_API_KEY` set in your en
 ```
 The hooks never block a session: if the server is down they log to stderr and exit cleanly.
 
-Only what you and the agent say is distilled. Tool output (file contents, web pages, command results) is stored after redaction but never reaches the LLM, because that is where third-party text gets in. Memories are returned as stored data for agents to verify, not as instructions. Each candidate memory is also checked for instructions that would cause harm, such as sending data out or switching off a safeguard. This narrows memory poisoning but does not eliminate it: on held-out cases, harmful instructions the agent quoted inside a fix explanation still got through 7 times in 20.
+Only what you and the agent say is distilled. Tool output (file contents, web pages, command results) is stored after redaction but never reaches the LLM, because that is where third-party text gets in. Memories are returned as stored data for agents to verify, not as instructions. Each candidate memory is also checked for instructions that would cause harm, such as sending data out or switching off a safeguard. Each clause is checked too, so an instruction quoted inside a fix explanation is judged on its own. This narrows memory poisoning but does not eliminate it: on cases written before that check, 3 of 30 hidden instructions still got through.
 
 ## Architecture
 Short summary + diagram, details in [ARCHITECTURE.md](ARCHITECTURE.md).
