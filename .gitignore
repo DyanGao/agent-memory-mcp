@@ -35,3 +35,4 @@ eval/qa-run.log
 eval/qa-off.log
 eval/mem0-w3.log
 eval/mem0-w3-run.log
+eval/real-embed.log

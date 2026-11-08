@@ -95,6 +95,22 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       expect(hit?.score.textRank).toBe(1);
     });
 
+    it.each([
+      ["vector", "textRank"],
+      ["text", "vectorRank"],
+    ] as const)(
+      "can search with %s ranking alone, for measuring each part",
+      async (retrievers, unused) => {
+        await store.write(alice, {
+          content: "deploy uses kubernetes",
+          type: "fact",
+        });
+        const found = await store.search(alice, "kubernetes", { retrievers });
+        expect(found.length).toBeGreaterThan(0);
+        expect(found.every((hit) => hit.score[unused] === null)).toBe(true);
+      },
+    );
+
     it("does not count stop words as a text match", async () => {
       await store.write(alice, {
         content: "The standup moved to Tuesdays on the calendar",
