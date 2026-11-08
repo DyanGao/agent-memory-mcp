@@ -235,13 +235,16 @@ describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
       for (const variant of VARIANTS) {
         const { name, ...options } = variant;
         scores[name] = {};
+        const timings: number[] = [];
         for (const [setName, queries] of Object.entries(sets)) {
           let found = 0;
           for (const query of queries) {
+            const started = performance.now();
             const hits = await store.search(scope, query.question, {
               ...options,
               limit: 10,
             });
+            timings.push(performance.now() - started);
             const gold = new Set(query.gold);
             found += Number(
               hits.some((hit) => gold.has(rowOf.get(hit.content) ?? -1)),
@@ -249,6 +252,7 @@ describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
           }
           scores[name][setName] = Number((found / queries.length).toFixed(3));
         }
+        scores[name].searchP95Ms = Number(estimateP95Ms(timings).toFixed(1));
         progress(`${name} ${JSON.stringify(scores[name])}`);
       }
       results.variants = scores;

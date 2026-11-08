@@ -22,9 +22,16 @@ export const DEFAULT_TOKEN_BUDGET = 1500;
 
 // Candidates fetched from each retriever before fusion.
 const CANDIDATES_PER_RETRIEVER = 50;
-// Measured at 10k memories. On uniform random vectors, HNSW's hard case, 100
-// gave recall@10 of 0.44 and 400 gave 0.85, for under 3 ms more at p95.
-const HNSW_EF_SEARCH = 400;
+// At 400 the planner abandoned the index for a full scan on 100,000 real
+// memories, taking 116 ms. At 200 the index answered in under 5 ms with recall
+// of 1.0. Uniform random vectors, HNSW's hard case, need more, but real
+// embeddings are not uniform.
+const HNSW_EF_SEARCH = 200;
+// Matching any word of a long question against long memories ranked many weak
+// matches above good vector ones, and cut answers in the top 10 from 52% to
+// 40% on real text. Requiring every word, at half weight, removed the harm.
+const DEFAULT_TEXT_MATCH = "all";
+const DEFAULT_TEXT_WEIGHT = 0.5;
 // Upper bound on index tuples visited when a narrow scope filters most out.
 const HNSW_MAX_SCAN_TUPLES = 200_000;
 
@@ -119,9 +126,9 @@ export interface SearchOptions {
   limit?: number;
   /** Both by default. One alone exists to measure what each part adds. */
   retrievers?: "hybrid" | "vector" | "text";
-  /** Whether a text match needs any query word, or all of them. */
+  /** Whether a text match needs all query words, the default, or any. */
   textMatch?: "any" | "all";
-  /** How much a text rank counts in fusion, against 1 for a vector rank. */
+  /** How much a text rank counts in fusion, against 1 for a vector rank. Default 0.5. */
   textWeight?: number;
 }
 
@@ -330,10 +337,9 @@ export class MemoryStore {
         [toVectorLiteral(embedding), CANDIDATES_PER_RETRIEVER],
       );
 
-      // By default any query word may match. plainto_tsquery alone requires
-      // all of them.
+      // plainto_tsquery requires every word. Rewriting AND to OR lets any match.
       const tsquery =
-        options.textMatch === "all"
+        (options.textMatch ?? DEFAULT_TEXT_MATCH) === "all"
           ? "plainto_tsquery('english', $1)"
           : "replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery";
       const text = await client.query<MemoryRow>(
@@ -376,7 +382,7 @@ export class MemoryStore {
       .map((candidate) => ({
         ...toMemory(byId.get(candidate.id)!),
         score: scoreCandidate(candidate, now, {
-          textWeight: options.textWeight,
+          textWeight: options.textWeight ?? DEFAULT_TEXT_WEIGHT,
         }),
       }))
       .sort((a, b) => b.score.total - a.score.total)
