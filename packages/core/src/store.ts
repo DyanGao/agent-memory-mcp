@@ -115,6 +115,12 @@ async function audit(
   );
 }
 
+export interface SearchOptions {
+  limit?: number;
+  /** Both by default. One alone exists to measure what each part adds. */
+  retrievers?: "hybrid" | "vector" | "text";
+}
+
 export class MemoryStore {
   constructor(
     private readonly pool: Pool,
@@ -132,7 +138,7 @@ export class MemoryStore {
   search(
     scope: Scope,
     query: string,
-    options: { limit?: number } = {},
+    options: SearchOptions = {},
   ): Promise<SearchResult[]> {
     return traced("memory.search", () => this.doSearch(scope, query, options));
   }
@@ -282,8 +288,9 @@ export class MemoryStore {
   private async doSearch(
     scope: Scope,
     query: string,
-    options: { limit?: number },
+    options: SearchOptions,
   ): Promise<SearchResult[]> {
+    const retrievers = options.retrievers ?? "hybrid";
     const [embedding] = await this.embedder.embed([query]);
     if (embedding === undefined) {
       throw new Error("The embedder returned no vector");
@@ -342,8 +349,8 @@ export class MemoryStore {
         candidates.set(row.id, candidate);
       });
     };
-    collect(rows.vector, "vectorRank");
-    collect(rows.text, "textRank");
+    if (retrievers !== "text") collect(rows.vector, "vectorRank");
+    if (retrievers !== "vector") collect(rows.text, "textRank");
 
     const now = new Date();
     return [...candidates.values()]

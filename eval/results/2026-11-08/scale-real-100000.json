@@ -1,0 +1,119 @@
+{
+  "recallByEfSearch": [
+    {
+      "efSearch": 100,
+      "recallAt10": 0.99,
+      "vectorP95Ms": 5.5
+    },
+    {
+      "efSearch": 200,
+      "recallAt10": 1,
+      "vectorP95Ms": 7.7
+    },
+    {
+      "efSearch": 400,
+      "recallAt10": 1,
+      "vectorP95Ms": 111.8
+    },
+    {
+      "efSearch": 800,
+      "recallAt10": 1,
+      "vectorP95Ms": 110
+    }
+  ],
+  "answerTurnInTop10": {
+    "hybrid": {
+      "questions": 479,
+      "answerInTop10": 0.397,
+      "searchP95Ms": 315,
+      "byType": {
+        "single-session-user": [
+          18,
+          64
+        ],
+        "multi-session": [
+          36,
+          125
+        ],
+        "single-session-preference": [
+          4,
+          30
+        ],
+        "temporal-reasoning": [
+          46,
+          132
+        ],
+        "knowledge-update": [
+          37,
+          72
+        ],
+        "single-session-assistant": [
+          49,
+          56
+        ]
+      }
+    },
+    "vector": {
+      "questions": 479,
+      "answerInTop10": 0.524,
+      "searchP95Ms": 312.2,
+      "byType": {
+        "single-session-user": [
+          32,
+          64
+        ],
+        "multi-session": [
+          52,
+          125
+        ],
+        "single-session-preference": [
+          7,
+          30
+        ],
+        "temporal-reasoning": [
+          60,
+          132
+        ],
+        "knowledge-update": [
+          51,
+          72
+        ],
+        "single-session-assistant": [
+          49,
+          56
+        ]
+      }
+    },
+    "text": {
+      "questions": 479,
+      "answerInTop10": 0.058,
+      "searchP95Ms": 310.6,
+      "byType": {
+        "single-session-user": [
+          1,
+          64
+        ],
+        "multi-session": [
+          0,
+          125
+        ],
+        "single-session-preference": [
+          0,
+          30
+        ],
+        "temporal-reasoning": [
+          0,
+          132
+        ],
+        "knowledge-update": [
+          0,
+          72
+        ],
+        "single-session-assistant": [
+          27,
+          56
+        ]
+      }
+    }
+  }
+}

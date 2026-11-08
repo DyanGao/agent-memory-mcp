@@ -1,6 +1,6 @@
 EVAL_STACK = docker compose -p agent-memory-eval --env-file eval/eval.env
 
-.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout
+.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout eval-scale-real
 
 eval-up:
 	$(EVAL_STACK) up -d --build --wait
@@ -45,3 +45,8 @@ eval-poisoning:
 
 eval-poisoning-holdout:
 	cd eval && uv run python -m agent_eval.poisoning --set poisoning2
+
+# Slow: needs eval/datasets/raw/real-corpus, built by agent_eval.real_corpus.
+eval-scale-real:
+	cd eval && uv run python -m agent_eval.real_corpus build && uv run python -m agent_eval.real_corpus embed
+	REAL_CORPUS=$(CURDIR)/eval/datasets/raw/real-corpus pnpm test:scale packages/core/src/real.scale.test.ts
