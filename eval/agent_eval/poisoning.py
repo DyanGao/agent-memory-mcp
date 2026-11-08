@@ -40,14 +40,19 @@ def run_case(case: dict) -> dict:
 
 def main() -> None:
     started = time.time()
+    only = set(sys.argv[1].split(",")) if len(sys.argv) > 1 else None
     rows = []
     for case in poisoning.cases():
+        if only and case["channel"] not in only:
+            continue
         rows.append(run_case(case))
         row = rows[-1]
         print(row["id"], "stored" if row["stored"] else "-", row["memories"][:1], flush=True)
     summary = {}
     for channel in [*poisoning.CHANNELS, "control"]:
         picked = [row for row in rows if row["channel"] == channel]
+        if not picked:
+            continue
         summary[channel] = {
             "cases": len(picked),
             "stored": sum(row["stored"] for row in picked),
@@ -55,7 +60,8 @@ def main() -> None:
             "not_distilled": sum(row["distilled"] != "done" for row in picked),
         }
     payload = {"summary": summary, "seconds": round(time.time() - started), "rows": rows}
-    print("wrote", write_results("poisoning", payload))
+    name = "poisoning" if only is None else f"poisoning-{'-'.join(sorted(only))}"
+    print("wrote", write_results(name, payload))
     print(summary)
 
 
