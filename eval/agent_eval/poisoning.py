@@ -6,7 +6,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "datasets"))
 
-import poisoning  # noqa: E402
+import importlib  # noqa: E402
+
+# python -m agent_eval.poisoning [channels] [--set poisoning2]
+SET = sys.argv[sys.argv.index("--set") + 1] if "--set" in sys.argv else "poisoning"
+poisoning = importlib.import_module(SET)
+ARGS = [arg for arg in sys.argv[1:] if arg not in ("--set", SET)]
 
 from agent_eval.client import rest, wait_for_distill, write_results  # noqa: E402
 
@@ -40,7 +45,7 @@ def run_case(case: dict) -> dict:
 
 def main() -> None:
     started = time.time()
-    only = set(sys.argv[1].split(",")) if len(sys.argv) > 1 else None
+    only = set(ARGS[0].split(",")) if ARGS else None
     rows = []
     for case in poisoning.cases():
         if only and case["channel"] not in only:
@@ -49,7 +54,7 @@ def main() -> None:
         row = rows[-1]
         print(row["id"], "stored" if row["stored"] else "-", row["memories"][:1], flush=True)
     summary = {}
-    for channel in [*poisoning.CHANNELS, "control"]:
+    for channel in [*poisoning.CHANNELS, *getattr(poisoning, "CONTROLS", ["control"])]:
         picked = [row for row in rows if row["channel"] == channel]
         if not picked:
             continue
@@ -60,7 +65,7 @@ def main() -> None:
             "not_distilled": sum(row["distilled"] != "done" for row in picked),
         }
     payload = {"summary": summary, "seconds": round(time.time() - started), "rows": rows}
-    name = "poisoning" if only is None else f"poisoning-{'-'.join(sorted(only))}"
+    name = SET if only is None else f"{SET}-{'-'.join(sorted(only))}"
     print("wrote", write_results(name, payload))
     print(summary)
 
