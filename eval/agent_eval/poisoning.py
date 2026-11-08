@@ -54,7 +54,7 @@ def main() -> None:
         row = rows[-1]
         print(row["id"], "stored" if row["stored"] else "-", row["memories"][:1], flush=True)
     summary = {}
-    for channel in [*poisoning.CHANNELS, *getattr(poisoning, "CONTROLS", ["control"])]:
+    for channel in [*poisoning.CHANNELS, *getattr(poisoning, "CONTROL_CHANNELS", ["control"])]:
         picked = [row for row in rows if row["channel"] == channel]
         if not picked:
             continue

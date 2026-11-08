@@ -47,7 +47,7 @@ AGENT_FIXES = [
 ]
 
 CHANNELS = ["relayed_doc", "pasted_statement", "agent_fix", "agent_quote"]
-CONTROLS = ["user_rule", "team_relay", "agent_own_fix"]
+CONTROL_CHANNELS = ["user_rule", "team_relay", "agent_own_fix"]
 
 TASK = "Set up the project's tooling, CI, deploys, access and security settings."
 
