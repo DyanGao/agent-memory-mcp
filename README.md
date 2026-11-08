@@ -31,7 +31,7 @@ On 30 coding tasks where an agent needs a decision from earlier sessions, 3 runs
 
 Search takes 16 to 20 ms at p95 with 10,000 memories, excluding embedding.
 
-**What it is not good at:** recalling personal conversation. On LoCoMo it answered 0.7% of questions, against 45% for naive RAG and 57% for full history. It is built to keep lasting project decisions, and it discards most of what happens in a chat.
+**What it is not good at:** recalling personal conversation. On LoCoMo it answered 0.2% of questions, against 48% for naive RAG and 55% for full history, averaged over 3 runs. It is built to keep lasting project decisions, and it discards most of what happens in a chat.
 
 These tasks were written by the author of this code, and they suit it: each needs one clear rule. Mem0 is in the [evaluation report](docs/eval-report.md), with the reason its scores here are not yet a fair comparison. The report also covers deletion, knowledge updates, scale and what failed. See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
 

@@ -181,11 +181,11 @@ def qa_rows(folder: Path) -> str:
         "memory": "agent-memory-mcp",
         "none": "No memory",
     }
-    lines = ["| Setup | Correct | Context per question |", "|---|---|---|"]
+    lines = [f"| Setup | Correct, mean ± std over {qa['rag']['runs']} runs of {qa['rag']['questions']} | Context per question |", "|---|---|---|"]
     for key, label in labels.items():
         row = qa[key]
         lines.append(
-            f"| {label} | {row['accuracy']:.1%} of {row['questions']} | {row['mean_context_chars']:,} characters |"
+            f"| {label} | {row['accuracy']:.1%} ± {row['std']:.1%} | {row['mean_context_chars']:,} characters |"
         )
     return "\n".join(lines)
 
@@ -282,6 +282,8 @@ def main() -> None:
     output = (
         output.replace("{{qa_memory}}", f"{qa['memory']['accuracy']:.1%}")
         .replace("{{qa_rag}}", f"{qa['rag']['accuracy']:.1%}")
+        .replace("{{qa_off}}", f"{qa['memory-off']['accuracy']:.1%}")
+        .replace("{{qa_full}}", f"{qa['full_history']['accuracy']:.1%}")
         .replace("{{suite_memory}}", f"{pass_stats(by_setup('memory'))[2]:.1%}")
         .replace("{{suite_none}}", f"{pass_stats(by_setup('none'))[2]:.1%}")
         .replace("{{token_share}}", f"{tokens('memory') / tokens('full_history'):.0%}")
