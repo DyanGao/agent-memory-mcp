@@ -129,9 +129,20 @@ The same corpus plus 200 planted memories with exact codes, such as "E4009 in th
 
 - **`ef_search` 400 made Postgres abandon the index.** The query plans show a full scan at 400 and the index at 100 and 200. The default is now 200.
 - **Requiring every word removed the harm.** A keyword match now needs every query word, and counts half as much as a vector match. On the held-out half it found an answer for 52.7% of plain questions, against 37.7% for the old setting and 51.5% for vectors alone, and searched about 3 times faster.
-- **The identifier test was too easy.** Vectors alone found 100% of the codes, because `bge-m3` embeds a code it has seen in the question. So it shows the new setting does no harm on exact codes, but not that keyword search is needed for them. Keyword search stays on for exact matches that vectors might miss, which this eval did not find.
+- **The identifier test was too easy.** Vectors alone found 100% of the codes, because `bge-m3` embeds a code it has seen in the question. So it shows the new setting does no harm on exact codes, but not that keyword search is needed for them. A harder held-out set follows.
 - **A keyword match must now match word for word.** "kubernetes rollout" no longer finds "deploy uses kubernetes" through keywords, only through meaning. Two tests that relied on partial matches were updated.
 - **The 30 coding tasks were not rerun.** Instead, each task's rule was checked in the agent's context before and after the change: 28 of 30 both times, and the 2 misses are wording differences in the scoring, not missing rules.
+
+### Near-miss codes
+
+Written and fixed before it was run, after the set above proved too easy. 200 codes in groups of 4 that differ by one character, such as `E5901`, `E5908`, `E5098` and `E9908`, all in the same component with different causes. Only the code tells them apart. Two of the five question shapes use only words the memory has ("What causes E5901?"), and three add others ("Seeing E5901 in the logs, any idea?"). They were searched among the same 100,000 real memories.
+
+{{near_miss_rows}}
+
+- **In the top 10, keyword search adds nothing.** Every setting that uses vectors finds the right code in the top 10 about as often, because near-miss siblings all land there together.
+- **For the first place, keyword search helps a little.** The default put the right code first for {{near_default_first}} of questions, against {{near_vector_first}} for vectors alone, so {{near_gain}} more of {{near_total}}, in one run. Vectors alone often rank a sibling first, such as `E9908` for "How do I fix E5908?".
+- **Requiring every word limits that help.** Keywords alone found {{near_keyword_all}} of codes, which is the two question shapes that use only the memory's words. For the other three, a code match counts for nothing because "logs" or "idea" is missing. Matching any word does not fix this: it also matches the component words that siblings share, and does no better than vectors alone.
+- **So keyword search stays on, for a small gain on exact codes at no cost to plain questions.** Matching the code alone, whatever the other words, might do better. That would be a change to test on a new held-out set.
 
 - **Not tested here:** recency and importance, since every turn has the same age and score; reranking, since no reranker exists; and consolidation, which belongs to distillation, not search.
 

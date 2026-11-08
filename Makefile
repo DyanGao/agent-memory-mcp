@@ -1,6 +1,6 @@
 EVAL_STACK = docker compose -p agent-memory-eval --env-file eval/eval.env
 
-.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout eval-scale-real
+.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout eval-scale-real eval-identifiers-hard
 
 eval-up:
 	$(EVAL_STACK) up -d --build --wait
@@ -50,3 +50,9 @@ eval-poisoning-holdout:
 eval-scale-real:
 	cd eval && uv run python -m agent_eval.real_corpus build && uv run python -m agent_eval.real_corpus embed
 	REAL_CORPUS=$(CURDIR)/eval/datasets/raw/real-corpus pnpm test:scale packages/core/src/real.scale.test.ts
+
+# Codes that differ by one character, held out: written after the first
+# identifier set scored 1.0 with vector search alone.
+eval-identifiers-hard:
+	cd eval && uv run python -m agent_eval.real_corpus identifiers-hard
+	REAL_CORPUS=$(CURDIR)/eval/datasets/raw/real-corpus IDENTIFIER_SET=id2 TUNING_SPLIT=all pnpm test:scale packages/core/src/tuning.scale.test.ts
