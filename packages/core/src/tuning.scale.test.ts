@@ -12,9 +12,10 @@ import type { TestDb } from "./testing.js";
 // Real LongMemEval turns plus 200 planted memories with exact codes, both built
 // by eval/agent_eval/real_corpus.py. Each question set is split in two by
 // position: variants are compared on one half, and the chosen one is scored
-// once on the other.
+// once on the other. A held-out identifier set, such as id2, is scored whole.
 const CORPUS = process.env.REAL_CORPUS ?? "";
 const SPLIT = process.env.TUNING_SPLIT ?? "tune";
+const ID_SET = process.env.IDENTIFIER_SET ?? "id";
 const VARIANTS = JSON.parse(
   process.env.TUNING_VARIANTS ??
     JSON.stringify([
@@ -69,10 +70,13 @@ const lines = (path: string): string[] =>
     .split("\n")
     .map((line) => JSON.parse(line) as string);
 
-describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
+describe.skipIf(!existsSync(`${CORPUS}/${ID_SET}-texts.f32`))(
   "search tuning on real text",
   () => {
-    const results: Record<string, unknown> = { split: SPLIT };
+    const results: Record<string, unknown> = {
+      split: SPLIT,
+      identifierSet: ID_SET,
+    };
     const scope = { user: "real", project: "main" };
     let db: TestDb;
     let embedder: Embedder;
@@ -81,12 +85,12 @@ describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
 
     beforeAll(async () => {
       const texts = lines(`${CORPUS}/texts.jsonl`);
-      const idTexts = lines(`${CORPUS}/id-texts.jsonl`);
+      const idTexts = lines(`${CORPUS}/${ID_SET}-texts.jsonl`);
       const all = [...texts, ...idTexts];
       all.forEach((text, row) => rowOf.set(text, row));
       const allVectors = [
         ...vectors(`${CORPUS}/texts.f32`),
-        ...vectors(`${CORPUS}/id-texts.f32`),
+        ...vectors(`${CORPUS}/${ID_SET}-texts.f32`),
       ];
       expect(allVectors).toHaveLength(all.length);
 
@@ -94,17 +98,21 @@ describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
         readFileSync(`${CORPUS}/queries.json`, "utf8"),
       ) as Query[];
       const ids = (
-        JSON.parse(readFileSync(`${CORPUS}/id-queries.json`, "utf8")) as Query[]
+        JSON.parse(
+          readFileSync(`${CORPUS}/${ID_SET}-queries.json`, "utf8"),
+        ) as Query[]
       ).map((q) => ({ ...q, gold: q.gold.map((row) => row + texts.length) }));
       const byQuestion = new Map<string, Float32Array>();
       vectors(`${CORPUS}/queries.f32`).forEach((v, i) =>
         byQuestion.set(plain[i]!.question, v),
       );
-      vectors(`${CORPUS}/id-queries.f32`).forEach((v, i) =>
+      vectors(`${CORPUS}/${ID_SET}-queries.f32`).forEach((v, i) =>
         byQuestion.set(ids[i]!.question, v),
       );
       const half = (list: Query[]) =>
-        list.filter((_, i) => (i % 2 === 0) === (SPLIT === "tune"));
+        SPLIT === "all"
+          ? list
+          : list.filter((_, i) => (i % 2 === 0) === (SPLIT === "tune"));
       sets.plain = half(plain);
       sets.identifiers = half(ids);
 
@@ -154,7 +162,7 @@ describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
       );
       mkdirSync(directory, { recursive: true });
       writeFileSync(
-        new URL(`search-tuning-${SPLIT}.json`, directory),
+        new URL(`search-tuning-${ID_SET}-${SPLIT}.json`, directory),
         JSON.stringify(results, null, 2) + "\n",
       );
     });
@@ -238,6 +246,7 @@ describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
         const timings: number[] = [];
         for (const [setName, queries] of Object.entries(sets)) {
           let found = 0;
+          let first = 0;
           for (const query of queries) {
             const started = performance.now();
             const hits = await store.search(scope, query.question, {
@@ -249,8 +258,14 @@ describe.skipIf(!existsSync(`${CORPUS}/id-texts.f32`))(
             found += Number(
               hits.some((hit) => gold.has(rowOf.get(hit.content) ?? -1)),
             );
+            first += Number(gold.has(rowOf.get(hits[0]?.content ?? "") ?? -1));
           }
           scores[name][setName] = Number((found / queries.length).toFixed(3));
+          // Near-miss codes all land in the top 10, so what tells search
+          // variants apart is whether the right one comes first.
+          scores[name][`${setName}First`] = Number(
+            (first / queries.length).toFixed(3),
+          );
         }
         scores[name].searchP95Ms = Number(estimateP95Ms(timings).toFixed(1));
         progress(`${name} ${JSON.stringify(scores[name])}`);

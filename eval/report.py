@@ -79,6 +79,30 @@ def tuning_rows(folder: Path) -> tuple[str, str]:
     return "\n".join(timing), "\n".join(fusion)
 
 
+def near_miss_rows(folder: Path) -> tuple[str, dict]:
+    run = load(folder, "search-tuning-id2-all")
+    total = run["questions"]["identifiers"]
+    lines = [
+        f"| Search | Right code in the top 10, {total} questions | Right code first | Full search p95 |",
+        "|---|---|---|---|",
+    ]
+    for name, row in run["variants"].items():
+        lines.append(
+            f"| {name} | {row['identifiers']:.1%} | {row['identifiersFirst']:.1%} | {row['searchP95Ms']} ms |"
+        )
+    variants = run["variants"]
+    vector = variants["vector only"]["identifiersFirst"]
+    default = variants["default: all words, weight 0.5"]["identifiersFirst"]
+    values = {
+        "near_vector_first": f"{vector:.1%}",
+        "near_default_first": f"{default:.1%}",
+        "near_gain": f"{round((default - vector) * total)}",
+        "near_total": str(total),
+        "near_keyword_all": f"{variants['keyword only (all words)']['identifiers']:.0%}",
+    }
+    return "\n".join(lines), values
+
+
 def real_rows(folder: Path) -> tuple[str, str, dict]:
     run = load(folder, "scale-real-100000")
     recall = ["| `ef_search` | Recall@10 against exact | Vector p95 |", "|---|---|---|"]
@@ -419,6 +443,10 @@ def main() -> None:
     output = output.replace("{{tuning_timing_rows}}", timing_rows).replace(
         "{{tuning_fusion_rows}}", fusion_rows
     )
+    near_rows, near_values = near_miss_rows(folder)
+    output = output.replace("{{near_miss_rows}}", near_rows)
+    for name, value in near_values.items():
+        output = output.replace(f"{{{{{name}}}}}", value)
     recall_rows, ablation_rows, real_values = real_rows(folder)
     output = output.replace("{{real_recall_rows}}", recall_rows).replace(
         "{{real_ablation_rows}}", ablation_rows

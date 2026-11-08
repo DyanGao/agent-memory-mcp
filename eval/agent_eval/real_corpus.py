@@ -146,5 +146,68 @@ def identifiers() -> None:
     print(len(texts), "identifier memories and questions")
 
 
+HARD_GROUPS = 50
+HARD_SIBLINGS = 4
+HARD_QUESTIONS = [
+    "What causes {code}?",
+    "How do I fix {code}?",
+    "{code} happened again, what is it?",
+    "Seeing {code} in the logs, any idea?",
+    "We hit {code} in the {part}. What was the fix last time?",
+]
+
+
+def _near_miss(rng: random.Random, code: str) -> str:
+    """Changes one character to another of its kind, or swaps two neighbours."""
+    chars = list(code)
+    spots = [i for i, c in enumerate(chars) if c.isalnum() and not (i < 2 and code.startswith("0x"))]
+    i = rng.choice(spots)
+    if rng.random() < 0.5 and i + 1 < len(chars) and chars[i + 1].isalnum() and chars[i] != chars[i + 1] \
+            and chars[i].isdigit() == chars[i + 1].isdigit():
+        chars[i], chars[i + 1] = chars[i + 1], chars[i]
+    elif chars[i].isdigit():
+        chars[i] = rng.choice([d for d in "0123456789" if d != chars[i]])
+    else:
+        pool = "ABCDEF" if code.startswith("0x") else "BCDFGHJKLMNPQRSTVWXZ"
+        chars[i] = rng.choice([c for c in pool if c != chars[i]])
+    return "".join(chars)
+
+
+def identifiers_hard() -> None:
+    """Held-out codes that differ from each other by one character.
+
+    Written after the first identifier set scored 1.0 with vector search alone.
+    Each group of four shares the component, so only the code separates them,
+    and some questions use words that the memory does not.
+    """
+    rng = random.Random(SEED + 2)
+    seen: set[str] = set()
+    texts, queries = [], []
+    while len(texts) < HARD_GROUPS * HARD_SIBLINGS:
+        base = _code(rng, len(texts) // HARD_SIBLINGS)
+        group = [base]
+        while len(group) < HARD_SIBLINGS:
+            sibling = _near_miss(rng, rng.choice(group))
+            if sibling not in group:
+                group.append(sibling)
+        if seen & set(group):
+            continue
+        seen |= set(group)
+        part = rng.choice(COMPONENTS)
+        for code, (cause, fix) in zip(group, rng.sample(CAUSES, HARD_SIBLINGS)):
+            number = len(texts)
+            texts.append(f"{code} in the {part} is caused by {cause}, and {fix} fixes it.")
+            question = HARD_QUESTIONS[number % len(HARD_QUESTIONS)].format(code=code, part=part)
+            queries.append({"id": f"id2-{number}", "type": "identifier", "question": question,
+                            "gold": [number]})
+    (OUT / "id2-texts.jsonl").write_text("".join(json.dumps(t) + "\n" for t in texts))
+    (OUT / "id2-queries.json").write_text(json.dumps(queries))
+    if "--write-only" not in sys.argv:
+        embed_file([q["question"] for q in queries], OUT / "id2-queries.f32")
+        embed_file(texts, OUT / "id2-texts.f32")
+    print(len(texts), "near-miss identifier memories and questions")
+
+
 if __name__ == "__main__":
-    {"build": build, "embed": embed, "identifiers": identifiers}[sys.argv[1]]()
+    {"build": build, "embed": embed, "identifiers": identifiers,
+     "identifiers-hard": identifiers_hard}[sys.argv[1]]()
