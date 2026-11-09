@@ -11,3 +11,17 @@ export function codeWords(query: string): string[] {
     (word) => word.length >= MIN_CODE_LENGTH && /\d/.test(word),
   );
 }
+
+/**
+ * How much a keyword rank counts in fusion. A query with codes can weigh
+ * keywords more, so an exact code match outranks vector results that only
+ * look alike, without changing how plain questions are ranked.
+ */
+export function keywordWeight(
+  codes: string[],
+  weights: { textWeight: number; codeWeight?: number | undefined },
+): number {
+  return codes.length > 0
+    ? (weights.codeWeight ?? weights.textWeight)
+    : weights.textWeight;
+}

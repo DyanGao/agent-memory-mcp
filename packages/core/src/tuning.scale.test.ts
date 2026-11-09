@@ -166,7 +166,7 @@ describe.skipIf(!existsSync(`${CORPUS}/${ID_SET}-texts.f32`))(
       mkdirSync(directory, { recursive: true });
       writeFileSync(
         new URL(
-          `search-tuning-${ID_SET}-${SPLIT}-plain-${PLAIN_SPLIT}.json`,
+          `${process.env.TUNING_RESULT ?? `search-tuning-${ID_SET}-${SPLIT}-plain-${PLAIN_SPLIT}`}.json`,
           directory,
         ),
         JSON.stringify(results, null, 2) + "\n",
