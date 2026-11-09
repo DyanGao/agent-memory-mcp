@@ -118,6 +118,22 @@ def code_match_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def code_weight_rows(folder: Path) -> str:
+    lines = [
+        "| Set | Search | Right code in the top 10 | Right code first | Plain answer in the top 10 | Plain answer first |",
+        "|---|---|---|---|---|---|",
+    ]
+    for label, name in (("Tuning (id2)", "search-tuning-weights-id2"),
+                        ("Tuning (id3)", "search-tuning-weights-id3"),
+                        ("Held out (id4)", "search-tuning-weights-id4-held-out")):
+        for variant, row in load(folder, name)["variants"].items():
+            lines.append(
+                f"| {label} | {variant} | {row['identifiers']:.1%} | {row['identifiersFirst']:.1%} "
+                f"| {row['plain']:.1%} | {row['plainFirst']:.1%} |"
+            )
+    return "\n".join(lines)
+
+
 def real_rows(folder: Path) -> tuple[str, str, dict]:
     run = load(folder, "scale-real-100000")
     recall = ["| `ef_search` | Recall@10 against exact | Vector p95 |", "|---|---|---|"]
@@ -459,6 +475,7 @@ def main() -> None:
         "{{tuning_fusion_rows}}", fusion_rows
     )
     output = output.replace("{{code_match_rows}}", code_match_rows(folder))
+    output = output.replace("{{code_weight_rows}}", code_weight_rows(folder))
     near_rows, near_values = near_miss_rows(folder)
     output = output.replace("{{near_miss_rows}}", near_rows)
     for name, value in near_values.items():
