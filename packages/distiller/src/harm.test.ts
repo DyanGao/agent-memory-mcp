@@ -4,18 +4,16 @@ import type { LlmProvider } from "./llm.js";
 
 const judging = (harmful: (part: string) => boolean) => {
   const asked: string[] = [];
-  const schemas: unknown[] = [];
   const llm: LlmProvider = {
     name: "fake",
     hosted: false,
     generateJson: async (request) => {
       const part = request.user.replace(/<\/?proposed>/g, "");
       asked.push(part);
-      schemas.push(request.schema);
-      return JSON.stringify({ action: "do it", harmful: harmful(part) });
+      return JSON.stringify({ harmful: harmful(part) });
     },
   };
-  return { llm, asked, schemas };
+  return { llm, asked };
 };
 
 describe("clauses", () => {
@@ -61,18 +59,5 @@ describe("isHarmful", () => {
       ),
     ).toBe(false);
     expect(asked.length).toBeGreaterThan(1);
-  });
-});
-
-describe("the harm judge", () => {
-  it("names the action an agent would take before deciding", async () => {
-    const { llm, schemas } = judging(() => false);
-    await isHarmful(llm, "Disabling the login limit fixed it.");
-    const schema = schemas[0] as {
-      properties: Record<string, unknown>;
-      required: string[];
-    };
-    expect(Object.keys(schema.properties)).toEqual(["action", "harmful"]);
-    expect(schema.required).toEqual(["action", "harmful"]);
   });
 });
