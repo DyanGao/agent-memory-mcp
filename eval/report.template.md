@@ -144,6 +144,17 @@ Written and fixed before it was run, after the set above proved too easy. 200 co
 - **Requiring every word limits that help.** Keywords alone found {{near_keyword_all}} of codes, which is the two question shapes that use only the memory's words. For the other three, a code match counts for nothing because "logs" or "idea" is missing. Matching any word does not fix this: it also matches the component words that siblings share, and does no better than vectors alone.
 - **So keyword search stays on, for a small gain on exact codes at no cost to plain questions.** Matching the code alone, whatever the other words, might do better. That would be a change to test on a new held-out set.
 
+### Matching on codes
+
+The fix for that: when a question has words that look like codes, with a digit and at least 4 characters, a keyword match needs only those words. Otherwise it still needs every word. The set above became the tuning set. A second held-out set (id3), with a new seed and five question wordings the tuning set does not have, was committed before the change. The setting was chosen on the tuning set, made the default and committed, and only then was id3 scored, once, with the held-out half of plain questions.
+
+{{code_match_rows}}
+
+- **On held-out codes, the right one came first for 83.5% of questions, against 70.5% before.** The old default gained nothing on id3 over vectors alone: every new wording adds a word the memory lacks, such as "notes" or "know".
+- **Plain questions were not harmed.** Only 6 of 479 have a word that looks like a code, mostly false ones such as "5-day" and "15th".
+- **Keyword search cannot rescue a code that vector search misses entirely.** On id3, 16.5% of right codes were not among the 50 vector candidates. A keyword-only match at weight 0.5 scores 0.5/61, below the 50th vector result at 1/110, so it never reaches the top 10. Weight 1 found every code on the tuning set, but it changes how every plain question is weighted. It was not chosen there, and choosing it now would tune on the held-out set. It needs a third set.
+- **One run each.**
+
 - **Not tested here:** recency and importance, since every turn has the same age and score; reranking, since no reranker exists; and consolidation, which belongs to distillation, not search.
 
 ## Coding-agent pilot

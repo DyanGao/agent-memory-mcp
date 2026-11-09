@@ -1,0 +1,32 @@
+{
+  "split": "all",
+  "plainSplit": "holdout",
+  "identifierSet": "id3",
+  "variants": {
+    "vector only": {
+      "plain": 0.515,
+      "plainFirst": 0.176,
+      "identifiers": 0.835,
+      "identifiersFirst": 0.705,
+      "searchP95Ms": 73.2
+    },
+    "old default: all words, weight 0.5": {
+      "plain": 0.527,
+      "plainFirst": 0.188,
+      "identifiers": 0.835,
+      "identifiersFirst": 0.705,
+      "searchP95Ms": 70.9
+    },
+    "new default: codes, weight 0.5": {
+      "plain": 0.527,
+      "plainFirst": 0.184,
+      "identifiers": 0.835,
+      "identifiersFirst": 0.835,
+      "searchP95Ms": 71.5
+    }
+  },
+  "questions": {
+    "plain": 239,
+    "identifiers": 200
+  }
+}

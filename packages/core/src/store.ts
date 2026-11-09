@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { codeWords } from "./codes.js";
 import { withScope } from "./db.js";
 import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
@@ -30,7 +31,7 @@ const HNSW_EF_SEARCH = 200;
 // Matching any word of a long question against long memories ranked many weak
 // matches above good vector ones, and cut answers in the top 10 from 52% to
 // 40% on real text. Requiring every word, at half weight, removed the harm.
-const DEFAULT_TEXT_MATCH = "all";
+const DEFAULT_TEXT_MATCH = "codes";
 const DEFAULT_TEXT_WEIGHT = 0.5;
 // Upper bound on index tuples visited when a narrow scope filters most out.
 const HNSW_MAX_SCAN_TUPLES = 200_000;
@@ -126,8 +127,12 @@ export interface SearchOptions {
   limit?: number;
   /** Both by default. One alone exists to measure what each part adds. */
   retrievers?: "hybrid" | "vector" | "text";
-  /** Whether a text match needs all query words, the default, or any. */
-  textMatch?: "any" | "all";
+  /**
+   * What a text match needs. "codes", the default, needs only the words that
+   * look like identifiers, such as "E5901", and all words when the query has
+   * none. "all" needs every word, and "any" needs one.
+   */
+  textMatch?: "any" | "all" | "codes";
   /** How much a text rank counts in fusion, against 1 for a vector rank. Default 0.5. */
   textWeight?: number;
 }
@@ -338,10 +343,13 @@ export class MemoryStore {
       );
 
       // plainto_tsquery requires every word. Rewriting AND to OR lets any match.
+      const textMatch = options.textMatch ?? DEFAULT_TEXT_MATCH;
       const tsquery =
-        (options.textMatch ?? DEFAULT_TEXT_MATCH) === "all"
-          ? "plainto_tsquery('english', $1)"
-          : "replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery";
+        textMatch === "any"
+          ? "replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery"
+          : "plainto_tsquery('english', $1)";
+      const codes = textMatch === "codes" ? codeWords(query) : [];
+      const textQuery = codes.length > 0 ? codes.join(" ") : query;
       const text = await client.query<MemoryRow>(
         `WITH q AS (
            SELECT ${tsquery} AS query
@@ -351,7 +359,7 @@ export class MemoryStore {
          WHERE ${IS_CURRENT} AND fts @@ q.query
          ORDER BY ts_rank_cd(fts, q.query) DESC
          LIMIT $2`,
-        [query, CANDIDATES_PER_RETRIEVER],
+        [textQuery, CANDIDATES_PER_RETRIEVER],
       );
 
       return { vector: vector.rows, text: text.rows };

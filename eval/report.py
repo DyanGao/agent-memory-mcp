@@ -103,6 +103,21 @@ def near_miss_rows(folder: Path) -> tuple[str, dict]:
     return "\n".join(lines), values
 
 
+def code_match_rows(folder: Path) -> str:
+    lines = [
+        "| Set | Search | Right code in the top 10 | Right code first | Plain answer in the top 10 |",
+        "|---|---|---|---|---|",
+    ]
+    for label, name in (("Tuning (id2)", "search-tuning-id2-all-plain-tune"),
+                        ("Held out (id3)", "search-tuning-id3-all-plain-holdout")):
+        for variant, row in load(folder, name)["variants"].items():
+            lines.append(
+                f"| {label} | {variant} | {row['identifiers']:.1%} | {row['identifiersFirst']:.1%} "
+                f"| {row['plain']:.1%} |"
+            )
+    return "\n".join(lines)
+
+
 def real_rows(folder: Path) -> tuple[str, str, dict]:
     run = load(folder, "scale-real-100000")
     recall = ["| `ef_search` | Recall@10 against exact | Vector p95 |", "|---|---|---|"]
@@ -443,6 +458,7 @@ def main() -> None:
     output = output.replace("{{tuning_timing_rows}}", timing_rows).replace(
         "{{tuning_fusion_rows}}", fusion_rows
     )
+    output = output.replace("{{code_match_rows}}", code_match_rows(folder))
     near_rows, near_values = near_miss_rows(folder)
     output = output.replace("{{near_miss_rows}}", near_rows)
     for name, value in near_values.items():

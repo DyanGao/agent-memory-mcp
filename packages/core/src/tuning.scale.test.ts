@@ -16,6 +16,8 @@ import type { TestDb } from "./testing.js";
 const CORPUS = process.env.REAL_CORPUS ?? "";
 const SPLIT = process.env.TUNING_SPLIT ?? "tune";
 const ID_SET = process.env.IDENTIFIER_SET ?? "id";
+// Plain questions can keep their halves while a whole identifier set is used.
+const PLAIN_SPLIT = process.env.PLAIN_SPLIT ?? SPLIT;
 const VARIANTS = JSON.parse(
   process.env.TUNING_VARIANTS ??
     JSON.stringify([
@@ -75,6 +77,7 @@ describe.skipIf(!existsSync(`${CORPUS}/${ID_SET}-texts.f32`))(
   () => {
     const results: Record<string, unknown> = {
       split: SPLIT,
+      plainSplit: PLAIN_SPLIT,
       identifierSet: ID_SET,
     };
     const scope = { user: "real", project: "main" };
@@ -109,12 +112,12 @@ describe.skipIf(!existsSync(`${CORPUS}/${ID_SET}-texts.f32`))(
       vectors(`${CORPUS}/${ID_SET}-queries.f32`).forEach((v, i) =>
         byQuestion.set(ids[i]!.question, v),
       );
-      const half = (list: Query[]) =>
-        SPLIT === "all"
+      const half = (list: Query[], split: string) =>
+        split === "all"
           ? list
-          : list.filter((_, i) => (i % 2 === 0) === (SPLIT === "tune"));
-      sets.plain = half(plain);
-      sets.identifiers = half(ids);
+          : list.filter((_, i) => (i % 2 === 0) === (split === "tune"));
+      sets.plain = half(plain, PLAIN_SPLIT);
+      sets.identifiers = half(ids, SPLIT);
 
       embedder = {
         model: "bge-m3",
@@ -162,7 +165,10 @@ describe.skipIf(!existsSync(`${CORPUS}/${ID_SET}-texts.f32`))(
       );
       mkdirSync(directory, { recursive: true });
       writeFileSync(
-        new URL(`search-tuning-${ID_SET}-${SPLIT}.json`, directory),
+        new URL(
+          `search-tuning-${ID_SET}-${SPLIT}-plain-${PLAIN_SPLIT}.json`,
+          directory,
+        ),
         JSON.stringify(results, null, 2) + "\n",
       );
     });
