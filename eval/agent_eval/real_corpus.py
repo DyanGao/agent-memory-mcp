@@ -173,14 +173,27 @@ def _near_miss(rng: random.Random, code: str) -> str:
     return "".join(chars)
 
 
-def identifiers_hard() -> None:
+# Fresh wordings for the second held-out set, so that matching on codes is not
+# scored on the question shapes it was tuned on.
+HELD_OUT_QUESTIONS = [
+    "Any notes on {code}?",
+    "The {part} threw {code} this morning. Cause?",
+    "{code} again. Remind me what fixed it?",
+    "What do we know about {code}?",
+    "Why does {code} keep showing up?",
+]
+
+
+def identifiers_hard(name: str = "id2", seed: int = SEED + 2,
+                     questions: list[str] = HARD_QUESTIONS) -> None:
     """Held-out codes that differ from each other by one character.
 
     Written after the first identifier set scored 1.0 with vector search alone.
     Each group of four shares the component, so only the code separates them,
-    and some questions use words that the memory does not.
+    and some questions use words that the memory does not. id2 tunes keyword
+    matching on codes; id3, written before that change, scores it once.
     """
-    rng = random.Random(SEED + 2)
+    rng = random.Random(seed)
     seen: set[str] = set()
     texts, queries = [], []
     while len(texts) < HARD_GROUPS * HARD_SIBLINGS:
@@ -197,17 +210,18 @@ def identifiers_hard() -> None:
         for code, (cause, fix) in zip(group, rng.sample(CAUSES, HARD_SIBLINGS)):
             number = len(texts)
             texts.append(f"{code} in the {part} is caused by {cause}, and {fix} fixes it.")
-            question = HARD_QUESTIONS[number % len(HARD_QUESTIONS)].format(code=code, part=part)
-            queries.append({"id": f"id2-{number}", "type": "identifier", "question": question,
+            question = questions[number % len(questions)].format(code=code, part=part)
+            queries.append({"id": f"{name}-{number}", "type": "identifier", "question": question,
                             "gold": [number]})
-    (OUT / "id2-texts.jsonl").write_text("".join(json.dumps(t) + "\n" for t in texts))
-    (OUT / "id2-queries.json").write_text(json.dumps(queries))
+    (OUT / f"{name}-texts.jsonl").write_text("".join(json.dumps(t) + "\n" for t in texts))
+    (OUT / f"{name}-queries.json").write_text(json.dumps(queries))
     if "--write-only" not in sys.argv:
-        embed_file([q["question"] for q in queries], OUT / "id2-queries.f32")
-        embed_file(texts, OUT / "id2-texts.f32")
+        embed_file([q["question"] for q in queries], OUT / f"{name}-queries.f32")
+        embed_file(texts, OUT / f"{name}-texts.f32")
     print(len(texts), "near-miss identifier memories and questions")
 
 
 if __name__ == "__main__":
     {"build": build, "embed": embed, "identifiers": identifiers,
-     "identifiers-hard": identifiers_hard}[sys.argv[1]]()
+     "identifiers-hard": identifiers_hard,
+     "identifiers-held-out": lambda: identifiers_hard("id3", SEED + 3, HELD_OUT_QUESTIONS)}[sys.argv[1]]()
