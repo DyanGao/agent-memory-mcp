@@ -111,7 +111,7 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       },
     );
 
-    it("needs every query word for a text match, unless asked for any", async () => {
+    it("needs every query word when there is no code, unless asked for any", async () => {
       await store.write(alice, {
         content: "deploy uses kubernetes",
         type: "fact",
@@ -125,6 +125,48 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       });
       expect(any).toHaveLength(1);
       expect(all).toHaveLength(0);
+    });
+
+    it("matches a code alone when the question adds other words", async () => {
+      await store.write(alice, {
+        content: "E5901 in the report builder is caused by a stale lock",
+        type: "fact",
+      });
+      await store.write(alice, {
+        content: "E5908 in the report builder is caused by a full disk",
+        type: "fact",
+      });
+      const found = await store.search(
+        alice,
+        "Seeing E5901 in the logs, any idea?",
+        { retrievers: "text", textMatch: "codes" },
+      );
+      expect(found.map((hit) => hit.content)).toEqual([
+        "E5901 in the report builder is caused by a stale lock",
+      ]);
+    });
+
+    it("matches on codes by default", async () => {
+      await store.write(alice, {
+        content: "E5901 in the report builder is caused by a stale lock",
+        type: "fact",
+      });
+      const found = await store.search(alice, "E5901 again, any idea?", {
+        retrievers: "text",
+      });
+      expect(found).toHaveLength(1);
+    });
+
+    it("needs every word when matching codes and the question has none", async () => {
+      await store.write(alice, {
+        content: "deploy uses kubernetes",
+        type: "fact",
+      });
+      const found = await store.search(alice, "kubernetes billing", {
+        retrievers: "text",
+        textMatch: "codes",
+      });
+      expect(found).toHaveLength(0);
     });
 
     it("does not count stop words as a text match", async () => {

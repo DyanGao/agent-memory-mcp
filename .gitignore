@@ -38,6 +38,8 @@ eval/mem0-w3-run.log
 eval/real-embed.log
 eval/real-scale.log
 eval/id2-run.log
+eval/codes-tune.log
+eval/codes-held-out.log
 eval/scale.log
 eval/tuning.log
 eval/tuning-holdout.log

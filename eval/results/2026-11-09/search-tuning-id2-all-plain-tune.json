@@ -1,0 +1,46 @@
+{
+  "split": "all",
+  "plainSplit": "tune",
+  "identifierSet": "id2",
+  "variants": {
+    "vector only": {
+      "plain": 0.521,
+      "plainFirst": 0.208,
+      "identifiers": 0.96,
+      "identifiersFirst": 0.845,
+      "searchP95Ms": 65.3
+    },
+    "current default: all words, weight 0.5": {
+      "plain": 0.525,
+      "plainFirst": 0.2,
+      "identifiers": 0.96,
+      "identifiersFirst": 0.88,
+      "searchP95Ms": 66.8
+    },
+    "codes, weight 0.25": {
+      "plain": 0.525,
+      "plainFirst": 0.2,
+      "identifiers": 0.96,
+      "identifiersFirst": 0.96,
+      "searchP95Ms": 65.5
+    },
+    "codes, weight 0.5": {
+      "plain": 0.525,
+      "plainFirst": 0.196,
+      "identifiers": 0.96,
+      "identifiersFirst": 0.96,
+      "searchP95Ms": 67.5
+    },
+    "codes, weight 1": {
+      "plain": 0.521,
+      "plainFirst": 0.192,
+      "identifiers": 1,
+      "identifiersFirst": 1,
+      "searchP95Ms": 67.2
+    }
+  },
+  "questions": {
+    "plain": 240,
+    "identifiers": 200
+  }
+}
