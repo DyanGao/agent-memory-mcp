@@ -30,7 +30,8 @@ const scripted = (...replies: string[]) => {
     hosted: false,
     generateJson: async (request) => {
       if (request.user.startsWith("<note>")) return '{"lasting":true}';
-      if (request.user.startsWith("<proposed>")) return '{"harmful":false}';
+      if (request.user.startsWith("<proposed>"))
+        return '{"action":"none","harmful":false}';
       requests.push(request);
       const reply = replies.shift();
       if (reply === undefined) throw new Error("LLM unavailable");

@@ -17,7 +17,8 @@ const scripted = (...replies: string[]) => {
     hosted: false,
     generateJson: async (request) => {
       if (request.user.startsWith("<note>")) return '{"lasting":true}';
-      if (request.user.startsWith("<proposed>")) return '{"harmful":false}';
+      if (request.user.startsWith("<proposed>"))
+        return '{"action":"none","harmful":false}';
       requests.push(request);
       return replies.shift() ?? '{"memories":[]}';
     },
@@ -249,7 +250,7 @@ describe("extractCandidates", () => {
         hosted: false,
         generateJson: async (request) => {
           if (request.user.startsWith("<proposed>")) {
-            return '{"harmful":false}';
+            return '{"action":"none","harmful":false}';
           }
           if (!request.user.startsWith("<note>")) {
             return JSON.stringify({ memories });
@@ -337,7 +338,10 @@ describe("extractCandidates", () => {
           if (request.user.startsWith("<note>")) return '{"lasting":true}';
           if (request.user.startsWith("<proposed>")) {
             asked.push(request.user);
-            return JSON.stringify({ harmful: harmful(request.user) });
+            return JSON.stringify({
+              action: "none",
+              harmful: harmful(request.user),
+            });
           }
           return JSON.stringify({ memories });
         },
