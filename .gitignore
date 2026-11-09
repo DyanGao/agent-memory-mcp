@@ -44,6 +44,9 @@ eval/weight-tune-id2.log
 eval/weight-tune-id3.log
 eval/weight-held-out.log
 eval/poison4.log
+eval/lme-seed.log
+eval/lme-run.log
+eval/lme-memory.log
 eval/scale.log
 eval/tuning.log
 eval/tuning-holdout.log

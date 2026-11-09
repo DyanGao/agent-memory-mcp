@@ -295,6 +295,38 @@ def qa_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def lme_rows(folder: Path) -> tuple[str, str, dict]:
+    run = load(folder, "qa-longmemeval")
+    setups = run["setups"]
+    labels = {"full_history": "Full history", "rag": "Naive RAG", "memory": "agent-memory-mcp", "none": "No memory"}
+    first = setups["rag"]
+    overall = [
+        f"| Setup | Correct, mean ± std over {first['runs']} runs of {first['questions']} | Context per question |",
+        "|---|---|---|",
+    ]
+    for key, label in labels.items():
+        row = setups[key]
+        overall.append(
+            f"| {label} | {row['accuracy']:.1%} ± {row['std']:.1%} | {row['mean_context_chars']:,} characters |"
+        )
+    kinds = sorted(first["by_type"])
+    typed = ["| Question type | " + " | ".join(labels[k] for k in ("full_history", "rag", "memory")) + " |",
+             "|---|---|---|---|"]
+    for kind in kinds:
+        typed.append(f"| {kind} | " + " | ".join(
+            f"{setups[k]['by_type'][kind]:.0%}" for k in ("full_history", "rag", "memory")) + " |")
+    seeding = run["seeding"]
+    values = {
+        "lme_memory": f"{setups['memory']['accuracy']:.1%}",
+        "lme_rag": f"{setups['rag']['accuracy']:.1%}",
+        "lme_full": f"{setups['full_history']['accuracy']:.1%}",
+        "lme_written": str(sum(v["written"] for v in seeding.values())),
+        "lme_per_question": f"{sum(v['written'] for v in seeding.values()) / len(seeding):.0f}",
+        "lme_seed_minutes": f"{sum(v['seconds'] for v in seeding.values()) / len(seeding) / 60:.0f}",
+    }
+    return "\n".join(overall), "\n".join(typed), values
+
+
 def write_pareto(folder: Path) -> None:
     from pareto import draw
 
@@ -492,6 +524,10 @@ def main() -> None:
     )
     output = output.replace("{{code_match_rows}}", code_match_rows(folder))
     output = output.replace("{{code_weight_rows}}", code_weight_rows(folder))
+    lme_overall, lme_typed, lme_values = lme_rows(folder)
+    output = output.replace("{{lme_rows}}", lme_overall).replace("{{lme_type_rows}}", lme_typed)
+    for name, value in lme_values.items():
+        output = output.replace(f"{{{{{name}}}}}", value)
     near_rows, near_values = near_miss_rows(folder)
     output = output.replace("{{near_miss_rows}}", near_rows)
     for name, value in near_values.items():
