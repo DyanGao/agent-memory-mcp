@@ -67,7 +67,7 @@ audit_log(id bigserial, action text, actor text, target_ids uuid[], ts timestamp
 | 15 | Tombstones for forgotten events | none | a resumed session re-sends its transcript and would restore forgotten text |
 | 16 | Ask if each fact, decision and preference will last | more word lists, an importance cutoff | 241 of 254 memories on a long history were chatter. Word lists fit only the filler they were written for, and ordinary real facts also score 0.5. Fixes and todos skip it because they describe events |
 | 17 | Ask whether acting on each candidate would cause harm | trust the source, or a word list | planted text reaches memory when a person relays it or the agent quotes it, and reads as a lasting rule. A source check would also drop genuine team decisions passed on by the user |
-| 18 | A keyword match needs only the code-like words, when the query has any | every word, or any word | requiring every word lost the code match whenever a question added words the memory lacks. On held-out near-miss codes it put the right one first for 83.5%, against 70.5% |
+| 18 | A keyword match needs only the code-like words, when the query has any, and then counts as much as a vector match | every word, or any word; one weight for all questions | requiring every word lost the code match whenever a question added words the memory lacks, and at half weight a keyword-only match ranks below every vector candidate. On a third held-out set the right code came first for 100%, against 83.5% and 63.0% for vectors alone, with plain questions unchanged in the top 10 |
 | 10 | `english` text config | `simple` | `simple` keeps stop words, which then count as matches. Other languages still match exact words |
 
 ## 7. Security & privacy

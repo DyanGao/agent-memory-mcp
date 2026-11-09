@@ -155,6 +155,18 @@ The fix for that: when a question has words that look like codes, with a digit a
 - **Keyword search cannot rescue a code that vector search misses entirely.** On id3, 16.5% of right codes were not among the 50 vector candidates. A keyword-only match at weight 0.5 scores 0.5/61, below the 50th vector result at 1/110, so it never reaches the top 10. Weight 1 found every code on the tuning set, but it changes how every plain question is weighted. It was not chosen there, and choosing it now would tune on the held-out set. It needs a third set.
 - **One run each.**
 
+### Weighing code matches
+
+To let a keyword match rescue a code that vector search misses, keyword ranks now count more when the question has a code: a weight of 1, against 0.5 for other questions. At 1, a keyword-only match ties the top vector result. id2 and id3, both seen by now, were the tuning sets. A third held-out set (id4), with a new seed and five new wordings, was committed before the change, and scored once after the choice was committed.
+
+{{code_weight_rows}}
+
+- **On held-out codes, the right one came first for every question, against 83.5% before and 63.0% for vectors alone.**
+- **Plain questions kept 52.7% in the top 10.** One of 239 lost its first place, 18.8% to 18.4%. Questions without a code keep weight 0.5, so this can only come from the 6 questions with code-like words such as "15th", or from run-to-run noise.
+- **Weight 1 for every question, and code weight 1.5, each cost a plain question in tuning,** so neither was chosen.
+- **Runs vary by a few points.** The index is rebuilt for each run: the same setting scored 96.0% then 95.0% on id2, and 83.5% then 86.5% on id3.
+- **These codes are easy to read as codes.** Every one has a digit. A code without one, such as a ticket named `ALPHA-BRAVO`, still needs every word to match.
+
 - **Not tested here:** recency and importance, since every turn has the same age and score; reranking, since no reranker exists; and consolidation, which belongs to distillation, not search.
 
 ## Coding-agent pilot

@@ -183,6 +183,17 @@ HELD_OUT_QUESTIONS = [
     "Why does {code} keep showing up?",
 ]
 
+# Third held-out set, written after id3 showed that a code missed by vector
+# search never reaches the top 10. It scores the keyword weight chosen on id2
+# and id3, once.
+THIRD_QUESTIONS = [
+    "Is {code} something we've seen before?",
+    "Customer reported {code}. What's the story?",
+    "Looking into {code} for the {part} team, background please",
+    "Got paged for {code}, how bad is it?",
+    "{code}: root cause?",
+]
+
 
 def identifiers_hard(name: str = "id2", seed: int = SEED + 2,
                      questions: list[str] = HARD_QUESTIONS) -> None:
@@ -224,4 +235,5 @@ def identifiers_hard(name: str = "id2", seed: int = SEED + 2,
 if __name__ == "__main__":
     {"build": build, "embed": embed, "identifiers": identifiers,
      "identifiers-hard": identifiers_hard,
-     "identifiers-held-out": lambda: identifiers_hard("id3", SEED + 3, HELD_OUT_QUESTIONS)}[sys.argv[1]]()
+     "identifiers-held-out": lambda: identifiers_hard("id3", SEED + 3, HELD_OUT_QUESTIONS),
+     "identifiers-third": lambda: identifiers_hard("id4", SEED + 4, THIRD_QUESTIONS)}[sys.argv[1]]()

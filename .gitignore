@@ -40,6 +40,9 @@ eval/real-scale.log
 eval/id2-run.log
 eval/codes-tune.log
 eval/codes-held-out.log
+eval/weight-tune-id2.log
+eval/weight-tune-id3.log
+eval/weight-held-out.log
 eval/scale.log
 eval/tuning.log
 eval/tuning-holdout.log

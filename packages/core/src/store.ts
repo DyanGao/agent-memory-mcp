@@ -1,5 +1,5 @@
 import type { Pool, PoolClient } from "pg";
-import { codeWords } from "./codes.js";
+import { codeWords, keywordWeight } from "./codes.js";
 import { withScope } from "./db.js";
 import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
@@ -33,6 +33,10 @@ const HNSW_EF_SEARCH = 200;
 // 40% on real text. Requiring every word, at half weight, removed the harm.
 const DEFAULT_TEXT_MATCH = "codes";
 const DEFAULT_TEXT_WEIGHT = 0.5;
+// A keyword-only match at 0.5 ranks below every vector candidate, so a code
+// that vector search misses could never reach the top 10. At 1 it ties the
+// top vector result.
+const DEFAULT_CODE_WEIGHT = 1;
 // Upper bound on index tuples visited when a narrow scope filters most out.
 const HNSW_MAX_SCAN_TUPLES = 200_000;
 
@@ -135,6 +139,8 @@ export interface SearchOptions {
   textMatch?: "any" | "all" | "codes";
   /** How much a text rank counts in fusion, against 1 for a vector rank. Default 0.5. */
   textWeight?: number;
+  /** The weight instead when the query has code-like words. Default 1. */
+  codeWeight?: number;
 }
 
 export interface StoreOptions {
@@ -317,6 +323,8 @@ export class MemoryStore {
     options: SearchOptions,
   ): Promise<SearchResult[]> {
     const retrievers = options.retrievers ?? "hybrid";
+    const textMatch = options.textMatch ?? DEFAULT_TEXT_MATCH;
+    const codes = textMatch === "codes" ? codeWords(query) : [];
     const [embedding] = await this.embedder.embed([query]);
     if (embedding === undefined) {
       throw new Error("The embedder returned no vector");
@@ -343,12 +351,10 @@ export class MemoryStore {
       );
 
       // plainto_tsquery requires every word. Rewriting AND to OR lets any match.
-      const textMatch = options.textMatch ?? DEFAULT_TEXT_MATCH;
       const tsquery =
         textMatch === "any"
           ? "replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery"
           : "plainto_tsquery('english', $1)";
-      const codes = textMatch === "codes" ? codeWords(query) : [];
       const textQuery = codes.length > 0 ? codes.join(" ") : query;
       const text = await client.query<MemoryRow>(
         `WITH q AS (
@@ -390,7 +396,10 @@ export class MemoryStore {
       .map((candidate) => ({
         ...toMemory(byId.get(candidate.id)!),
         score: scoreCandidate(candidate, now, {
-          textWeight: options.textWeight ?? DEFAULT_TEXT_WEIGHT,
+          textWeight: keywordWeight(codes, {
+            textWeight: options.textWeight ?? DEFAULT_TEXT_WEIGHT,
+            codeWeight: options.codeWeight ?? DEFAULT_CODE_WEIGHT,
+          }),
         }),
       }))
       .sort((a, b) => b.score.total - a.score.total)

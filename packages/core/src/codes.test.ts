@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { codeWords } from "./codes.js";
+import { codeWords, keywordWeight } from "./codes.js";
 
 describe("codeWords", () => {
   it.each([
@@ -18,5 +18,21 @@ describe("codeWords", () => {
     "the v2 api",
   ])("finds no code in %j", (query) => {
     expect(codeWords(query)).toEqual([]);
+  });
+});
+
+describe("keywordWeight", () => {
+  it("uses the code weight when the query has a code", () => {
+    expect(keywordWeight(["E5901"], { textWeight: 0.5, codeWeight: 1 })).toBe(
+      1,
+    );
+  });
+
+  it("uses the text weight when the query has no code", () => {
+    expect(keywordWeight([], { textWeight: 0.5, codeWeight: 1 })).toBe(0.5);
+  });
+
+  it("falls back to the text weight when no code weight is set", () => {
+    expect(keywordWeight(["E5901"], { textWeight: 0.25 })).toBe(0.25);
   });
 });

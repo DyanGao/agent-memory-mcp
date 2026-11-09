@@ -1,0 +1,46 @@
+{
+  "split": "all",
+  "plainSplit": "tune",
+  "identifierSet": "id3",
+  "variants": {
+    "current: codes, weight 0.5": {
+      "plain": 0.521,
+      "plainFirst": 0.192,
+      "identifiers": 0.865,
+      "identifiersFirst": 0.865,
+      "searchP95Ms": 66.6
+    },
+    "weight 1 for every question": {
+      "plain": 0.517,
+      "plainFirst": 0.188,
+      "identifiers": 1,
+      "identifiersFirst": 1,
+      "searchP95Ms": 63.5
+    },
+    "code weight 0.75": {
+      "plain": 0.521,
+      "plainFirst": 0.192,
+      "identifiers": 0.865,
+      "identifiersFirst": 0.865,
+      "searchP95Ms": 62.1
+    },
+    "code weight 1": {
+      "plain": 0.521,
+      "plainFirst": 0.192,
+      "identifiers": 1,
+      "identifiersFirst": 1,
+      "searchP95Ms": 62.4
+    },
+    "code weight 1.5": {
+      "plain": 0.517,
+      "plainFirst": 0.192,
+      "identifiers": 1,
+      "identifiersFirst": 1,
+      "searchP95Ms": 62.5
+    }
+  },
+  "questions": {
+    "plain": 240,
+    "identifiers": 200
+  }
+}
