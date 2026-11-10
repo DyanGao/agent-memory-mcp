@@ -1,11 +1,17 @@
 """Mem0 open source, run locally on the same models as agent-memory-mcp."""
 
 import functools
+import os
 import sys
 import time
 from pathlib import Path
 
-from mem0 import Memory
+# Before mem0 is imported, as it reads this once. With telemetry on, every
+# client opens one shared store under ~/.mem0, so a second client in the same
+# process fails on its lock; it also sends usage data to Mem0's analytics.
+os.environ.setdefault("MEM0_TELEMETRY", "False")
+
+from mem0 import Memory  # noqa: E402
 
 OLLAMA = "http://127.0.0.1:11434"
 STORE = Path(__file__).resolve().parents[1] / ".mem0-store"
