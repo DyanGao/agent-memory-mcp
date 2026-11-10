@@ -48,6 +48,7 @@ eval/lme-seed.log
 eval/lme-run.log
 eval/lme-memory.log
 eval/mem0-fair.log
+eval/mem0-qa.log
 eval/scale.log
 eval/tuning.log
 eval/tuning-holdout.log

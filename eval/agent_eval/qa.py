@@ -106,12 +106,24 @@ def seed(variant: str) -> None:
     print(variant, "seconds", round(time.time() - started), "written", written, flush=True)
 
 
+MEM0_SEEDED = RAW / "locomo-mem0-seeded.json"
+
+
+def mem0_key(conversation: dict) -> str:
+    """Thinking off and 3-line windows, as in the fair coding runs."""
+    return f"locomo_{conversation['sample_id']}_fair".replace("-", "_")
+
+
 def seed_mem0() -> None:
     from agent_eval import mem0_baseline
 
+    done = json.loads(MEM0_SEEDED.read_text()) if MEM0_SEEDED.exists() else {}
     for conversation in conversations():
-        key = f"locomo_{conversation['sample_id']}".replace("-", "_")
-        memory = mem0_baseline.client(key)
+        key = mem0_key(conversation)
+        if key in done:
+            continue
+        started, failures = time.time(), 0
+        memory = mem0_baseline.client(key, think=False)
         lines = [line for session in turns(conversation) for line in session]
         window = mem0_baseline.FAIR_WINDOW_TURNS
         for start in range(0, len(lines), window):
@@ -119,8 +131,15 @@ def seed_mem0() -> None:
                 {"role": "user", "content": line}
                 for line in lines[start : start + window]
             ]
-            memory.add(messages, user_id=mem0_baseline.USER)
-        print(key, "done", flush=True)
+            try:
+                memory.add(messages, user_id=mem0_baseline.USER)
+            except Exception as error:  # Counted and reported, as in the coding runs.
+                failures += 1
+                print(f"window failed: {type(error).__name__}", flush=True)
+        done[key] = {"seconds": round(time.time() - started), "calls": -(-len(lines) // window),
+                     "failed_calls": failures}
+        MEM0_SEEDED.write_text(json.dumps(done, indent=1))
+        print(key, done[key], f"{len(done)} of {len(conversations())}", flush=True)
 
 
 def ask(prompt: str) -> dict:
@@ -165,9 +184,9 @@ class Contexts:
         if setup == "mem0":
             from agent_eval import mem0_baseline
 
-            key = f"locomo_{name}".replace("-", "_")
+            key = mem0_key(conversation)
             if key not in self.mem0:
-                self.mem0[key] = mem0_baseline.client(key)
+                self.mem0[key] = mem0_baseline.client(key, think=False)
             return "\n".join(mem0_baseline.search(self.mem0[key], question["question"]))
         with rest(user_for(conversation, variant)) as client:
             client.headers["x-memory-project"] = PROJECT
