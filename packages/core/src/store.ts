@@ -37,6 +37,11 @@ const DEFAULT_TEXT_WEIGHT = 0.5;
 // that vector search misses could never reach the top 10. At 1 it ties the
 // top vector result.
 const DEFAULT_CODE_WEIGHT = 1;
+// Rank fusion scores every memory in a small store, so context would fill with
+// unrelated ones. Below this bge-m3 cosine similarity, and with no keyword
+// match, a memory is left out of context. Search itself is not filtered.
+// Tuned on half the project tasks, where needed memories scored 0.546 or more.
+const MIN_CONTEXT_SIMILARITY = 0.45;
 // Upper bound on index tuples visited when a narrow scope filters most out.
 const HNSW_MAX_SCAN_TUPLES = 200_000;
 
@@ -339,8 +344,8 @@ export class MemoryStore {
         [String(this.efSearch), String(HNSW_MAX_SCAN_TUPLES)],
       );
 
-      const vector = await client.query<MemoryRow>(
-        `SELECT ${MEMORY_COLUMNS}
+      const vector = await client.query<MemoryRow & { similarity: number }>(
+        `SELECT ${MEMORY_COLUMNS}, 1 - (embedding <=> $1::vector) AS similarity
          FROM memories
          WHERE ${IS_CURRENT}
          ORDER BY embedding <=> $1::vector
@@ -386,7 +391,12 @@ export class MemoryStore {
         candidates.set(row.id, candidate);
       });
     };
-    if (retrievers !== "text") collect(rows.vector, "vectorRank");
+    if (retrievers !== "text") {
+      collect(rows.vector, "vectorRank");
+      for (const row of rows.vector) {
+        candidates.get(row.id)!.similarity = Number(row.similarity);
+      }
+    }
     if (retrievers !== "vector") collect(rows.text, "textRank");
 
     const now = new Date();
@@ -407,10 +417,16 @@ export class MemoryStore {
   async contextFor(
     scope: Scope,
     task: string,
-    options: { maxTokens?: number } = {},
+    options: { maxTokens?: number; minSimilarity?: number } = {},
   ): Promise<SearchResult[]> {
     return traced("memory.context_for", async () => {
-      const results = await this.search(scope, task, { limit: DEFAULT_TOP_K });
+      const floor = options.minSimilarity ?? MIN_CONTEXT_SIMILARITY;
+      const results = (
+        await this.search(scope, task, { limit: DEFAULT_TOP_K })
+      ).filter(
+        (hit) =>
+          hit.score.textRank !== null || (hit.score.similarity ?? 0) >= floor,
+      );
       return packToBudget(results, options.maxTokens ?? DEFAULT_TOKEN_BUDGET);
     });
   }
