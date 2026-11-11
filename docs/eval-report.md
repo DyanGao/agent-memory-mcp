@@ -411,7 +411,7 @@ Cases where memory failed, picked to cover each way it failed, and where possibl
 
 - **Most failures are details that were never stored.** Memory keeps lasting decisions, so a name, an opinion or a delivery date mentioned once is dropped, and the assistant's own lines are read only when they describe a fix.
 - **The coding failure is a rule with an open edge case.** It does not say whether exactly 90 minutes counts, and full history failed it every time. In the failing run the agent also could not run `node` to test its code.
-- **The planted password got past redaction too.** Redaction catches "the password is X". This was "logging in with the staging admin password Juniper-4402-LM", with no "is".
+- **The planted password got past redaction too.** Redaction caught "the password is X", but this was "logging in with the staging admin password Juniper-4402-LM", with no "is". Fixed since: a secret right after its keyword is now redacted if it has a letter, a digit and 8 or more characters. That rule matched nothing in 123,058 real chat turns from LongMemEval, LoCoMo and the project histories, and in the four poisoning sets it changed only this case.
 
 ## Distillation cost
 

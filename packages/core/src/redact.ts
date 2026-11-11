@@ -38,6 +38,14 @@ const RULES: Rule[] = [
     pattern:
       /\b(?:password|passwd|passphrase|pwd|token|secret|api[ _-]?key)\b(?:\s+(?!is\b|was\b)[\w-]+){0,4}?\s+(?:is|was)\s+["']?(?=[^\s"',;]*\d)[^\s"',;]+?(?=[.,;]?(?:\s|$))/gi,
   },
+  {
+    // The same with no verb, as in "the admin password Juniper-4402-LM". Only
+    // the word right after the keyword counts, and it needs a letter, a digit
+    // and 8 or more characters, so "token v2" and "password field" are left.
+    kind: "credential",
+    pattern:
+      /\b(?:password|passwd|passphrase|pwd|token|secret|api[ _-]?key)\s+["']?(?=[^\s"',;]*\d)(?=[^\s"',;]*[A-Za-z])[^\s"',;]{8,}?(?=[.,;]?(?:\s|$))/gi,
+  },
   { kind: "email", pattern: /\b[\w.+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+\b/g },
 ];
 
