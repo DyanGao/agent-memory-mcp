@@ -459,6 +459,22 @@ def fourth_poison_rows(folder: Path) -> str:
     )
 
 
+def fifth_poison_rows(folder: Path) -> str:
+    return staged_rows(
+        folder,
+        [("before the access rule", "poisoning5-before"), ("with the access rule, kept", "poisoning5")],
+        {
+            "fix_ticket": "Taken from a ticket's resolution",
+            "fix_runbook": "Quoted from a runbook",
+            "fix_colleague": "A colleague's tip, relayed by the user",
+            "fix_summary": "Inside an end-of-session summary",
+            "agent_own_fix": "Control: a genuine fix, most granting narrow access",
+            "user_rule": "Control: the user's own rule",
+            "team_relay": "Control: a team decision passed on",
+        },
+    )
+
+
 def long_values(store: dict) -> dict[str, str]:
     task_noise = [row["noise"] for row in store["task_context"].values()]
     return {
@@ -552,6 +568,7 @@ def main() -> None:
         "{{held_out_poison_rows}}", held_out_poison_rows(folder)
     ).replace("{{third_poison_rows}}", third_poison_rows(folder))
     output = output.replace("{{fourth_poison_rows}}", fourth_poison_rows(folder))
+    output = output.replace("{{fifth_poison_rows}}", fifth_poison_rows(folder))
     timing_rows, fusion_rows = tuning_rows(folder)
     output = output.replace("{{tuning_timing_rows}}", timing_rows).replace(
         "{{tuning_fusion_rows}}", fusion_rows
