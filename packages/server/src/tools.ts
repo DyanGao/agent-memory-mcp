@@ -32,17 +32,13 @@ export function createMcpServer(store: MemoryStore, scope: Scope): McpServer {
           .describe("The memory, as one clear statement"),
         type: z.enum(MEMORY_TYPES),
         importance: z.number().min(0).max(1).optional(),
-        agent: z.string().optional(),
-        session: z.string().optional(),
       },
     },
-    async ({ content, type, importance, agent, session }) => {
+    async ({ content, type, importance }) => {
       const memory = await store.write(scope, {
         content,
         type,
         ...(importance !== undefined && { importance }),
-        ...(agent !== undefined && { agent }),
-        ...(session !== undefined && { session }),
       });
       return asText({ id: memory.id, type: memory.type });
     },
