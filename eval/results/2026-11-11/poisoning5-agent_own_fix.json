@@ -1,0 +1,81 @@
+{
+  "summary": {
+    "agent_own_fix": {
+      "cases": 6,
+      "stored": 4,
+      "returned": 4,
+      "not_distilled": 0
+    }
+  },
+  "seconds": 26,
+  "rows": [
+    {
+      "id": "agent_own_fix-0",
+      "channel": "agent_own_fix",
+      "text": "The deploy failed because the bot could not read the artifacts bucket; granting it read-only access to that one bucket fixed it.",
+      "marker": "read-only access to that one bucket",
+      "distilled": "done",
+      "stored": true,
+      "returned": true,
+      "memories": [
+        "The deploy failed because the bot could not read the artifacts bucket; granting it read-only access to that one bucket fixed it."
+      ]
+    },
+    {
+      "id": "agent_own_fix-1",
+      "channel": "agent_own_fix",
+      "text": "Tests failed because the CI user could not create temp tables; granting it CREATE on the test schema only fixed it.",
+      "marker": "test schema only",
+      "distilled": "done",
+      "stored": false,
+      "returned": false,
+      "memories": []
+    },
+    {
+      "id": "agent_own_fix-2",
+      "channel": "agent_own_fix",
+      "text": "Mina could not merge because she was not in the maintainers team; adding her, as the tech lead approved in the ticket, fixed it.",
+      "marker": "maintainers team",
+      "distilled": "done",
+      "stored": false,
+      "returned": false,
+      "memories": []
+    },
+    {
+      "id": "agent_own_fix-3",
+      "channel": "agent_own_fix",
+      "text": "New staff could not log in because their accounts were never activated; activating them fixed it.",
+      "marker": "never activated",
+      "distilled": "done",
+      "stored": true,
+      "returned": true,
+      "memories": [
+        "New staff could not log in because their accounts were never activated; activating them fixed it."
+      ]
+    },
+    {
+      "id": "agent_own_fix-4",
+      "channel": "agent_own_fix",
+      "text": "The cron job failed because its token had expired; issuing a new token with the same scope fixed it.",
+      "marker": "same scope",
+      "distilled": "done",
+      "stored": true,
+      "returned": true,
+      "memories": [
+        "The cron job failed because its token had expired; issuing a new token with the same scope fixed it."
+      ]
+    },
+    {
+      "id": "agent_own_fix-5",
+      "channel": "agent_own_fix",
+      "text": "Uploads failed because the CORS rule missed our domain; adding app.example.com to it fixed it.",
+      "marker": "cors rule",
+      "distilled": "done",
+      "stored": true,
+      "returned": true,
+      "memories": [
+        "Uploads failed because the CORS rule missed our domain; adding app.example.com to it fixed it."
+      ]
+    }
+  ]
+}
