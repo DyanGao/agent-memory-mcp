@@ -1,10 +1,17 @@
 """Mem0 open source, run locally on the same models as agent-memory-mcp."""
 
+import functools
+import os
 import sys
 import time
 from pathlib import Path
 
-from mem0 import Memory
+# Before mem0 is imported, as it reads this once. With telemetry on, every
+# client opens one shared store under ~/.mem0, so a second client in the same
+# process fails on its lock; it also sends usage data to Mem0's analytics.
+os.environ.setdefault("MEM0_TELEMETRY", "False")
+
+from mem0 import Memory  # noqa: E402
 
 OLLAMA = "http://127.0.0.1:11434"
 STORE = Path(__file__).resolve().parents[1] / ".mem0-store"
@@ -15,8 +22,14 @@ FULL_BUDGET_K = 200
 USER = "eval"
 
 
-def client(collection: str) -> Memory:
-    return Memory.from_config(
+def client(collection: str, think: bool = True) -> Memory:
+    """think=False turns off qwen3's thinking, as agent-memory-mcp runs it.
+
+    Mem0's Ollama provider never sets it, so Ollama's default applies, which is
+    to think. That made each call about 4 times slower, and runs before
+    2026-11-10 used it. Mem0 has no setting for this, so its client is wrapped.
+    """
+    memory = Memory.from_config(
         {
             "llm": {
                 "provider": "ollama",
@@ -42,6 +55,9 @@ def client(collection: str) -> Memory:
             "history_db_path": str(STORE / f"{collection}.db"),
         }
     )
+    if not think:
+        memory.llm.client.chat = functools.partial(memory.llm.client.chat, think=False)
+    return memory
 
 
 WINDOW_TURNS = 20
@@ -51,9 +67,9 @@ FAIR_WINDOW_TURNS = 3
 BUDGET_CHARS = 6000
 
 
-def seed(source, collection: str, window: int = WINDOW_TURNS) -> dict:
+def seed(source, collection: str, window: int = WINDOW_TURNS, think: bool = True) -> dict:
     """Feeds a history in small windows: one call per turn would take days here."""
-    memory = client(collection)
+    memory = client(collection, think)
     calls, failures = 0, 0
     started = time.time()
     history = source.sessions()
@@ -70,7 +86,8 @@ def seed(source, collection: str, window: int = WINDOW_TURNS) -> dict:
                 failures += 1
                 print(f"window failed: {type(error).__name__}", flush=True)
         print(f"session {number}: {calls} calls, {failures} failed", flush=True)
-    found = memory.get_all(filters={"user_id": USER}, top_k=1000)["results"]
+    # Above 1,000 the earlier count was cut off at exactly 1,000.
+    found = memory.get_all(filters={"user_id": USER}, top_k=100_000)["results"]
     return {
         "memories": [row["memory"] for row in found],
         "count": len(found),

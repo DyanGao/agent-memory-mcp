@@ -37,6 +37,9 @@ SETUPS = ["none", "memory", "rag", "mem0", "full_history"]
 REPEATS = 3
 LONG_USER = "long-1793960361"
 MEM0_W3_PROJECT = "harbor-rentals"
+# Mem0 at 3-turn windows with thinking off, as agent-memory-mcp runs qwen3, on
+# every project and the long history. Its stores end in _fair.
+FAIR = "mem0_fair"
 READ_ONLY = ["--disallowedTools", "mcp__memory__memory_write,mcp__memory__memory_forget"]
 LIMIT_WORDS = ("usage limit", "rate limit", "hit your limit", "limit reached")
 
@@ -113,12 +116,12 @@ class Context:
             self.rag[key] = Index(task["source"].transcript())
         return "\n---\n".join(self.rag[key].search(task["request"]))
 
-    def mem0_notes(self, task: dict, top_k: int) -> str:
+    def mem0_notes(self, task: dict, top_k: int, think: bool = True) -> str:
         from agent_eval import mem0_baseline
 
         key = task["collection"]
         if key not in self.mem0:
-            self.mem0[key] = mem0_baseline.client(key)
+            self.mem0[key] = mem0_baseline.client(key, think)
         return "\n".join(f"- {text}" for text in mem0_baseline.search(self.mem0[key], task["request"], top_k))
 
 
@@ -131,11 +134,13 @@ def run_one(task: dict, setup: str, context: Context) -> dict:
             prompt = f"Transcript of our earlier sessions:\n{task['source'].transcript()}\n\nNow: {prompt}"
         elif setup == "rag":
             prompt = f"Excerpts from our earlier sessions:\n{context.excerpts(task)}\n\nNow: {prompt}"
-        elif setup in ("mem0", "mem0_budget", "mem0_w3"):
+        elif setup in ("mem0", "mem0_budget", "mem0_w3", FAIR):
             top_k = TOP_K if setup == "mem0" else FULL_BUDGET_K
             if setup == "mem0_w3":
                 task = {**task, "collection": f"{task['collection']}_w3"}
-            notes = context.mem0_notes(task, top_k)
+            if setup == FAIR:
+                task = {**task, "collection": f"{task['collection']}_fair"}
+            notes = context.mem0_notes(task, top_k, think=setup != FAIR)
             prompt = f"Memories from our earlier sessions:\n{notes}\n\nNow: {prompt}"
         elif setup == "memory":
             settings, mcp = memory_settings(folder, task["user"], task["project"])
@@ -162,6 +167,12 @@ def finished() -> set[tuple[str, str, int]]:
     return {(row["task"], row["setup"], row["repeat"]) for row in rows}
 
 
+def fair_ready(task: dict) -> bool:
+    """A _fair store counts once seeding finished, which writes its store file."""
+    name = "long" if task["project"] == "acme-orders" else task["project"]
+    return any((ROOT / "eval" / "results").glob(f"*/mem0-{name}-fair-store.json"))
+
+
 def hit_limit(row: dict) -> bool:
     text = row["second"]["text"].lower()
     return row["second"]["is_error"] and any(word in text for word in LIMIT_WORDS)
@@ -180,7 +191,9 @@ def run_all(setups: list[str] = SETUPS) -> None:
                 key = (task["id"], setup, repeat)
                 # Seeding at 3 turns runs about 70 calls an hour here, so only one
                 # project was reseeded: about 7 hours, against about 34 for all.
-                skip = setup == "mem0_w3" and task["project"] != MEM0_W3_PROJECT
+                skip = (setup == "mem0_w3" and task["project"] != MEM0_W3_PROJECT) or (
+                    setup == FAIR and not fair_ready(task)
+                )
                 if key in done or skip:
                     continue
                 row = run_one(task, setup, context)
@@ -211,18 +224,26 @@ def seed_projects() -> None:
         print({k: v for k, v in store.items() if k != "memories"}, flush=True)
 
 
-def seed_mem0() -> None:
+def seed_mem0(only: list[str] | None = None) -> None:
+    """Seeds the _fair stores, one source at a time. Names: projects or "long"."""
     from agent_eval import mem0_baseline
 
-    for name in projects.PROJECTS:
+    sources = {name: (projects.Project(name), collection(name)) for name in projects.PROJECTS}
+    sources["long"] = (longhistory2, "long_unseen")
+    for name, (source, base) in sources.items():
+        if only and name not in only:
+            continue
         store = mem0_baseline.seed(
-            projects.Project(name), f"{collection(name)}_w3", mem0_baseline.FAIR_WINDOW_TURNS
+            source, f"{base}_fair", mem0_baseline.FAIR_WINDOW_TURNS, think=False
         )
-        print("wrote", write_results(f"mem0-{name}-w3-store", store), flush=True)
+        print("wrote", write_results(f"mem0-{name}-fair-store", store), flush=True)
+        print({k: v for k, v in store.items() if k != "memories"}, flush=True)
 
 
 if __name__ == "__main__":
     if sys.argv[1] == "run" and len(sys.argv) > 2:
         run_all(sys.argv[2].split(","))
+    elif sys.argv[1] == "mem0" and len(sys.argv) > 2:
+        seed_mem0(sys.argv[2].split(","))
     else:
         {"seed": seed_projects, "mem0": seed_mem0, "run": run_all}[sys.argv[1]]()

@@ -229,8 +229,9 @@ SUITE_LABELS = {
     "memory": "agent-memory-mcp",
     "full_history": "Full history",
     "rag": "Naive RAG",
-    "mem0": "Mem0, 20-turn windows",
-    "mem0_budget": "Mem0, 20-turn windows, full budget",
+    "mem0_fair": "Mem0, 3-turn windows, thinking off",
+    "mem0": "Mem0, 20-turn windows, thinking on",
+    "mem0_budget": "Mem0, 20-turn windows, thinking on, full budget",
     "none": "No memory",
 }
 
@@ -269,9 +270,9 @@ def suite_rows() -> str:
 
 def harbor_rows() -> str:
     runs = suite_runs()
-    labels = {**SUITE_LABELS, "mem0_w3": "Mem0, 3-turn windows"}
+    labels = {**SUITE_LABELS, "mem0_w3": "Mem0, 3-turn windows, thinking on"}
     lines = ["| Setup | Passed |", "|---|---|"]
-    for setup in ["memory", "full_history", "rag", "mem0_w3", "mem0", "mem0_budget", "none"]:
+    for setup in ["memory", "full_history", "rag", "mem0_fair", "mem0_w3", "mem0", "mem0_budget", "none"]:
         rows = [r for r in runs if r["setup"] == setup and r["task"].startswith("harbor-rentals/")]
         lines.append(f"| {labels[setup]} | {sum(r['passed'] for r in rows)} of {len(rows)} |")
     return "\n".join(lines)
@@ -282,6 +283,7 @@ def qa_rows(folder: Path) -> str:
     labels = {
         "full_history": "Full history",
         "rag": "Naive RAG",
+        "mem0": "Mem0, thinking off",
         "memory-off": "agent-memory-mcp, lasting check off",
         "memory": "agent-memory-mcp",
         "none": "No memory",
@@ -298,7 +300,8 @@ def qa_rows(folder: Path) -> str:
 def lme_rows(folder: Path) -> tuple[str, str, dict]:
     run = load(folder, "qa-longmemeval")
     setups = run["setups"]
-    labels = {"full_history": "Full history", "rag": "Naive RAG", "memory": "agent-memory-mcp", "none": "No memory"}
+    labels = {"full_history": "Full history", "rag": "Naive RAG", "mem0": "Mem0, thinking off",
+              "memory": "agent-memory-mcp", "none": "No memory"}
     first = setups["rag"]
     overall = [
         f"| Setup | Correct, mean ± std over {first['runs']} runs of {first['questions']} | Context per question |",
@@ -310,14 +313,16 @@ def lme_rows(folder: Path) -> tuple[str, str, dict]:
             f"| {label} | {row['accuracy']:.1%} ± {row['std']:.1%} | {row['mean_context_chars']:,} characters |"
         )
     kinds = sorted(first["by_type"])
-    typed = ["| Question type | " + " | ".join(labels[k] for k in ("full_history", "rag", "memory")) + " |",
-             "|---|---|---|---|"]
+    shown = ("full_history", "rag", "mem0", "memory")
+    typed = ["| Question type | " + " | ".join(labels[k] for k in shown) + " |",
+             "|---|---|---|---|---|"]
     for kind in kinds:
         typed.append(f"| {kind} | " + " | ".join(
-            f"{setups[k]['by_type'][kind]:.0%}" for k in ("full_history", "rag", "memory")) + " |")
+            f"{setups[k]['by_type'][kind]:.0%}" for k in shown) + " |")
     seeding = run["seeding"]
     values = {
         "lme_memory": f"{setups['memory']['accuracy']:.1%}",
+        "lme_mem0": f"{setups['mem0']['accuracy']:.1%}",
         "lme_rag": f"{setups['rag']['accuracy']:.1%}",
         "lme_full": f"{setups['full_history']['accuracy']:.1%}",
         "lme_written": str(sum(v["written"] for v in seeding.values())),
@@ -332,15 +337,16 @@ def write_pareto(folder: Path) -> None:
 
     runs = suite_runs()
     coding = []
-    for setup in ("memory", "full_history", "rag", "mem0", "none"):
+    for setup in ("memory", "full_history", "rag", "mem0_fair", "none"):
         rows = [row for row in runs if row["setup"] == setup]
         cost = sum(row["second"]["cost_usd_equivalent"] or 0 for row in rows)
-        # Memory and full history land at the same height: one label up, one down.
-        lift = {"memory": -12, "full_history": 14}.get(setup, 0)
-        coding.append((SUITE_LABELS[setup], cost, pass_stats(rows)[2], lift))
+        # Memory, Mem0 and full history land at about the same height.
+        lift = {"memory": 14, "mem0_fair": -12, "full_history": -12}.get(setup, 0)
+        label = "Mem0" if setup == "mem0_fair" else SUITE_LABELS[setup]
+        coding.append((label, cost, pass_stats(rows)[2], lift))
     qa = load(folder, "qa-locomo")
     names = {"memory": "agent-memory-mcp", "memory-off": "check off", "rag": "Naive RAG",
-             "full_history": "Full history"}
+             "mem0": "Mem0", "full_history": "Full history"}
     answers = [(label, qa[key]["mean_context_chars"], qa[key]["accuracy"]) for key, label in names.items()]
     (ROOT / "docs" / "pareto.svg").write_text(draw(coding, answers) + "\n")
 
@@ -501,9 +507,11 @@ def main() -> None:
     output = (
         output.replace("{{qa_memory}}", f"{qa['memory']['accuracy']:.1%}")
         .replace("{{qa_rag}}", f"{qa['rag']['accuracy']:.1%}")
+        .replace("{{qa_mem0}}", f"{qa['mem0']['accuracy']:.1%}")
         .replace("{{qa_off}}", f"{qa['memory-off']['accuracy']:.1%}")
         .replace("{{qa_full}}", f"{qa['full_history']['accuracy']:.1%}")
         .replace("{{suite_memory}}", f"{pass_stats(by_setup('memory'))[2]:.1%}")
+        .replace("{{suite_mem0}}", f"{pass_stats(by_setup('mem0_fair'))[2]:.1%}")
         .replace("{{suite_none}}", f"{pass_stats(by_setup('none'))[2]:.1%}")
         .replace("{{token_share}}", f"{tokens('memory') / tokens('full_history'):.0%}")
     )

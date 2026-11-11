@@ -5,7 +5,7 @@ so memory is seeded once per question, not once per conversation. That makes
 seeding the slow part. Runs and seeding progress are kept in the raw folder and
 resume if stopped.
 
-python -m agent_eval.longmemeval_qa show | seed | run [setups] | summary
+python -m agent_eval.longmemeval_qa show | seed | seed-mem0 | run [setups] | summary
 """
 
 import json
@@ -21,10 +21,11 @@ from agent_eval.rag import Index
 SOURCE = RAW / "longmemeval_s_cleaned.json"
 RUNS = RAW / "lme-runs.jsonl"
 SEEDED = RAW / "lme-seeded.json"
+MEM0_SEEDED = RAW / "lme-mem0-seeded.json"
 SEED = 20261110
 PER_TYPE = 4
 REPEATS = 3
-SETUPS = ["none", "memory", "rag", "full_history"]
+SETUPS = ["none", "memory", "rag", "mem0", "full_history"]
 PROJECT = "longmemeval"
 PREFERENCE = "single-session-preference"
 
@@ -110,9 +111,46 @@ def seed() -> None:
         print(question["id"], done[question["id"]], f"{len(done)} of {len(questions())}", flush=True)
 
 
-def context(question: dict, setup: str, indexes: dict) -> str:
+def mem0_key(question: dict) -> str:
+    return f"lme_{question['id']}_fair"
+
+
+def seed_mem0() -> None:
+    """Mem0 with thinking off and 3-turn windows, as in the fair coding runs."""
+    from agent_eval import mem0_baseline
+
+    done = json.loads(MEM0_SEEDED.read_text()) if MEM0_SEEDED.exists() else {}
+    for question in questions():
+        if question["id"] in done:
+            continue
+        started, calls, failures = time.time(), 0, 0
+        memory = mem0_baseline.client(mem0_key(question), think=False)
+        for lines, roles in zip(question["sessions"], question["roles"]):
+            messages = [{"role": role, "content": line} for line, role in zip(lines, roles)]
+            # A window is 3 turns, each a user line and its reply.
+            for start in range(0, len(messages), 2 * mem0_baseline.FAIR_WINDOW_TURNS):
+                calls += 1
+                try:
+                    memory.add(messages[start : start + 2 * mem0_baseline.FAIR_WINDOW_TURNS],
+                               user_id=mem0_baseline.USER)
+                except Exception as error:  # Counted and reported.
+                    failures += 1
+                    print(f"window failed: {type(error).__name__}", flush=True)
+        done[question["id"]] = {"seconds": round(time.time() - started), "calls": calls,
+                                "failed_calls": failures}
+        MEM0_SEEDED.write_text(json.dumps(done, indent=1))
+        print(question["id"], done[question["id"]], f"{len(done)} of {len(questions())}", flush=True)
+
+
+def context(question: dict, setup: str, indexes: dict, mem0: dict) -> str:
     if setup == "full_history":
         return text_of(question)
+    if setup == "mem0":
+        from agent_eval import mem0_baseline
+
+        if question["id"] not in mem0:
+            mem0[question["id"]] = mem0_baseline.client(mem0_key(question), think=False)
+        return "\n".join(mem0_baseline.search(mem0[question["id"]], question["question"]))
     if setup == "rag":
         if question["id"] not in indexes:
             indexes[question["id"]] = Index(text_of(question))
@@ -156,7 +194,9 @@ def finished() -> set[tuple[str, str, int]]:
 def run(setups: list[str]) -> None:
     done = finished()
     ready = seeded()
+    mem0_ready = json.loads(MEM0_SEEDED.read_text()) if MEM0_SEEDED.exists() else {}
     indexes: dict = {}
+    mem0: dict = {}
     for repeat in range(REPEATS):
         for question in questions():
             for setup in setups:
@@ -164,7 +204,9 @@ def run(setups: list[str]) -> None:
                     continue
                 if setup == "memory" and question["id"] not in ready:
                     continue
-                notes = "" if setup == "none" else context(question, setup, indexes)
+                if setup == "mem0" and question["id"] not in mem0_ready:
+                    continue
+                notes = "" if setup == "none" else context(question, setup, indexes, mem0)
                 reply = ask(prompt_for(question, notes))
                 if reply["is_error"]:
                     raise SystemExit(f"stopping: {reply['text'][:200]}")
@@ -228,6 +270,8 @@ if __name__ == "__main__":
         show()
     elif command == "seed":
         seed()
+    elif command == "seed-mem0":
+        seed_mem0()
     elif command == "run":
         run(sys.argv[2].split(",") if len(sys.argv) > 2 else SETUPS)
     elif command == "summary":
