@@ -282,6 +282,20 @@ Distillation runs on the local model, so it costs time and $0 in hosted fees. Ev
 - **agent-memory-mcp takes about 6 minutes per 1,000 events,** and longer on LongMemEval, whose turns are much longer.
 - **Mem0 took about 4 to 6 times as long,** and longer as its store grew: the tram project's store was the largest and the slowest.
 
+## Relevance floor
+
+Rank fusion scores a memory by its place in the results, so in a small store every memory gets a score and `memory_context_for` injected all of them: about 13 per task on the project stores, almost all unrelated. Search now also reports each vector match's cosine similarity, which does not depend on what else is stored. Context leaves out a memory below 0.45 with no keyword match. Search itself is not filtered, so an agent can still look further. The 25 project tasks were split by position before any similarity was seen; the floor was chosen on one half, committed, and only then applied to the other. A needed memory is one holding every word of one of the task's marker groups; for 4 tasks none matched, a wording difference.
+
+{{floor_rows}}
+
+{{floor_agent_rows}}
+
+- **Every needed memory stayed in context on the held-out half, and context fell by about half.**
+- **The margin is thin.** The weakest needed memory on the held-out half scored 0.456, just above the floor. 0.45 was chosen to leave about 0.1 below the tuning half's weakest, 0.546, and that margin did not carry over. A harder task could fall under it.
+- **Agents passed as often with the floor.** The one failure moved to `child-fare`, a task whose rule the markers do not identify and where the floor still kept 10 memories, so it looks like run-to-run variation.
+- **Input tokens fell only 4%,** because Claude Code's own prompt is most of the input. The gain is less unrelated text in context, not cost.
+- **The floor is tied to `bge-m3`.** Another embedding model needs its own.
+
 ## Known weaknesses
 
 - **Extraction still drops the odd line.** In the harder pilot, that lost the order id format, and it did so again on the 8-session history (13 of 14 decisions with the lasting check). The model rewrites `ORD-2026-000042` as `ORD-YYYY-000000`, and the grounding check rejects digits nobody said. The lasting check never sees it. The 40-session histories kept that line, so this varies from run to run.
