@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "source": "harbor-rentals",
+      "events": 5724,
+      "memory_minutes_per_1k": 6.0,
+      "mem0_minutes_per_1k": 24.3
+    },
+    {
+      "source": "pulse-clinic",
+      "events": 5726,
+      "memory_minutes_per_1k": 5.9,
+      "mem0_minutes_per_1k": 23.2
+    },
+    {
+      "source": "metro-tram",
+      "events": 5726,
+      "memory_minutes_per_1k": 5.8,
+      "mem0_minutes_per_1k": 37.3
+    },
+    {
+      "source": "LongMemEval, 24 histories",
+      "events": 12062,
+      "memory_minutes_per_1k": 8.7,
+      "mem0_minutes_per_1k": 51.1
+    }
+  ],
+  "hosted_usd": 0
+}

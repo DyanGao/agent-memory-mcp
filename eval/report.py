@@ -332,6 +332,32 @@ def lme_rows(folder: Path) -> tuple[str, str, dict]:
     return "\n".join(overall), "\n".join(typed), values
 
 
+def worst_rows(folder: Path) -> tuple[str, str]:
+    run = load(folder, "worst-cases")
+    lines = ["| Category | Source | Case | Expected | What memory gave | Memory | Others |",
+             "|---|---|---|---|---|---|---|"]
+    clean = lambda text: " ".join(str(text).split()).replace("|", "/")
+    for case in run["cases"]:
+        answer = clean(case["memory_answer"])
+        answer = answer if len(answer) <= 160 else answer[:157] + "..."
+        lines.append(
+            f"| {case['category']} | {case['source']} | {clean(case['case'])} | {clean(case['expected'])} "
+            f"| {answer} | {case['memory_correct']} | {case['others_correct']} |"
+        )
+    locomo = ", ".join(f"{count} {name}" for name, count in run["locomo"].items())
+    return "\n".join(lines), locomo
+
+
+def cost_rows(folder: Path) -> str:
+    run = load(folder, "distillation-cost")
+    lines = ["| History | Events | agent-memory-mcp, minutes per 1,000 events | Mem0, thinking off |",
+             "|---|---|---|---|"]
+    for row in run["rows"]:
+        mem0 = f"{row['mem0_minutes_per_1k']}" if row["mem0_minutes_per_1k"] is not None else "not run"
+        lines.append(f"| {row['source']} | {row['events']:,} | {row['memory_minutes_per_1k']} | {mem0} |")
+    return "\n".join(lines)
+
+
 def write_pareto(folder: Path) -> None:
     from pareto import draw
 
@@ -536,6 +562,9 @@ def main() -> None:
     output = output.replace("{{lme_rows}}", lme_overall).replace("{{lme_type_rows}}", lme_typed)
     for name, value in lme_values.items():
         output = output.replace(f"{{{{{name}}}}}", value)
+    worst, locomo_worst = worst_rows(folder)
+    output = output.replace("{{worst_rows}}", worst).replace("{{locomo_worst}}", locomo_worst)
+    output = output.replace("{{cost_rows}}", cost_rows(folder))
     near_rows, near_values = near_miss_rows(folder)
     output = output.replace("{{near_miss_rows}}", near_rows)
     for name, value in near_values.items():

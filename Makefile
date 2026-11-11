@@ -10,7 +10,7 @@ eval-down:
 
 # Free and model-free: replays recorded real embeddings. Also runs in CI.
 eval-quick:
-	pnpm exec vitest run --config vitest.integration.config.ts eval-gate
+	pnpm exec vitest run --config vitest.integration.config.ts eval-gate accuracy-gate
 
 # Needs a running stack (make eval-up) and Ollama. Run by hand.
 eval-full: eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout
