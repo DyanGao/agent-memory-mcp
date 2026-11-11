@@ -1,0 +1,46 @@
+{
+  "name": "@dyangao/agent-memory-mcp",
+  "version": "0.4.0",
+  "description": "Client for agent-memory-mcp: a stdio MCP bridge and Claude Code hooks for a self-hosted, GDPR-aware memory server",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Dongyang Gao",
+  "homepage": "https://github.com/DyanGao/agent-memory-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DyanGao/agent-memory-mcp.git",
+    "directory": "packages/npm"
+  },
+  "bugs": "https://github.com/DyanGao/agent-memory-mcp/issues",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "memory",
+    "agents",
+    "claude-code",
+    "gdpr",
+    "pgvector"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "bin": {
+    "agent-memory-mcp": "dist/cli.js",
+    "agent-memory-capture": "dist/capture.js",
+    "agent-memory-context": "dist/context.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "prepack": "node build.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

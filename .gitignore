@@ -52,3 +52,6 @@ eval/mem0-qa.log
 eval/scale.log
 eval/tuning.log
 eval/tuning-holdout.log
+
+# Packed npm tarballs
+*.tgz

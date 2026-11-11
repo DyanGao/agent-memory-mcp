@@ -5,7 +5,8 @@ import { parseArgs } from "node:util";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { bridge } from "./bridge.js";
-import { PROJECT_HEADER, USER_HEADER } from "./http.js";
+// Not ./http.js: the published bridge must not pull in the server.
+import { PROJECT_HEADER, USER_HEADER } from "./headers.js";
 
 const { values } = parseArgs({
   options: {
