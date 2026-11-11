@@ -43,7 +43,6 @@ These tasks were written by the author of this code, and they suit it: each need
 - [x] Automatic session capture (hook/adapter) + LLM-based distillation into facts, decisions, preferences
 - [x] Hybrid retrieval: vector + full-text ranking + recency/importance scoring
 - [x] Scopes: user and project, kept apart by Postgres row-level security
-- [ ] Agent and session scopes: recorded on each memory (`memory_write` accepts them), not yet used to separate or filter memories
 - [x] Memory consolidation: dedupe, supersede outdated facts
 - [x] GDPR: delete by user / topic / time range, deletion audit log, data export (Art. 15/17/20)
 - [x] Local-first: Ollama / vLLM for distillation & embeddings; optional cloud providers

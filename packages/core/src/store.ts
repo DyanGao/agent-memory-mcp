@@ -54,8 +54,6 @@ export interface MemoryInput {
   content: string;
   type: MemoryType;
   importance?: number;
-  agent?: string;
-  session?: string;
   sourceEventIds?: string[];
 }
 
@@ -206,16 +204,16 @@ export class MemoryStore {
       }
 
       const { rows } = await client.query<MemoryRow>(
-        `INSERT INTO memories (scope_user, scope_project, scope_agent, scope_session,
+        // scope_agent and scope_session stay empty: they were labels set by
+        // tool arguments, and a scope must come from client config (ARCHITECTURE #19).
+        `INSERT INTO memories (scope_user, scope_project,
                                type, content, embedding, embed_model, importance,
                                source_event_ids)
-         VALUES ($1, $2, $3, $4, $5, $6, $7::vector, $8, $9, $10::uuid[])
+         VALUES ($1, $2, $3, $4, $5::vector, $6, $7, $8::uuid[])
          RETURNING ${MEMORY_COLUMNS}`,
         [
           scope.user,
           scope.project,
-          input.agent ?? null,
-          input.session ?? null,
           input.type,
           content,
           toVectorLiteral(embedding),

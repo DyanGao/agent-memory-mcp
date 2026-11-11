@@ -97,13 +97,14 @@ describe("MCP over HTTP", () => {
     }
   });
 
-  it("offers no tool argument that could select a user or project", async () => {
+  it("offers no tool argument that could select a scope", async () => {
     const client = await connect();
     const { tools } = await client.listTools();
     for (const tool of tools) {
       const fields = Object.keys(tool.inputSchema.properties ?? {});
-      expect(fields).not.toContain("user");
-      expect(fields).not.toContain("project");
+      for (const scope of ["user", "project", "agent", "session"]) {
+        expect(fields, `${tool.name} takes ${scope}`).not.toContain(scope);
+      }
     }
   });
 
