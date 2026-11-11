@@ -186,6 +186,16 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
       expect(hit?.score.total).toBeGreaterThan(0);
     });
 
+    it("reports how similar each vector match is, not only its rank", async () => {
+      await store.write(alice, { content: "exact phrase", type: "fact" });
+      await store.write(alice, { content: "something else", type: "fact" });
+      const hits = await store.search(alice, "exact phrase");
+      const exact = hits.find((hit) => hit.content === "exact phrase");
+      const other = hits.find((hit) => hit.content === "something else");
+      expect(exact?.score.similarity).toBeCloseTo(1, 5);
+      expect(other?.score.similarity).toBeLessThan(1);
+    });
+
     it("excludes superseded memories", async () => {
       const old = await store.write(alice, {
         content: "uses REST",
@@ -213,6 +223,28 @@ describe("MemoryStore on real Postgres, as memory_app", () => {
   });
 
   describe("contextFor", () => {
+    it("leaves out memories that neither match by meaning nor share a keyword", async () => {
+      // The fake embedder gives unrelated texts near-orthogonal vectors.
+      await store.write(alice, {
+        content: "deploy uses kubernetes",
+        type: "fact",
+      });
+      await store.write(alice, { content: "zebra crossings", type: "fact" });
+      const packed = await store.contextFor(alice, "deploy uses kubernetes");
+      expect(packed.map((m) => m.content)).toEqual(["deploy uses kubernetes"]);
+    });
+
+    it("keeps a weak vector match that shares a keyword", async () => {
+      await store.write(alice, {
+        content: "E5901 in the billing worker",
+        type: "fact",
+      });
+      const packed = await store.contextFor(alice, "what is E5901 again");
+      expect(packed.map((m) => m.content)).toEqual([
+        "E5901 in the billing worker",
+      ]);
+    });
+
     it("stays inside the token budget", async () => {
       for (let i = 0; i < 5; i++) {
         await store.write(alice, {

@@ -1,0 +1,1825 @@
+{
+  "top_k": 20,
+  "tasks": [
+    {
+      "task": "harbor-rentals/deposit",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.7213893064197064,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5413703434434632,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4923673134495343,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5418990142851304,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.49038244640566153,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4491394649556646,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4883145204621473,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4706288435868027,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45705176844064144,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45456409724564306,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41904743342166473,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.410595290905689,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4029436347237263,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3568755430356665,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "harbor-rentals/cancel-fee",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.5508286771194937,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6924764284519688,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.4826263147894252,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6537461670486124,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4763506126361877,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5934018623706359,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.468414468830755,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4853408432752748,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4521337555766727,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4411684783094634,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4309863694955012,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4063785318362019,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3867363882002526,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3420434170831993,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "harbor-rentals/booking-ref",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.6050475114527718,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.42084936722830013,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4194036337869924,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.52180281931246,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4387579523776811,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4075753016451438,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.43344803851223757,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4115463004653359,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4046066417117846,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.39462039890362144,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3897353693448573,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3846917221134045,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.356477648297414,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.33817442200490944,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "harbor-rentals/late-return",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.5139513561899617,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6644219164093894,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5749224931094099,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4437676632835472,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5185133527823531,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.43857191528609385,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5000464021855775,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4755884238113799,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.37633680496468935,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4307319182593965,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4295310034044999,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.421761659945851,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4181856735182743,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3877593315364929,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "harbor-rentals/min-age",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.46817472387411674,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6996979953298641,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.4653964824337764,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5080994953991161,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.49899107229821726,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4613337012133838,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4909042450532176,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.43001793025855406,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46371872314254814,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4600243157127212,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.43211642238357595,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41248728559103265,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3997113348602055,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3861143049240061,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "harbor-rentals/season",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.5158332125098009,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5412804596471782,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5206232585566,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45548032948869266,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4820484045220077,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46494505986081114,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4022062715581056,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4571633781778981,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3939490282231912,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45604363132953507,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4237426963850346,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3523059978394103,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3417714528646023,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.316045579203175,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "harbor-rentals/fuel",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.48499704673851785,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6138440647956271,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.4299000810743062,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.508439171100634,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4161154747869633,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46741760004848176,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46567300896228636,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.42139548082692757,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3479109121482217,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4088844886066193,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.40290477915187317,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.40016373399341965,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3845923359481551,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3760614359471097,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "harbor-rentals/fleet-discount",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.6376531020354805,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.4854227041190514,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5158890178269743,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5024782107888053,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.501636371357887,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.43983884446573684,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4869460165500641,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4330451390012877,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47381561526340077,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46875730715562125,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4359761033115265,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.40888686339024893,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.35839978256231797,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3203450536830741,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/copay",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.6260324680238325,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.49457423146415147,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5457033676793163,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4769227275482708,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5223252408727369,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5042407222224797,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4518284740243652,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4927738637079788,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46934223357783433,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45683504180073065,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4063066225330232,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3656159443807826,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/no-shows",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.5213714394842185,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6610716384330564,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.481914292973292,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.441642481822885,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3792239314549368,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4319722523697971,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.374487533982111,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4260867497196359,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3699678423876154,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41820867603399536,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4031492889866324,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3324624200921862,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/patient-code",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.48674522724350167,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4797337186099213,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6887415971186888,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4521393547722673,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.479254227765596,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4407205728366942,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46141806470154356,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45253191463941866,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44228585236423124,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4019223214915135,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3710742626555199,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.36970693198212334,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/reminders",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.6298387857455632,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.4630413585379243,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5373966008671435,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44449274075205625,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47411102519435,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.465496301651001,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4649019962899996,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.34013207854808925,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4096020840649921,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3565139516558864,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3330617349000704,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3022793704797424,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/records",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.5256623090892613,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5172737189591644,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6438702214151522,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.48943835433950245,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41717533758129466,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45986876609289906,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44301725113187485,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3459576494009373,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4309432928067709,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4248817637210448,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.38263045859986,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3147755000396808,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/rebooking",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.5701576973135943,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.694134022561868,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5319700082549982,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5136267985813296,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41228817664722217,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4832699740907904,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41206056942902236,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47644152098283055,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4056118687195316,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45228757811527487,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4443902538898956,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.36842571591065876,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/queue",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.629870233597644,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.4856553188235281,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5419607558437558,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45181297196633285,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5053241252899744,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4863647577432817,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41489035398425167,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4547849703347884,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4368366379519506,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4056966456429264,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.37625542223194963,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.34865240518932095,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "pulse-clinic/slots",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.5303504914512106,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4717891745065881,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5832134683642611,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5261295217662755,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.46831630149670267,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.38092167318693937,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4288762001105908,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3603145947041255,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.421050658351408,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4031330414136586,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.39142090473683466,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3325514990214957,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/zone-fare",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.6526390000349329,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5590751889124039,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5117456274942336,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5452041950944371,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5371379079161129,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5344151335684869,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.52442615350742,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47939757617842127,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47663832824786745,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4754708199009381,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44715404365143896,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4286554583506973,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.40950699817968617,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4045123019159784,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/day-cap",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.5880171656610086,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6331641057017554,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5962881079407674,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5108059074416521,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5677831672976413,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5659181554220913,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5157597871088434,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5051599747134122,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5031810106744066,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4729922349434996,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45550160008729035,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.41847115122956735,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4069094304389297,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3885553048319679,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/child-fare",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.560269861148987,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.553075177875913,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6627302963355346,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5655358668098064,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5635235108675376,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5315313180824837,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5068945129373178,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47766148777741135,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46376403216065987,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4581650657008669,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44013532754939244,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41042414686179174,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3798029166283846,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.36673346657554295,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/ticket-id",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.7566807140948852,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.42517016229985516,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.50262802807951,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4168899952566907,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.45479492430809265,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4513926948926963,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44012452599418794,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41162917544667943,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.41002805113458307,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3861584778475309,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3743192630054929,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3669004757641716,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3494573576783133,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.27516502141952515,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/transfer",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.7021261440956182,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5155650861989982,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.48338968749785305,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4313930845556777,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4549679428530371,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4461252950765815,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44097201277828557,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.39330846470092384,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4396323669615456,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4094354400087379,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.40432767532708225,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3845566580191786,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3818383238376315,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.32150962519190385,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/refund",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.6783689270945789,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5536408323324769,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5125341627919923,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4562655201195891,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.48353563298183644,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4560940778116007,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47777490384062227,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4607833807960702,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4602875203322815,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4534461959169902,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4526069951707412,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.40281862683740943,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.35922665937503806,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.35657965258581825,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/fines",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.5386497561187747,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6079030142004138,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5517067580397957,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5159021615982092,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5140550782877633,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.502813934608984,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.44429362152257545,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.49746534243433427,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.49258358710261496,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4875151537331881,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4519109697288861,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.42354818021105134,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.38645102623982486,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3701488397013398,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/peak",
+      "half": "holdout",
+      "results": [
+        {
+          "similarity": 0.45951426994460354,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.6282103420810564,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5606411505892438,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47123236492907206,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3982623108566823,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4217513045517265,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.42070086700895626,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4127577155214035,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.39593514240368366,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.39163337053059477,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3821118667851111,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3817277675648594,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.35489394588680934,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3132117613301584,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    },
+    {
+      "task": "metro-tram/senior",
+      "half": "tune",
+      "results": [
+        {
+          "similarity": 0.5461913888226323,
+          "textRank": null,
+          "needed": true
+        },
+        {
+          "similarity": 0.5224628813454387,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.461348785871731,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.5104131394378468,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.471335239092068,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.47090871008973123,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.46162409047793584,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4311947904593033,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4163716559520859,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4096732642370424,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.4082162003001806,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.38416826725006104,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.3783836429168026,
+          "textRank": null,
+          "needed": false
+        },
+        {
+          "similarity": 0.37527298920799623,
+          "textRank": null,
+          "needed": false
+        }
+      ]
+    }
+  ]
+}

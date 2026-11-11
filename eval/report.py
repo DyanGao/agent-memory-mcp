@@ -358,6 +358,34 @@ def cost_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def floor_rows(folder: Path) -> tuple[str, str]:
+    run = load(folder, "cutoff-scores")
+    floor = 0.45
+    keep = lambda r: r["textRank"] is not None or (r["similarity"] or 0) >= floor  # noqa: E731
+    lines = ["| Half | Tasks | Needed memory still in context | Unrelated memories kept | Memories per task | Weakest needed |",
+             "|---|---|---|---|---|---|"]
+    for half, label in (("tune", "Tuning"), ("holdout", "Held out")):
+        tasks = [t for t in run["tasks"] if t["half"] == half]
+        found = [t for t in tasks if any(r["needed"] for r in t["results"])]
+        kept = sum(any(r["needed"] and keep(r) for r in t["results"]) for t in found)
+        others = [r for t in tasks for r in t["results"] if not r["needed"]]
+        before = sum(len(t["results"]) for t in tasks) / len(tasks)
+        after = sum(sum(keep(r) for r in t["results"]) for t in tasks) / len(tasks)
+        weakest = min(r["similarity"] for t in tasks for r in t["results"] if r["needed"])
+        lines.append(
+            f"| {label} | {len(tasks)} | {kept} of {len(found)} | {sum(keep(r) for r in others) / len(others):.0%} "
+            f"| {before:.1f} to {after:.1f} | {weakest:.3f} |"
+        )
+    runs = suite_runs()
+    agents = ["| Memory setup, 25 unseen tasks, 3 runs | Passed | Mean ± std | Input tokens |", "|---|---|---|---|"]
+    for setup, label in (("memory", "Before the floor"), ("memory_floor", "With the floor")):
+        rows = [r for r in runs if r["setup"] == setup and r["group"] == "unseen"]
+        passed, total, mean, spread = pass_stats(rows)
+        tokens = sum(r["second"]["input_tokens"] for r in rows)
+        agents.append(f"| {label} | {passed} of {total} | {mean:.1%} ± {spread:.1%} | {tokens / 1e6:.1f}M |")
+    return "\n".join(lines), "\n".join(agents)
+
+
 def write_pareto(folder: Path) -> None:
     from pareto import draw
 
@@ -582,6 +610,8 @@ def main() -> None:
     worst, locomo_worst = worst_rows(folder)
     output = output.replace("{{worst_rows}}", worst).replace("{{locomo_worst}}", locomo_worst)
     output = output.replace("{{cost_rows}}", cost_rows(folder))
+    floor_table, floor_agents = floor_rows(folder)
+    output = output.replace("{{floor_rows}}", floor_table).replace("{{floor_agent_rows}}", floor_agents)
     near_rows, near_values = near_miss_rows(folder)
     output = output.replace("{{near_miss_rows}}", near_rows)
     for name, value in near_values.items():

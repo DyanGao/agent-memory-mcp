@@ -142,7 +142,8 @@ def run_one(task: dict, setup: str, context: Context) -> dict:
                 task = {**task, "collection": f"{task['collection']}_fair"}
             notes = context.mem0_notes(task, top_k, think=setup != FAIR)
             prompt = f"Memories from our earlier sessions:\n{notes}\n\nNow: {prompt}"
-        elif setup == "memory":
+        # memory_floor is memory, rerun after the context similarity floor (2026-11-11).
+        elif setup in ("memory", "memory_floor"):
             settings, mcp = memory_settings(folder, task["user"], task["project"])
             hooks = json.loads(settings.read_text())
             hooks["hooks"].pop("SessionEnd")
@@ -191,8 +192,10 @@ def run_all(setups: list[str] = SETUPS) -> None:
                 key = (task["id"], setup, repeat)
                 # Seeding at 3 turns runs about 70 calls an hour here, so only one
                 # project was reseeded: about 7 hours, against about 34 for all.
-                skip = (setup == "mem0_w3" and task["project"] != MEM0_W3_PROJECT) or (
-                    setup == FAIR and not fair_ready(task)
+                skip = (
+                    (setup == "mem0_w3" and task["project"] != MEM0_W3_PROJECT)
+                    or (setup == FAIR and not fair_ready(task))
+                    or (setup == "memory_floor" and task["group"] != "unseen")
                 )
                 if key in done or skip:
                     continue

@@ -89,4 +89,4 @@ eval/  docs/  docker-compose.yml  .github/workflows/
 - Best default token budget per task type?
 - When to forget automatically (decay vs. explicit TTL)?
 - How far can memory poisoning be reduced when the planted text comes from the user or is repeated by the agent? A harm check on each memory and each of its clauses cut held-out poisoning to 3 of 30, with no genuine rule lost. What remains are instructions the model rewrites as the fix itself. See the evaluation report
-- What minimum relevance should retrieval require? Rank fusion has no absolute cutoff, so a small store returns unrelated memories. Tune against the eval.
+- ~~What minimum relevance should retrieval require?~~ Answered 2026-11-11: context leaves out memories below a bge-m3 cosine similarity of 0.45 with no keyword match, tuned on half the project tasks and checked on the other half. The margin is thin; see the eval report.

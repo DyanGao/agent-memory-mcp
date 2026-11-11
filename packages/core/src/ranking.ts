@@ -13,6 +13,8 @@ export interface Candidate {
   vectorRank?: number;
   /** 1-based rank in the full-text results, if it appeared there. */
   textRank?: number;
+  /** Cosine similarity to the query, if it appeared in the vector results. */
+  similarity?: number;
   createdAt: Date;
   importance: number;
 }
@@ -20,6 +22,11 @@ export interface Candidate {
 export interface ScoreBreakdown {
   vectorRank: number | null;
   textRank: number | null;
+  /**
+   * Cosine similarity to the query, from -1 to 1. Unlike the ranks, it does
+   * not depend on what else is stored, so it can say a match is weak.
+   */
+  similarity: number | null;
   relevance: number;
   recency: number;
   importance: number;
@@ -60,6 +67,7 @@ export function scoreCandidate(
   return {
     vectorRank: candidate.vectorRank ?? null,
     textRank: candidate.textRank ?? null,
+    similarity: candidate.similarity ?? null,
     relevance,
     recency,
     importance: candidate.importance,

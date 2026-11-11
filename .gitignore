@@ -45,6 +45,7 @@ eval/weight-tune-id3.log
 eval/weight-held-out.log
 eval/poison4.log
 eval/poison5.log
+eval/suite-floor.log
 eval/lme-seed.log
 eval/lme-run.log
 eval/lme-memory.log
