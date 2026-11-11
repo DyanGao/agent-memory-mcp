@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# The demo's view of the memory server, over its REST API.
+#   mem list            memories in this project
+#   mem forget <topic>  preview, then delete, memories about a topic
+set -euo pipefail
+: "${MEMORY_URL:?}" "${MEMORY_API_KEY:?}" "${MEMORY_USER:?}" "${MEMORY_PROJECT:?}"
+call() {
+  curl -sS "$MEMORY_URL$1" -H "authorization: Bearer $MEMORY_API_KEY" \
+    -H "x-memory-user: $MEMORY_USER" -H "x-memory-project: $MEMORY_PROJECT" \
+    -H "content-type: application/json" "${@:2}"
+}
+case "${1:-}" in
+  list)
+    call /v1/memories | jq -r '.memories[] | "\(.id[0:8])  \(.type)  \(.content)"' ;;
+  forget)
+    topic="${2:?topic}"
+    echo "Preview:"
+    call /v1/forget -d "{\"topic\": \"$topic\", \"dry_run\": true}" \
+      | jq -r '"  \(.memories | length) memories, \(.eventCount) raw events", (.memories[] | "  - \(.content)")'
+    echo "Receipt:"
+    call /v1/forget -d "{\"topic\": \"$topic\", \"confirm\": true}" \
+      | jq -r '"  \(.receiptId[0:8])  \(.memoriesDeleted) memories and \(.eventsDeleted) events deleted"' ;;
+  *) echo "usage: mem list | mem forget <topic>" >&2; exit 2 ;;
+esac
