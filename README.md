@@ -3,21 +3,23 @@
 > Self-hostable, GDPR-aware long-term memory for AI agents, exposed over the Model Context Protocol (MCP).
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![Version: 0.3.0](https://img.shields.io/badge/version-0.3.0-informational.svg)](#roadmap)
+[![CI](https://github.com/DyanGao/agent-memory-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/DyanGao/agent-memory-mcp/actions/workflows/ci.yml)
+[![Version: 0.4.0](https://img.shields.io/badge/version-0.4.0-informational.svg)](#roadmap)
+[![Eval report](https://img.shields.io/badge/eval-published%2C_misses_included-8a63d2.svg)](docs/eval-report.md)
 [![MCP server](https://img.shields.io/badge/MCP-server-6f42c1.svg)](https://modelcontextprotocol.io)
 [![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933.svg?logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![TypeScript 6.0](https://img.shields.io/badge/TypeScript-6.0-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![PostgreSQL 17 + pgvector](https://img.shields.io/badge/PostgreSQL_17-pgvector-4169E1.svg?logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
 [![Runs locally](https://img.shields.io/badge/runs-100%25_locally-2f7f79.svg)](docs/privacy.md)
 
-<!-- Add once the repo is public and each has real data: CI status, eval score, docker pulls -->
-
 Agents forget everything between sessions. Stuffing full history into the context window is slow, expensive and degrades accuracy ("context rot"). `agent-memory-mcp` records what an agent does, distills it into compact memories, and injects only the relevant ones into future sessions. It plugs into Claude Code, Codex, Cursor or any MCP-capable agent.
 
 **Why this one:** runs 100% locally (open-weight embeddings, Postgres + pgvector), supports right-to-be-forgotten deletion with an audit trail, and ships with a reproducible eval harness.
 
 ## Demo
-<!-- 2-minute video / GIF: agent solves task, session restarts, agent recalls decision from yesterday -->
+![A decision made in one Claude Code session is recalled by a new session the next day, then forgotten with a receipt](docs/demo/demo.gif)
+
+A real run, with only the distillation wait cut: a decision is made in conversation, the session-end hook captures it and the local model distills it, a brand-new session uses it and says where it came from, and forgetting it leaves nothing behind. Rerun it with [`docs/demo/demo.tape`](docs/demo/demo.tape).
 
 ## Results
 On 30 coding tasks where an agent needs a decision from earlier sessions, 3 runs each, with Claude Haiku in Claude Code:
@@ -105,7 +107,7 @@ Short summary + diagram, details in [ARCHITECTURE.md](ARCHITECTURE.md).
 - [x] v0.1 MCP server + manual write/search
 - [x] v0.2 automatic capture + distillation
 - [x] v0.3 dashboard + GDPR tooling
-- [ ] v0.4 eval harness + published results
+- [x] v0.4 eval harness + published results
 - [ ] v1.0 multi-tenant auth, Helm chart
 
 ## Tech stack
