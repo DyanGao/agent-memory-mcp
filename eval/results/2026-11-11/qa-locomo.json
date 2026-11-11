@@ -1,0 +1,50 @@
+{
+  "full_history": {
+    "questions": 150,
+    "runs": 3,
+    "accuracy": 0.551,
+    "std": 0.017,
+    "mean_context_chars": 94278,
+    "cost": 3.966
+  },
+  "mem0": {
+    "questions": 150,
+    "runs": 3,
+    "accuracy": 0.364,
+    "std": 0.017,
+    "mean_context_chars": 5993,
+    "cost": 0.806
+  },
+  "memory": {
+    "questions": 150,
+    "runs": 3,
+    "accuracy": 0.002,
+    "std": 0.003,
+    "mean_context_chars": 627,
+    "cost": 0.643
+  },
+  "memory-off": {
+    "questions": 150,
+    "runs": 3,
+    "accuracy": 0.073,
+    "std": 0.009,
+    "mean_context_chars": 1397,
+    "cost": 0.669
+  },
+  "none": {
+    "questions": 150,
+    "runs": 3,
+    "accuracy": 0.002,
+    "std": 0.003,
+    "mean_context_chars": 0,
+    "cost": 0.639
+  },
+  "rag": {
+    "questions": 150,
+    "runs": 3,
+    "accuracy": 0.48,
+    "std": 0.025,
+    "mean_context_chars": 6024,
+    "cost": 0.851
+  }
+}

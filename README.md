@@ -27,13 +27,14 @@ On 30 coding tasks where an agent needs a decision from earlier sessions, 3 runs
 | No memory | 1% | $0.41 | none |
 | Full history in context | 97% | $13.28 | the whole history |
 | Naive RAG over transcripts | 77% | $0.52 | about 6,000 characters |
+| Mem0, run on the same local models | 100% | $0.51 | about 6,000 characters |
 | **agent-memory-mcp** | **99%** | **$0.52** | **under 1% of the history** |
 
 Search takes 7 to 10 ms at p95 with 10,000 memories, excluding embedding, and about 64 ms with 100,000 real ones.
 
-**What it is not good at:** recalling personal conversation. On LoCoMo it answered 0.2% of questions, against 48% for naive RAG and 55% for full history, averaged over 3 runs. On LongMemEval it answered none, against 54% for naive RAG and 51% for full history. It is built to keep lasting project decisions, and it discards most of what happens in a chat.
+**What it is not good at:** recalling personal conversation. On LoCoMo it answered 0.2% of questions, against 36% for Mem0, 48% for naive RAG and 55% for full history, averaged over 3 runs. On LongMemEval it answered none, against 3% for Mem0, 54% for naive RAG and 51% for full history. It is built to keep lasting project decisions, and it discards most of what happens in a chat.
 
-These tasks were written by the author of this code, and they suit it: each needs one clear rule. Mem0 is in the [evaluation report](docs/eval-report.md), with the reason its scores here are not yet a fair comparison. The report also covers deletion, knowledge updates, scale and what failed. See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
+These tasks were written by the author of this code, and they suit it: each needs one clear rule. Mem0, given the same model settings, did as well, so this project's case is not better recall. It is deletion you can check and export, and a far smaller store: 12 to 14 memories per project against about 2,000 for Mem0, built in about 34 minutes against 2 to 4 hours. Mem0 ran with `qwen3`'s thinking off, as this project runs it; the [evaluation report](docs/eval-report.md) explains why that matters. The report also covers deletion, knowledge updates, scale and what failed. See [EVAL_PLAN.md](EVAL_PLAN.md) for methodology.
 
 ## Features
 - [x] MCP server: `memory_write`, `memory_search`, `memory_forget`, `memory_list`, `memory_context_for` tools
