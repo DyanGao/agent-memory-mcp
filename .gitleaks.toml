@@ -1,0 +1,13 @@
+# Secret scan, run in CI on every push and pull request (see .github/workflows).
+# Uses gitleaks' default rules. The allowlist names the exact planted values in
+# the redaction tests, not the file, so a real secret added there still fails.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Planted test inputs that prove redaction removes secrets"
+regexes = [
+  '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0In0\.abc123DEF456ghi789''',
+  '''xoxb-1234567890-abcdefghijkl''',
+  '''abcd1234efgh''',
+]
