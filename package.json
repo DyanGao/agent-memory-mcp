@@ -17,7 +17,7 @@
     "test:scale": "vitest run --config vitest.scale.config.ts",
     "start:worker": "node --env-file=.env packages/distiller/dist/worker.js",
     "test:real": "vitest run --config vitest.real.config.ts",
-    "pack:client": "pnpm build && pnpm --filter @dyangao/agent-memory-mcp pack"
+    "pack:client": "pnpm build && pnpm --filter @dyangao/agent-memory-mcp pack --pack-destination packages/npm"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
