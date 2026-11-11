@@ -23,9 +23,9 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { Pool } from "pg";
 import { z } from "zod";
 import { createMcpServer } from "./tools.js";
+import { PROJECT_HEADER, USER_HEADER } from "./headers.js";
 
-export const USER_HEADER = "x-memory-user";
-export const PROJECT_HEADER = "x-memory-project";
+export { PROJECT_HEADER, USER_HEADER };
 
 const sha256 = (value: string): Buffer =>
   createHash("sha256").update(value).digest();

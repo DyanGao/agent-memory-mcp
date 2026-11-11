@@ -3,7 +3,7 @@ import type { MemoryStore, Scope } from "@agent-memory/core";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
-const SERVER_INFO = { name: "agent-memory-mcp", version: "0.1.0" };
+const SERVER_INFO = { name: "agent-memory-mcp", version: "0.4.0" };
 
 // Stored text can originate from anything an agent read, so say what it is.
 const DATA_NOTICE =

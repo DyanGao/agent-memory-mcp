@@ -59,25 +59,23 @@ docker compose up -d          # postgres+pgvector, server with dashboard, worker
 ```
 The dashboard is at http://127.0.0.1:8787. Sign in with any person's name and your `MEMORY_API_KEY`.
 
-To connect an agent, build the client once:
-```bash
-pnpm install && pnpm build
-```
-Then register it, using the full path to your clone:
+To connect an agent, register the client from npm:
 ```json
-{ "mcpServers": { "memory": { "command": "node", "args": ["/path/to/agent-memory-mcp/packages/server/dist/cli.js"], "env": { "MEMORY_API_KEY": "<from your .env>" } } } }
+{ "mcpServers": { "memory": { "command": "npx", "args": ["-y", "@dyangao/agent-memory-mcp"], "env": { "MEMORY_API_KEY": "<from your .env>" } } } }
 ```
+It is a small stdio bridge to the server above, with one dependency, the MCP SDK. To run it from your clone instead, use `pnpm install && pnpm build`, then `node /path/to/agent-memory-mcp/packages/server/dist/cli.js` as the command.
 
 ### Automatic capture in Claude Code
-Add these hooks to `.claude/settings.json`, with `MEMORY_API_KEY` set in your environment. `SessionStart` injects relevant memories; `SessionEnd` captures the session for distillation.
+Install the client once with `npm install -g @dyangao/agent-memory-mcp`, then add these hooks to `.claude/settings.json`, with `MEMORY_API_KEY` set in your environment. `SessionStart` injects relevant memories; `SessionEnd` captures the session for distillation.
 ```json
 {
   "hooks": {
-    "SessionStart": [{ "hooks": [{ "type": "command", "command": "node /path/to/agent-memory-mcp/packages/adapters/dist/context.js" }] }],
-    "SessionEnd": [{ "hooks": [{ "type": "command", "command": "node /path/to/agent-memory-mcp/packages/adapters/dist/capture.js" }] }]
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "agent-memory-context" }] }],
+    "SessionEnd": [{ "hooks": [{ "type": "command", "command": "agent-memory-capture" }] }]
   }
 }
 ```
+From a clone, use `node /path/to/agent-memory-mcp/packages/adapters/dist/context.js` and `.../capture.js` as the commands.
 The hooks never block a session: if the server is down they log to stderr and exit cleanly.
 
 Only what you and the agent say is distilled. Tool output (file contents, web pages, command results) is stored after redaction but never reaches the LLM, because that is where third-party text gets in. Memories are returned as stored data for agents to verify, not as instructions. Each candidate memory is also checked for instructions that would cause harm, such as sending data out or switching off a safeguard. Each clause is checked too, so an instruction quoted inside a fix explanation is judged on its own. This narrows memory poisoning but does not eliminate it: on cases written before that check, 3 of 30 hidden instructions still got through.

@@ -1,5 +1,5 @@
 {
-  "name": "@dyangao/agent-memory-mcp",
+  "name": "@agent-memory/server",
   "version": "0.0.0",
   "private": true,
   "type": "module",
