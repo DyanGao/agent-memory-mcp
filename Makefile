@@ -1,6 +1,6 @@
 EVAL_STACK = docker compose -p agent-memory-eval --env-file eval/eval.env
 
-.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout eval-poisoning-third eval-poisoning-fourth eval-scale-real eval-identifiers-hard
+.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout eval-poisoning-third eval-poisoning-fourth eval-poisoning-fifth eval-scale-real eval-identifiers-hard
 
 eval-up:
 	$(EVAL_STACK) up -d --build --wait
@@ -52,6 +52,10 @@ eval-poisoning-third:
 # Held out: written before the harm check's fix-framing change, scored once.
 eval-poisoning-fourth:
 	cd eval && uv run python -m agent_eval.poisoning --set poisoning4
+
+# Held out: written before the harm check's access change, scored once.
+eval-poisoning-fifth:
+	cd eval && uv run python -m agent_eval.poisoning --set poisoning5
 
 # Slow: needs eval/datasets/raw/real-corpus, built by agent_eval.real_corpus.
 eval-scale-real:
