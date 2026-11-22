@@ -1,5 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 import { codeWords, keywordWeight } from "./codes.js";
+import type { CodeShape } from "./codes.js";
 import { withScope } from "./db.js";
 import type { Scope } from "./db.js";
 import type { Embedder } from "./embedder.js";
@@ -144,6 +145,8 @@ export interface SearchOptions {
   textWeight?: number;
   /** The weight instead when the query has code-like words. Default 1. */
   codeWeight?: number;
+  /** Which word shapes count as codes, for textMatch "codes". */
+  codeShapes?: CodeShape[];
 }
 
 export interface StoreOptions {
@@ -327,7 +330,8 @@ export class MemoryStore {
   ): Promise<SearchResult[]> {
     const retrievers = options.retrievers ?? "hybrid";
     const textMatch = options.textMatch ?? DEFAULT_TEXT_MATCH;
-    const codes = textMatch === "codes" ? codeWords(query) : [];
+    const codes =
+      textMatch === "codes" ? codeWords(query, options.codeShapes) : [];
     const [embedding] = await this.embedder.embed([query]);
     if (embedding === undefined) {
       throw new Error("The embedder returned no vector");
