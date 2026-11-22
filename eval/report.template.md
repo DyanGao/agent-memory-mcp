@@ -210,6 +210,17 @@ To let a keyword match rescue a code that vector search misses, keyword ranks no
 - **Runs vary by a few points.** The index is rebuilt for each run: the same setting scored 96.0% then 95.0% on id2, and 83.5% then 86.5% on id3.
 - **These codes are easy to read as codes.** Every one has a digit. A code without one, such as a ticket named `ALPHA-BRAVO`, still needs every word to match.
 
+### Identifiers with no digit
+
+Codes counted only if they held a digit, so `ERR_CONN_RESET`, `getUserById`, `InvoiceLockTimeoutError`, `max_retry_count` and `billing.queue.timeout` got no keyword boost. Two new sets of 200 were written and committed first, in groups of 4 that differ in one part (`ERR_CONN_EXPIRED`, `ERR_CONN_DENIED`, `ERR_SOCK_EXPIRED`, ...), with the same layout as the near-miss codes. id5 uses the tuning wordings; id6, with a new seed and five new wordings, was held out. Four shapes were compared on id5 and the tuning half of plain questions: a digit (the old rule), letters joined by an underscore, a lower-case letter followed by a capital, and words joined by dots. All four together were chosen and committed, and only then was id6 scored, once, with the held-out half of plain questions.
+
+{{code_shape_rows}}
+
+- **On held-out identifiers, the right one came first for 99.0% of questions, against 82.0% before.** Each shape alone helped on the tuning set, and together they did best.
+- **Plain questions lost a little on the held-out half: two of 239 lost first place (18.4% to 17.6%), and one left the top 10 (52.7% to 52.3%).** Camel case also matches brand names, and only 5 held-out questions changed at all: SaveMart, FreshMart, iPad, MoMA, and one with `SIAC_GEE`. With a code found, the keyword search uses that word alone, so "How much cashback did I earn at SaveMart" matches every SaveMart turn. On the tuning half the same change cost nothing, so this was not visible before the held-out run, and it is not tuned away here.
+- **Still not recognised:** an all-capitals word such as `ECONNREFUSED`, and hyphenated names such as `ALPHA-BRAVO`, which ordinary words like "read-only" share.
+- **One run each.**
+
 - **Not tested here:** recency and importance, since every turn has the same age and score; reranking, since no reranker exists; and consolidation, which belongs to distillation, not search.
 
 ## Coding-agent pilot
