@@ -232,8 +232,81 @@ def identifiers_hard(name: str = "id2", seed: int = SEED + 2,
     print(len(texts), "near-miss identifier memories and questions")
 
 
+
+# Identifiers with no digit: constants, function and class names, config keys.
+# Written before code matching learned any shape but "has a digit", so both
+# sets are unseen by it. Each slot draws from its own pool, and siblings in a
+# group differ in one slot, as real names in one codebase do.
+WORD_SHAPES = [
+    ("constant", "_", [["ERR"], ["CONN", "SOCK", "AUTH", "LOCK", "QUOTA", "CACHE", "DISK", "PARSE"],
+                       ["RESET", "REFUSED", "EXPIRED", "TIMEOUT", "DENIED", "STALE", "MISSING", "FULL"]]),
+    ("function", "", [["get", "load", "sync", "parse", "fetch", "build"],
+                      ["User", "Invoice", "Order", "Token", "Report", "Session"],
+                      ["ById", "ByEmail", "Async", "Batch", "Cached", "Draft"]]),
+    ("class", "", [["Invoice", "Order", "Session", "Token", "Cache", "Upload"],
+                   ["Lock", "Parse", "Quota", "Sync", "Retry", "Schema"],
+                   ["TimeoutError", "OverflowError", "MismatchError", "Exception"]]),
+    ("setting", "_", [["max", "min", "default"], ["retry", "pool", "batch", "queue", "upload"],
+                      ["count", "size", "delay", "limit", "timeout"]]),
+    ("config key", ".", [["billing", "auth", "export", "search", "upload"],
+                         ["worker", "queue", "cache", "client"],
+                         ["timeout", "retries", "enabled", "interval", "ttl"]]),
+]
+
+# Wordings for the tuning set, id5.
+WORD_TUNE_QUESTIONS = HARD_QUESTIONS
+
+# Fresh wordings for the held-out set, id6, scored once.
+WORD_HELD_OUT_QUESTIONS = [
+    "What's the deal with {code}?",
+    "{code} broke the {part} again. Why?",
+    "Do we have notes on {code}?",
+    "How was {code} resolved before?",
+    "Remind me about {code}",
+]
+
+
+def identifiers_words(name: str, seed: int, questions: list[str]) -> None:
+    """Digit-free identifiers that differ from each other by one part.
+
+    Same layout as identifiers_hard: groups of four share the component, so
+    only the identifier separates them.
+    """
+    rng = random.Random(seed)
+    seen: set[str] = set()
+    texts, queries = [], []
+    while len(texts) < HARD_GROUPS * HARD_SIBLINGS:
+        _, joiner, slots = WORD_SHAPES[(len(texts) // HARD_SIBLINGS) % len(WORD_SHAPES)]
+        base = [rng.choice(pool) for pool in slots]
+        parts = [base]
+        while len(parts) < HARD_SIBLINGS:
+            slot = rng.choice([i for i, pool in enumerate(slots) if len(pool) > 1])
+            sibling = list(rng.choice(parts))
+            sibling[slot] = rng.choice([w for w in slots[slot] if w != sibling[slot]])
+            if sibling not in parts:
+                parts.append(sibling)
+        group = [joiner.join(p) for p in parts]
+        if seen & set(group):
+            continue
+        seen |= set(group)
+        part = rng.choice(COMPONENTS)
+        for code, (cause, fix) in zip(group, rng.sample(CAUSES, HARD_SIBLINGS)):
+            number = len(texts)
+            texts.append(f"{code} in the {part} is caused by {cause}, and {fix} fixes it.")
+            question = questions[number % len(questions)].format(code=code, part=part)
+            queries.append({"id": f"{name}-{number}", "type": "identifier", "question": question,
+                            "gold": [number]})
+    (OUT / f"{name}-texts.jsonl").write_text("".join(json.dumps(t) + "\n" for t in texts))
+    (OUT / f"{name}-queries.json").write_text(json.dumps(queries))
+    if "--write-only" not in sys.argv:
+        embed_file([q["question"] for q in queries], OUT / f"{name}-queries.f32")
+        embed_file(texts, OUT / f"{name}-texts.f32")
+    print(len(texts), "digit-free identifier memories and questions")
+
 if __name__ == "__main__":
     {"build": build, "embed": embed, "identifiers": identifiers,
      "identifiers-hard": identifiers_hard,
      "identifiers-held-out": lambda: identifiers_hard("id3", SEED + 3, HELD_OUT_QUESTIONS),
-     "identifiers-third": lambda: identifiers_hard("id4", SEED + 4, THIRD_QUESTIONS)}[sys.argv[1]]()
+     "identifiers-third": lambda: identifiers_hard("id4", SEED + 4, THIRD_QUESTIONS),
+     "identifiers-words": lambda: identifiers_words("id5", SEED + 5, WORD_TUNE_QUESTIONS),
+     "identifiers-words-held-out": lambda: identifiers_words("id6", SEED + 6, WORD_HELD_OUT_QUESTIONS)}[sys.argv[1]]()

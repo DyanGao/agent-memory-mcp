@@ -1,0 +1,32 @@
+{
+  "split": "all",
+  "plainSplit": "holdout",
+  "identifierSet": "id6",
+  "variants": {
+    "vector only": {
+      "plain": 0.515,
+      "plainFirst": 0.176,
+      "identifiers": 0.955,
+      "identifiersFirst": 0.82,
+      "searchP95Ms": 66.8
+    },
+    "digit only (before)": {
+      "plain": 0.527,
+      "plainFirst": 0.184,
+      "identifiers": 0.955,
+      "identifiersFirst": 0.82,
+      "searchP95Ms": 65.2
+    },
+    "all four (chosen)": {
+      "plain": 0.523,
+      "plainFirst": 0.176,
+      "identifiers": 1,
+      "identifiersFirst": 0.99,
+      "searchP95Ms": 64
+    }
+  },
+  "questions": {
+    "plain": 239,
+    "identifiers": 200
+  }
+}

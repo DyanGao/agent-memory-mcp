@@ -134,6 +134,21 @@ def code_weight_rows(folder: Path) -> str:
     return "\n".join(lines)
 
 
+def code_shape_rows(folder: Path) -> str:
+    lines = [
+        "| Set | Search | Right identifier in the top 10 | Right identifier first | Plain answer in the top 10 | Plain answer first |",
+        "|---|---|---|---|---|---|",
+    ]
+    for label, name in (("Tuning (id5)", "code-shapes-id5-tune"),
+                        ("Held out (id6)", "code-shapes-id6-held-out")):
+        for variant, row in load(folder, name)["variants"].items():
+            lines.append(
+                f"| {label} | {variant} | {row['identifiers']:.1%} | {row['identifiersFirst']:.1%} "
+                f"| {row['plain']:.1%} | {row['plainFirst']:.1%} |"
+            )
+    return "\n".join(lines)
+
+
 def real_rows(folder: Path) -> tuple[str, str, dict]:
     run = load(folder, "scale-real-100000")
     recall = ["| `ef_search` | Recall@10 against exact | Vector p95 |", "|---|---|---|"]
@@ -620,6 +635,7 @@ def main() -> None:
     )
     output = output.replace("{{code_match_rows}}", code_match_rows(folder))
     output = output.replace("{{code_weight_rows}}", code_weight_rows(folder))
+    output = output.replace("{{code_shape_rows}}", code_shape_rows(folder))
     lme_overall, lme_typed, lme_values = lme_rows(folder)
     output = output.replace("{{lme_rows}}", lme_overall).replace("{{lme_type_rows}}", lme_typed)
     for name, value in lme_values.items():

@@ -21,6 +21,40 @@ describe("codeWords", () => {
   });
 });
 
+describe("codeWords with more shapes", () => {
+  const all = ["digit", "snake", "camel", "dotted"] as const;
+
+  it.each([
+    ["Why does ERR_CONN_RESET keep showing up?", ["ERR_CONN_RESET"]],
+    ["What is max_retry_count set to?", ["max_retry_count"]],
+    ["getUserById throws in the worker", ["getUserById"]],
+    ["Seen InvoiceLockTimeoutError before?", ["InvoiceLockTimeoutError"]],
+    ["What does billing.queue.timeout do?", ["billing.queue.timeout"]],
+    ["E5901 and ERR_CONN_RESET again", ["E5901", "ERR_CONN_RESET"]],
+  ])("finds the identifier in %j", (query, expected) => {
+    expect(codeWords(query, all)).toEqual(expected);
+  });
+
+  it.each([
+    "How did the kubernetes deploy go?",
+    "I moved to a new place. It was big.",
+    "the read-only replica",
+  ])("finds no identifier in %j", (query) => {
+    expect(codeWords(query, all)).toEqual([]);
+  });
+
+  it("finds digit-free identifiers by default", () => {
+    expect(codeWords("ERR_CONN_RESET in getUserById")).toEqual([
+      "ERR_CONN_RESET",
+      "getUserById",
+    ]);
+  });
+
+  it("leaves digit-free identifiers alone with the digit shape only", () => {
+    expect(codeWords("ERR_CONN_RESET in getUserById", ["digit"])).toEqual([]);
+  });
+});
+
 describe("keywordWeight", () => {
   it("uses the code weight when the query has a code", () => {
     expect(keywordWeight(["E5901"], { textWeight: 0.5, codeWeight: 1 })).toBe(
