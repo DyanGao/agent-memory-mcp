@@ -1,6 +1,6 @@
 EVAL_STACK = docker compose -p agent-memory-eval --env-file eval/eval.env
 
-.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout eval-poisoning-third eval-poisoning-fourth eval-poisoning-fifth eval-poisoning-sixth eval-scale-real eval-identifiers-hard
+.PHONY: eval-up eval-down eval-quick eval-full eval-deletion eval-knowledge eval-scale eval-scale-large eval-long-store eval-long-unseen eval-poisoning eval-poisoning-holdout eval-poisoning-third eval-poisoning-fourth eval-poisoning-fifth eval-poisoning-sixth eval-scale-real eval-identifiers-hard eval-identifiers-words eval-identifiers-words-held-out
 
 eval-up:
 	$(EVAL_STACK) up -d --build --wait
@@ -71,3 +71,13 @@ eval-scale-real:
 eval-identifiers-hard:
 	cd eval && uv run python -m agent_eval.real_corpus identifiers-hard
 	REAL_CORPUS=$(CURDIR)/eval/datasets/raw/real-corpus IDENTIFIER_SET=id2 TUNING_SPLIT=all pnpm test:scale packages/core/src/tuning.scale.test.ts
+
+# Identifiers with no digit (constants, function names, config keys). id5 tunes
+# which shapes count as codes; id6, written at the same time, scores it once.
+eval-identifiers-words:
+	cd eval && uv run python -m agent_eval.real_corpus identifiers-words
+	REAL_CORPUS=$(CURDIR)/eval/datasets/raw/real-corpus IDENTIFIER_SET=id5 TUNING_SPLIT=all PLAIN_SPLIT=tune pnpm test:scale packages/core/src/tuning.scale.test.ts
+
+eval-identifiers-words-held-out:
+	cd eval && uv run python -m agent_eval.real_corpus identifiers-words-held-out
+	REAL_CORPUS=$(CURDIR)/eval/datasets/raw/real-corpus IDENTIFIER_SET=id6 TUNING_SPLIT=all PLAIN_SPLIT=holdout pnpm test:scale packages/core/src/tuning.scale.test.ts
